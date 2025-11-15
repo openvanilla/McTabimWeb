@@ -1,0 +1,86 @@
+body {
+  background-color: white;
+  font-size: 9pt;
+  font-family: Arial, Helvetica, sans-serif;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+p {
+  font-size: 12pt;
+}
+
+h2 {
+  margin-top: 2em;
+}
+
+select {
+  width: 180px;
+  font-size: 12pt;
+}
+
+.option_title {
+  vertical-align: top;
+  text-align: right;
+}
+
+a {
+  color: #0000ee;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #333;
+    color: #eee;
+  }
+
+  a {
+    color: #9999ff;
+    text-decoration: none;
+  }
+}
+
+#excluded_phrases {
+  display: none;
+}
+
+.toolbar {
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+
+.active {
+  text-decoration: underline;
+}
+
+#input_tables {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.table-item {
+  margin: 5px 5px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: left;
+  width: 10em;
+}
+
+.table-item input[type='checkbox'] {
+  margin-right: 5px;
+}
+
+#input_tables_description {
+  margin-bottom: 20px;
+}

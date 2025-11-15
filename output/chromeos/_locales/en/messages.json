@@ -1,0 +1,41 @@
+{
+  "languageCode": {
+    "message": "en"
+  },
+  "manifestName": {
+    "message": "McFoxIM"
+  },
+  "manifestDesc": {
+    "message": "Input method based on the vocabulary list of the Indigenous Languages Development Foundation"
+  },
+  "imeUS": {
+    "message": "McFoxIM (US Keyboard)"
+  },
+  "imeDvorak": {
+    "message": "McFoxIM (Dvorak Keyboard)"
+  },
+  "imeColmak": {
+    "message": "McFoxIM (Colmak Keyboard)"
+  },
+  "menuOptions": {
+    "message": "Options"
+  },
+  "menuHelp": {
+    "message": "Help"
+  },
+  "homepage": {
+    "message": "Homepage"
+  },
+  "optionTitle": {
+    "message": "Options"
+  },
+  "visible": {
+    "message": "Visible"
+  },
+  "name": {
+    "message": "Name"
+  },
+  "input_tables_description": {
+    "message": "Input tables displayed in the input menu."
+  }
+}
