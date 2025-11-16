@@ -1,3 +1,5 @@
 export { Candidate, MenuCandidate } from './Candidate';
 export { InputTableManager, InputTableWrapper } from './InputTableManager';
-export { EmojiCategory, EmojiTable } from './Emoji';
+export { EmojiTable } from './Emoji';
+export { SymbolCategory } from './SymbolCategory';
+export { ForeignLanguage } from './ForeignLanguage';

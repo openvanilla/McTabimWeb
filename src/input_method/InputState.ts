@@ -1,6 +1,4 @@
-import { Candidate, InputTableManager } from '../data';
-import { MenuCandidate } from '../data/Candidate';
-import { EmojiCategory } from '../data/Emoji';
+import { Candidate, InputTableManager, SymbolCategory, MenuCandidate } from '../data';
 import { Settings } from './Settings';
 
 export abstract class InputState {}
@@ -122,75 +120,34 @@ export class SymbolInputtingState extends InputtingState {
   }
 }
 
-export class EmojiInputtingState extends InputtingState {
-  previousState: InputState;
-
-  constructor(args: {
-    categoryName: string;
-    selectionKeys: string;
-    candidates: Candidate[];
-    selectedCandidateIndex?: number | undefined;
-    previousState: InputState;
-  }) {
-    super({
-      radicals: '',
-      displayedRadicals: args.categoryName,
-      selectionKeys: args.selectionKeys,
-      candidates: args.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex,
-    });
-    this.previousState = args.previousState;
-  }
-
-  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
-    return new EmojiInputtingState({
-      categoryName: this.displayedRadicals,
-      selectionKeys: this.selectionKeys,
-      candidates: this.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
-      previousState: this.previousState,
-    });
-  }
-}
-
-export class EmojiMenuState extends InputtingState {
-  nodes: EmojiCategory[];
+export class SymbolCategoryState extends InputtingState {
+  nodes: (SymbolCategory | string)[];
   previousState: InputState;
 
   constructor(args: {
     title: string;
     displayedRadicals: string;
     previousState: InputState;
-    nodes: EmojiCategory[];
+    nodes: (SymbolCategory | string)[];
     selectionKeys: string;
     selectedCandidateIndex?: number | undefined;
   }) {
     var candidates = args.nodes.map((singleNode) => {
-      const name = singleNode.name;
-      const newDisplayedRadicals = args.displayedRadicals + '/' + name;
-      const subNodes = singleNode.nodes;
-
-      return new MenuCandidate(name, '', () => {
-        let nextState = new EmptyState();
-        const first = subNodes[0];
-        if (first instanceof EmojiCategory) {
-          nextState = new EmojiMenuState({
+      if (singleNode instanceof SymbolCategory) {
+        let name = singleNode.name;
+        const newDisplayedRadicals = args.displayedRadicals + '/' + name;
+        return new MenuCandidate(name, '', () => {
+          return new SymbolCategoryState({
             title: name,
             displayedRadicals: newDisplayedRadicals,
             selectionKeys: args.selectionKeys,
             previousState: this,
-            nodes: subNodes as EmojiCategory[],
+            nodes: singleNode.nodes,
           });
-        } else if (typeof first === 'string') {
-          nextState = new EmojiInputtingState({
-            categoryName: newDisplayedRadicals,
-            selectionKeys: args.selectionKeys,
-            candidates: subNodes.map((emoji) => new Candidate(emoji as string, '')),
-            previousState: this,
-          });
-        }
-        return nextState;
-      });
+        });
+      } else {
+        return new Candidate(singleNode, '');
+      }
     });
 
     super({
@@ -205,7 +162,7 @@ export class EmojiMenuState extends InputtingState {
   }
 
   copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
-    return new EmojiMenuState({
+    return new SymbolCategoryState({
       title: this.displayedRadicals,
       displayedRadicals: this.displayedRadicals,
       selectionKeys: this.selectionKeys,
@@ -293,48 +250,67 @@ export class SettingsState extends InputtingState {
 }
 
 export class MenuState extends InputtingState {
-  // settings: Settings;
-  // onSettingsChanged: ((settings: Settings) => void) | undefined;
-
   constructor(args: {
     settings: Settings;
     selectionKeys: string;
     onSettingsChanged: ((settings: Settings) => void) | undefined;
   }) {
+    let candidates = [];
+    candidates.push(
+      new MenuCandidate('功能開關', '', () => {
+        return new SettingsState({
+          previousState: this,
+          settings: args.settings,
+          onSettingsChanged: args.onSettingsChanged,
+          selectionKeys: args.selectionKeys,
+        });
+      }),
+    );
+    candidates.push(
+      new MenuCandidate('注音符號', '', () => {
+        return new SymbolCategoryState({
+          title: '注音符號',
+          displayedRadicals: '注音符號',
+          selectionKeys: args.selectionKeys,
+          previousState: this,
+          nodes: InputTableManager.getInstance().bopomofoSymbols,
+        });
+      }),
+    );
+
+    let ForeignLanguage = InputTableManager.getInstance().foreignLanguage;
+    console.log(ForeignLanguage.tables);
+    if (ForeignLanguage.tables.length > 0) {
+      candidates.push(
+        new MenuCandidate('外語符號', '', () => {
+          return new SymbolCategoryState({
+            title: '外語符號',
+            displayedRadicals: '外語符號',
+            selectionKeys: args.selectionKeys,
+            previousState: this,
+            nodes: ForeignLanguage.tables,
+          });
+        }),
+      );
+    }
+
+    candidates.push(
+      new MenuCandidate('表情符號', '', () => {
+        return new SymbolCategoryState({
+          title: '表情符號',
+          displayedRadicals: '表情符號',
+          selectionKeys: args.selectionKeys,
+          previousState: this,
+          nodes: InputTableManager.getInstance().emojiTable.tables,
+        });
+      }),
+    );
+
     super({
       radicals: '',
       displayedRadicals: '主選單',
       selectionKeys: args.selectionKeys,
-      candidates: [
-        new MenuCandidate('功能開關', '', () => {
-          return new SettingsState({
-            previousState: this,
-            settings: args.settings,
-            onSettingsChanged: args.onSettingsChanged,
-            selectionKeys: args.selectionKeys,
-          });
-        }),
-        new MenuCandidate('注音符號', '', () => {
-          return new EmojiInputtingState({
-            categoryName: '注音符號',
-            selectionKeys: args.selectionKeys,
-            candidates: InputTableManager.getInstance().bopomofoSymbols.map(
-              (symbol) => new Candidate(symbol, ''),
-            ),
-            previousState: this,
-          });
-        }),
-
-        new MenuCandidate('表情符號', '', () => {
-          return new EmojiMenuState({
-            title: '表情符號',
-            displayedRadicals: '表情符號',
-            selectionKeys: args.selectionKeys,
-            previousState: this,
-            nodes: InputTableManager.getInstance().emojiTable.tables,
-          });
-        }),
-      ],
+      candidates: candidates,
     });
   }
 }

@@ -3,8 +3,7 @@ import { InputTableManager, InputTableWrapper } from '../data/InputTableManager'
 import {
   AssociatedPhrasesState,
   CommittingState,
-  EmojiInputtingState,
-  EmojiMenuState,
+  SymbolCategoryState,
   EmptyState,
   InputState,
   InputtingState,
@@ -108,10 +107,12 @@ export class KeyHandler {
           const chr = shiftPunctuationsSymbols[key.ascii];
           const components = chr.split('');
           if (components.length > 1) {
-            const inputtingState = new SymbolInputtingState({
-              radicals: '',
+            const inputtingState = new SymbolCategoryState({
+              displayedRadicals: '[符]' + key.ascii,
+              nodes: components,
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-              candidates: components.map((c) => new Candidate(c, '')),
+              previousState: state,
+              title: chr,
             });
             stateCallback(inputtingState);
           } else {
@@ -175,6 +176,7 @@ export class KeyHandler {
         return true;
       }
 
+      /// Symbol Inputting State
       if (state instanceof SymbolInputtingState) {
         if (state.radicals.length === 0) {
           // if (key.ascii === 'e') {
@@ -208,18 +210,20 @@ export class KeyHandler {
             stateCallback(newState);
             return true;
           }
+        } else if (state.radicals === '`') {
+          if (key.ascii === '`') {
+            const newState = new MenuState({
+              settings: this.onRequestSettings(),
+              selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+              onSettingsChanged: this.onSettingChanged,
+            });
+            stateCallback(newState);
+            return true;
         }
-
         const symbolTable = InputTableManager.getInstance().symbolTable;
-
-        if (symbolTable.keynames.includes(key.ascii)) {
+        if (symbolTable.keynames.includes(state.radicals + key.ascii)) {
           let chr = key.ascii;
-          let selectionKeys = symbolTable.keynames.join('');
-          if (selectionKeys === undefined || selectionKeys.length === 0) {
-            selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
-          }
-
-          if (state.radicals.length >= 10) {
+          if (state.radicals.length >= 2) {
             errorCallback();
             return true;
           }
@@ -233,17 +237,13 @@ export class KeyHandler {
           }
           const newState = new SymbolInputtingState({
             radicals: joined,
-            selectionKeys: selectionKeys,
+            selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
             candidates: candidates,
           });
           stateCallback(newState);
           return true;
         }
-      } else if (
-        state instanceof EmojiMenuState ||
-        state instanceof EmojiInputtingState ||
-        state instanceof SettingsState
-      ) {
+      } else if (state instanceof SymbolCategoryState || state instanceof SettingsState) {
         // pass
       } else if (inputKeys.includes(key.ascii)) {
         // associated phrase state also reach here, and start to input a new radical
@@ -273,10 +273,7 @@ export class KeyHandler {
 
       // Ignore ESC key in inputting state
       if (key.name === KeyName.ESC) {
-        if (state instanceof EmojiMenuState) {
-          stateCallback(state.previousState);
-          return true;
-        } else if (state instanceof EmojiInputtingState) {
+        if (state instanceof SymbolCategoryState) {
           stateCallback(state.previousState);
           return true;
         } else if (state instanceof SettingsState) {
@@ -292,10 +289,7 @@ export class KeyHandler {
         if (state instanceof AssociatedPhrasesState) {
           stateCallback(new EmptyState());
           return true;
-        } else if (state instanceof EmojiMenuState) {
-          stateCallback(state.previousState);
-          return true;
-        } else if (state instanceof EmojiInputtingState) {
+        } else if (state instanceof SymbolCategoryState) {
           stateCallback(state.previousState);
           return true;
         } else if (state instanceof SettingsState) {
@@ -309,16 +303,20 @@ export class KeyHandler {
         }
         let newRadicals = state.radicals.slice(0, -1);
         if (newRadicals.length === 0) {
-          if (state instanceof SymbolInputtingState) {
-            let newState = new SymbolInputtingState({
-              radicals: '',
-              selectionKeys: state.selectionKeys,
-              candidates: [],
-            });
-            stateCallback(newState);
-            return true;
-          }
           stateCallback(new EmptyState());
+          return true;
+        }
+
+        if (state instanceof SymbolInputtingState) {
+          const symbolTable = InputTableManager.getInstance().symbolTable;
+          let found = symbolTable.chardefs[newRadicals];
+          let candidates = found?.map((chr) => new Candidate(chr, '')) || [];
+          const newState = new SymbolInputtingState({
+            radicals: newRadicals,
+            selectionKeys: state.selectionKeys,
+            candidates: candidates,
+          });
+          stateCallback(newState);
           return true;
         }
 
