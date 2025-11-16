@@ -174,6 +174,12 @@ export class KeyHandler {
         const selectedCandidate = candidates[index];
         this.handleCandidate(selectedCandidate, stateCallback, allowAssociatedPhrases);
         return true;
+      } else {
+        if (state instanceof AssociatedPhrasesState && key.ascii !== 'Shift') {
+          let newState = new EmptyState();
+          stateCallback(newState);
+          return this.handle(key, newState, stateCallback, errorCallback);
+        }
       }
 
       /// Symbol Inputting State
