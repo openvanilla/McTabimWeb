@@ -6,10 +6,19 @@ import dayi3 from './cin/dayi3.json';
 import dayi4 from './cin/dayi4.json';
 import array30 from './cin/array30.json';
 import array40 from './cin/array40.json';
+import associatedPhrasesJson from './associated_phrases/phrase.json';
 
 import symbols from './symbols/msymbols.json';
 import { Candidate } from './Candidate';
 import { EmojiTable } from './Emoji';
+
+type AssociatedPhrases = {
+  chardefs: { [key: string]: string[] };
+};
+
+const associatedPhrases: AssociatedPhrases = {
+  chardefs: associatedPhrasesJson.chardefs as { [key: string]: string[] },
+};
 
 export interface InputTable {
   cname: string;
@@ -128,4 +137,15 @@ export class InputTableManager {
     new InputTableWrapper('array30', array30, { maxRadicals: 4 }),
     new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
   ];
+
+  lookUpForAssociatedPhrases(prefix: string): Candidate[] | [] {
+    const founds = associatedPhrases.chardefs[prefix];
+    let candidates: Candidate[] = [];
+    if (founds) {
+      for (let found of founds) {
+        candidates.push(new Candidate(found, ''));
+      }
+    }
+    return candidates;
+  }
 }

@@ -19,6 +19,7 @@ export class InputtingState extends InputState {
   readonly radicals: string;
   readonly displayedRadicals: string;
   readonly selectionKeys: string;
+  readonly exactSelectionKeys?: string | undefined;
   readonly candidates: Candidate[];
 
   readonly selectedCandidateIndex?: number | undefined;
@@ -33,11 +34,13 @@ export class InputtingState extends InputState {
     selectionKeys: string;
     candidates: Candidate[];
     selectedCandidateIndex?: number | undefined;
+    exactSelectionKeys?: string | undefined;
   }) {
     super();
     this.radicals = args.radicals;
     this.displayedRadicals = args.displayedRadicals;
     this.selectionKeys = args.selectionKeys;
+    this.exactSelectionKeys = args.exactSelectionKeys;
     this.candidates = args.candidates;
     this.selectedCandidateIndex = args.selectedCandidateIndex;
 
@@ -55,18 +58,39 @@ export class InputtingState extends InputState {
     }
   }
 
-  copyWithArgs(args: {
-    radicals?: string;
-    displayedRadicals?: string;
-    selectionKeys?: string;
-    candidates?: Candidate[];
-    selectedCandidateIndex?: number;
-  }): InputtingState {
+  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
     return new InputtingState({
-      radicals: args.radicals ?? this.radicals,
-      displayedRadicals: args.displayedRadicals ?? this.displayedRadicals,
-      selectionKeys: args.selectionKeys ?? this.selectionKeys,
-      candidates: args.candidates ?? this.candidates,
+      radicals: this.radicals,
+      displayedRadicals: this.displayedRadicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
+  }
+}
+
+export class AssociatedPhrasesState extends InputtingState {
+  constructor(args: {
+    selectionKeys: string;
+    exactSelectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+  }) {
+    super({
+      radicals: '',
+      displayedRadicals: '聯想詞',
+      selectionKeys: args.selectionKeys,
+      exactSelectionKeys: args.exactSelectionKeys,
+      candidates: args.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
+    });
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+    return new AssociatedPhrasesState({
+      selectionKeys: this.selectionKeys,
+      exactSelectionKeys: this.exactSelectionKeys!,
+      candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
   }
@@ -88,17 +112,11 @@ export class SymbolInputtingState extends InputtingState {
     });
   }
 
-  copyWithArgs(args: {
-    radicals: string | undefined;
-    displayedRadicals: string | undefined;
-    selectionKeys: string | undefined;
-    candidates: Candidate[] | undefined;
-    selectedCandidateIndex?: number | undefined;
-  }): InputtingState {
+  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
     return new SymbolInputtingState({
-      radicals: args.radicals ?? this.radicals,
-      selectionKeys: args.selectionKeys ?? this.selectionKeys,
-      candidates: args.candidates ?? this.candidates,
+      radicals: this.radicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
   }
@@ -124,16 +142,11 @@ export class EmojiInputtingState extends InputtingState {
     this.previousState = args.previousState;
   }
 
-  copyWithArgs(args: {
-    categoryName?: string;
-    selectionKeys?: string;
-    candidates?: Candidate[];
-    selectedCandidateIndex?: number | undefined;
-  }): InputtingState {
+  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
     return new EmojiInputtingState({
-      categoryName: args.categoryName ?? this.displayedRadicals,
-      selectionKeys: args.selectionKeys ?? this.selectionKeys,
-      candidates: args.candidates ?? this.candidates,
+      categoryName: this.displayedRadicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
       previousState: this.previousState,
     });
@@ -188,6 +201,10 @@ export class EmojiMenuState extends InputtingState {
     this.previousState = args.previousState;
     this.nodes = args.nodes;
   }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+    throw new Error('Shall not be called');
+  }
 }
 
 export class SettingsState extends InputtingState {
@@ -220,8 +237,8 @@ export class SettingsState extends InputtingState {
     ];
     const candidates = mapping.map((item) => {
       const name = item[0];
-      const status = item[1] ? '開' : '關';
-      const joined = `${status} - ${name}：`;
+      const status = item[1] ? '■' : '□';
+      const joined = `${status} - ${name}`;
       return new MenuCandidate(joined, '', () => {
         item[2]();
         args.onSettingsChanged?.(args.settings);
@@ -245,5 +262,15 @@ export class SettingsState extends InputtingState {
     this.previousState = args.previousState;
     this.settings = args.settings;
     this.onSettingsChanged = args.onSettingsChanged;
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+    return new SettingsState({
+      previousState: this.previousState,
+      settings: this.settings,
+      selectionKeys: this.selectionKeys,
+      onSettingsChanged: this.onSettingsChanged,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
   }
 }

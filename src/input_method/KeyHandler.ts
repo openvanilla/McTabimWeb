@@ -1,6 +1,7 @@
 import { Candidate, MenuCandidate } from '../data';
 import { InputTableManager, InputTableWrapper } from '../data/InputTableManager';
 import {
+  AssociatedPhrasesState,
   CommittingState,
   EmojiInputtingState,
   EmojiMenuState,
@@ -14,6 +15,9 @@ import { Key, KeyName } from './Key';
 import { Settings } from './Settings';
 
 export class KeyHandler {
+  static readonly COMMON_SELECTION_KEYS = '1234567890';
+  static readonly ASSOCIATED_PHRASES_SELECTION_KEYS = '!@#$%^&*()';
+
   onRequestTable: () => InputTableWrapper;
   onRequestSettings: () => Settings;
   onSettingChanged: (settings: Settings) => void;
@@ -28,6 +32,33 @@ export class KeyHandler {
     this.onSettingChanged = onSettingChanged;
   }
 
+  handleCandidate(
+    selectedCandidate: Candidate,
+    stateCallback: (state: InputState) => void,
+    allowAssociatedPhrases: boolean = true,
+  ): void {
+    if (selectedCandidate instanceof MenuCandidate) {
+      const newState = selectedCandidate.nextState();
+      stateCallback(newState);
+      return;
+    }
+    const commitString = selectedCandidate.displayText;
+    const newState = new CommittingState(commitString);
+    stateCallback(newState);
+
+    if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
+      const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
+      if (phrases && phrases.length > 0) {
+        const associatedPhrasesState = new AssociatedPhrasesState({
+          selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+          exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+          candidates: phrases,
+        });
+        stateCallback(associatedPhrasesState);
+      }
+    }
+  }
+
   handle(
     key: Key,
     state: InputState,
@@ -37,9 +68,11 @@ export class KeyHandler {
     const table = this.onRequestTable();
     const inputKeys = Object.keys(table.table.keynames);
 
+    /// Empty State
     if (state instanceof EmptyState) {
       if (key.ascii === '`') {
-        const selectionKeys = '1234567890';
+        /// Enter Symbol Inputting State
+        const selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         const newState = new SymbolInputtingState({
           radicals: '',
           selectionKeys: selectionKeys,
@@ -48,11 +81,12 @@ export class KeyHandler {
         stateCallback(newState);
         return true;
       } else if (inputKeys.includes(key.ascii)) {
+        /// Enter radical inputting state
         const chr = key.ascii;
         const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
         let selectionKeys = table.table.selkey;
         if (selectionKeys === undefined || selectionKeys.length === 0) {
-          selectionKeys = '1234567890';
+          selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         }
 
         const candidates = table.lookupForCandidate(chr) || [];
@@ -68,46 +102,44 @@ export class KeyHandler {
       return false;
     }
 
+    ///  Inputting State
     if (state instanceof InputtingState) {
       // Perhaps handle tab key to commit the current candidate
       if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
+        if (state instanceof AssociatedPhrasesState) {
+          stateCallback(new EmptyState());
+          return true;
+        }
+
         if (state.candidates.length > 0) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
-          if (selectedCandidate instanceof MenuCandidate) {
-            const newState = selectedCandidate.nextState();
-            stateCallback(newState);
-            return true;
-          }
-
-          const newState = new CommittingState(selectedCandidate.displayText);
-          stateCallback(newState);
+          this.handleCandidate(selectedCandidate, stateCallback);
         } else {
-          errorCallback;
+          errorCallback();
         }
         return true;
       }
 
       let selectionKeys = state.selectionKeys;
+      if (state instanceof AssociatedPhrasesState) {
+        selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
+      }
+
       if (selectionKeys.includes(key.ascii)) {
         let candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
-        } else {
-          const index = selectionKeys.indexOf(key.ascii);
-          if (index > candidates.length - 1) {
-            errorCallback();
-            return true;
-          }
-          const selectedCandidate = candidates[index];
-          if (selectedCandidate instanceof MenuCandidate) {
-            const newState = selectedCandidate.nextState();
-            stateCallback(newState);
-            return true;
-          }
-
-          const newState = new CommittingState(selectedCandidate.displayText);
-          stateCallback(newState);
+          return true;
         }
+        const index = selectionKeys.indexOf(key.ascii);
+        if (index > candidates.length - 1) {
+          errorCallback();
+          return true;
+        }
+
+        var allowAssociatedPhrases = !(state instanceof AssociatedPhrasesState);
+        const selectedCandidate = candidates[index];
+        this.handleCandidate(selectedCandidate, stateCallback, allowAssociatedPhrases);
         return true;
       }
 
@@ -117,7 +149,7 @@ export class KeyHandler {
             const newState = new EmojiMenuState({
               title: 'Emoji',
               displayedRadicals: 'Emoji',
-              selectionKeys: '1234567890',
+              selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
               previousState: state,
               nodes: InputTableManager.getInstance().emojiTable.tables,
             });
@@ -129,7 +161,7 @@ export class KeyHandler {
           const newState = new SettingsState({
             previousState: state,
             settings: this.onRequestSettings(),
-            selectionKeys: '1234567890',
+            selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
             onSettingsChanged: this.onSettingChanged,
           });
           stateCallback(newState);
@@ -142,7 +174,7 @@ export class KeyHandler {
           let chr = key.ascii;
           let selectionKeys = symbolTable.keynames.join('');
           if (selectionKeys === undefined || selectionKeys.length === 0) {
-            selectionKeys = '1234567890';
+            selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
           }
 
           if (state.radicals.length >= 10) {
@@ -172,11 +204,12 @@ export class KeyHandler {
       ) {
         // pass
       } else if (inputKeys.includes(key.ascii)) {
+        // associated phrase state also reach here, and start to input a new radical
         let chr = key.ascii;
         let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
         let selectionKeys = table.table.selkey;
         if (selectionKeys === undefined || selectionKeys.length === 0) {
-          selectionKeys = '1234567890';
+          selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         }
 
         if (state.radicals.length >= table.settings.maxRadicals) {
@@ -212,6 +245,10 @@ export class KeyHandler {
       }
 
       if (key.name === KeyName.BACKSPACE) {
+        if (state instanceof AssociatedPhrasesState) {
+          stateCallback(new EmptyState());
+          return true;
+        }
         if (state instanceof EmojiMenuState) {
           stateCallback(state.previousState);
           return true;

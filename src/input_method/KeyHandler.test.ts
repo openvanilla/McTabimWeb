@@ -1,5 +1,5 @@
 import { Candidate, InputTableManager } from '../data';
-import { CommittingState, EmptyState, InputtingState } from './InputState';
+import { CommittingState, EmptyState, InputtingState, AssociatedPhrasesState } from './InputState';
 import { Key, KeyName } from './Key';
 import { KeyHandler } from './KeyHandler';
 
@@ -8,8 +8,8 @@ describe('Test KeyHandler', () => {
     () => InputTableManager.getInstance().currentTable,
     () => {
       return {
-        associatedPhrasesEnabled: true,
-        shiftKeyForSymbolsEnabled: true,
+        associatedPhrasesEnabled: false,
+        shiftKeyForSymbolsEnabled: false,
       };
     },
     (settings) => {},
@@ -251,5 +251,164 @@ describe('Test KeyHandler', () => {
     );
     expect(handled).toBe(true);
     expect(errorCalled).toBe(true);
+  });
+});
+
+describe('Test Associated Phrases', () => {
+  const keyHandler = new KeyHandler(
+    () => InputTableManager.getInstance().currentTable,
+    () => {
+      return {
+        associatedPhrasesEnabled: true,
+        shiftKeyForSymbolsEnabled: false,
+      };
+    },
+    (settings) => {},
+  );
+  it('should enter AssociatedPhrasesState after committing if associatedPhrasesEnabled', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    // Mock lookUpForAssociatedPhrases to return some phrases
+    const spy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
+      .mockReturnValue([new Candidate('聯想1', ''), new Candidate('聯想2', '')]);
+    let state: InputtingState | EmptyState = new InputtingState({
+      radicals: 'a',
+      displayedRadicals: 'a',
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('中', '')],
+    });
+    const keyReturn = new Key('', KeyName.RETURN);
+    const states: any[] = [];
+    const handled = keyHandler.handle(
+      keyReturn,
+      state,
+      (newState) => {
+        states.push(newState);
+      },
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    // First state should be CommittingState, second should be AssociatedPhrasesState
+    expect(states[0]).toBeInstanceOf(CommittingState);
+    expect(states[1]?.constructor.name).toBe('AssociatedPhrasesState');
+    if (states[1]?.constructor.name === 'AssociatedPhrasesState') {
+      expect(states[1].candidates.length).toBe(2);
+      expect(states[1].candidates[0].displayText).toBe('聯想1');
+    }
+    spy.mockRestore();
+  });
+
+  it('should not enter AssociatedPhrasesState if no associated phrases found', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const spy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
+      .mockReturnValue([]);
+    let state: InputtingState | EmptyState = new InputtingState({
+      radicals: 'a',
+      displayedRadicals: 'a',
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('中', '')],
+    });
+    const keyReturn = new Key('', KeyName.RETURN);
+    const states: any[] = [];
+    const handled = keyHandler.handle(
+      keyReturn,
+      state,
+      (newState) => {
+        states.push(newState);
+      },
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    // Only CommittingState should be pushed
+    expect(states.length).toBe(1);
+    expect(states[0]).toBeInstanceOf(CommittingState);
+    spy.mockRestore();
+  });
+
+  it('should exit AssociatedPhrasesState on RETURN', () => {
+    // Simulate entering AssociatedPhrasesState
+    let state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: [new Candidate('聯想1', ''), new Candidate('聯想2', '')],
+    });
+    const keyReturn = new Key('', KeyName.RETURN);
+    let called = false;
+    const handled = keyHandler.handle(
+      keyReturn,
+      state,
+      (newState) => {
+        expect(newState).toBeInstanceOf(EmptyState);
+        called = true;
+      },
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    expect(called).toBe(true);
+  });
+
+  it('should exit AssociatedPhrasesState on BACKSPACE', () => {
+    let state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: [new Candidate('聯想1', ''), new Candidate('聯想2', '')],
+    });
+    const keyBackspace = new Key('backspace', KeyName.BACKSPACE);
+    let called = false;
+    const handled = keyHandler.handle(
+      keyBackspace,
+      state,
+      (newState) => {
+        expect(newState).toBeInstanceOf(EmptyState);
+        called = true;
+      },
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    expect(called).toBe(true);
+  });
+
+  it('should select associated phrase by selection key', () => {
+    const phrases = [new Candidate('聯想1', ''), new Candidate('聯想2', '')];
+    let state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: phrases,
+    });
+    const key2 = new Key('2', KeyName.UNKNOWN);
+    let committed = false;
+    const keyHandler2 = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => ({
+        associatedPhrasesEnabled: true,
+        shiftKeyForSymbolsEnabled: false,
+      }),
+      () => {},
+    );
+    const handleCandidateSpy = jest.spyOn(keyHandler2, 'handleCandidate');
+    const handled = keyHandler2.handle(
+      key2,
+      state,
+      (newState) => {
+        // Should call handleCandidate with the correct candidate
+        committed = true;
+      },
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    expect(committed).toBe(true);
+    expect(handleCandidateSpy).toHaveBeenCalledWith(phrases[1], expect.any(Function));
+    handleCandidateSpy.mockRestore();
   });
 });

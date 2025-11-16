@@ -121,8 +121,8 @@ describe('Test EmptyState', () => {
       expect(state.selectionKeys).toBe(selectionKeys);
       expect(state.displayedRadicals).toBe('設定');
       expect(state.candidates.length).toBe(2);
-      expect(state.candidates[0].displayText).toContain('開');
-      expect(state.candidates[1].displayText).toContain('關');
+      expect(state.candidates[0].displayText).toContain('■');
+      expect(state.candidates[1].displayText).toContain('□');
     });
 
     it('should call onSettingsChanged and toggle setting when candidate action is invoked', () => {
