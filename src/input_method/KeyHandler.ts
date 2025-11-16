@@ -8,6 +8,7 @@ import {
   EmptyState,
   InputState,
   InputtingState,
+  MenuState,
   SettingsState,
   SymbolInputtingState,
 } from './InputState';
@@ -176,27 +177,37 @@ export class KeyHandler {
 
       if (state instanceof SymbolInputtingState) {
         if (state.radicals.length === 0) {
-          if (key.ascii === 'e') {
-            const newState = new EmojiMenuState({
-              title: 'Emoji',
-              displayedRadicals: 'Emoji',
+          // if (key.ascii === 'e') {
+          //   const newState = new EmojiMenuState({
+          //     title: '表情符號',
+          //     displayedRadicals: '表情符號',
+          //     selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+          //     previousState: state,
+          //     nodes: InputTableManager.getInstance().emojiTable.tables,
+          //   });
+          //   stateCallback(newState);
+          //   return true;
+          // }
+          // if (key.ascii === 's') {
+          //   const newState = new SettingsState({
+          //     previousState: state,
+          //     settings: this.onRequestSettings(),
+          //     selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+          //     onSettingsChanged: this.onSettingChanged,
+          //   });
+          //   stateCallback(newState);
+          //   return true;
+          // }
+
+          if (key.ascii === 'm') {
+            const newState = new MenuState({
+              settings: this.onRequestSettings(),
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-              previousState: state,
-              nodes: InputTableManager.getInstance().emojiTable.tables,
+              onSettingsChanged: this.onSettingChanged,
             });
             stateCallback(newState);
             return true;
           }
-        }
-        if (key.ascii === 's') {
-          const newState = new SettingsState({
-            previousState: state,
-            settings: this.onRequestSettings(),
-            selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-            onSettingsChanged: this.onSettingChanged,
-          });
-          stateCallback(newState);
-          return true;
         }
 
         const symbolTable = InputTableManager.getInstance().symbolTable;
@@ -265,8 +276,10 @@ export class KeyHandler {
         if (state instanceof EmojiMenuState) {
           stateCallback(state.previousState);
           return true;
-        }
-        if (state instanceof EmojiInputtingState) {
+        } else if (state instanceof EmojiInputtingState) {
+          stateCallback(state.previousState);
+          return true;
+        } else if (state instanceof SettingsState) {
           stateCallback(state.previousState);
           return true;
         }
@@ -279,12 +292,13 @@ export class KeyHandler {
         if (state instanceof AssociatedPhrasesState) {
           stateCallback(new EmptyState());
           return true;
-        }
-        if (state instanceof EmojiMenuState) {
+        } else if (state instanceof EmojiMenuState) {
           stateCallback(state.previousState);
           return true;
-        }
-        if (state instanceof EmojiInputtingState) {
+        } else if (state instanceof EmojiInputtingState) {
+          stateCallback(state.previousState);
+          return true;
+        } else if (state instanceof SettingsState) {
           stateCallback(state.previousState);
           return true;
         }

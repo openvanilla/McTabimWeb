@@ -1,4 +1,4 @@
-import { Candidate } from '../data';
+import { Candidate, InputTableManager } from '../data';
 import { MenuCandidate } from '../data/Candidate';
 import { EmojiCategory } from '../data/Emoji';
 import { Settings } from './Settings';
@@ -237,10 +237,18 @@ export class SettingsState extends InputtingState {
         },
       ],
       [
-        '使用 Shift + 字母輸入全型符號',
+        '使用 Shift + 字母輸入全形符號',
         args.settings.shiftLetterForSymbolsEnabled,
         () => {
           this.settings.shiftLetterForSymbolsEnabled = !args.settings.shiftLetterForSymbolsEnabled;
+        },
+      ],
+      [
+        '使用 Shift + 標點符號輸入全形符號',
+        args.settings.shiftPunctuationForSymbolsEnabled,
+        () => {
+          this.settings.shiftPunctuationForSymbolsEnabled =
+            !args.settings.shiftPunctuationForSymbolsEnabled;
         },
       ],
     ];
@@ -263,7 +271,7 @@ export class SettingsState extends InputtingState {
 
     super({
       radicals: '',
-      displayedRadicals: '設定',
+      displayedRadicals: '功能開關',
       selectionKeys: args.selectionKeys,
       candidates: candidates,
       selectedCandidateIndex: args.selectedCandidateIndex,
@@ -280,6 +288,53 @@ export class SettingsState extends InputtingState {
       selectionKeys: this.selectionKeys,
       onSettingsChanged: this.onSettingsChanged,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
+  }
+}
+
+export class MenuState extends InputtingState {
+  // settings: Settings;
+  // onSettingsChanged: ((settings: Settings) => void) | undefined;
+
+  constructor(args: {
+    settings: Settings;
+    selectionKeys: string;
+    onSettingsChanged: ((settings: Settings) => void) | undefined;
+  }) {
+    super({
+      radicals: '',
+      displayedRadicals: '主選單',
+      selectionKeys: args.selectionKeys,
+      candidates: [
+        new MenuCandidate('功能開關', '', () => {
+          return new SettingsState({
+            previousState: this,
+            settings: args.settings,
+            onSettingsChanged: args.onSettingsChanged,
+            selectionKeys: args.selectionKeys,
+          });
+        }),
+        new MenuCandidate('注音符號', '', () => {
+          return new EmojiInputtingState({
+            categoryName: '注音符號',
+            selectionKeys: args.selectionKeys,
+            candidates: InputTableManager.getInstance().bopomofoSymbols.map(
+              (symbol) => new Candidate(symbol, ''),
+            ),
+            previousState: this,
+          });
+        }),
+
+        new MenuCandidate('表情符號', '', () => {
+          return new EmojiMenuState({
+            title: '表情符號',
+            displayedRadicals: '表情符號',
+            selectionKeys: args.selectionKeys,
+            previousState: this,
+            nodes: InputTableManager.getInstance().emojiTable.tables,
+          });
+        }),
+      ],
     });
   }
 }

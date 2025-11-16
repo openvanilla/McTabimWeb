@@ -136,6 +136,28 @@ export class InputTableManager {
     return shiftPunctuations;
   }
 
+  private bopomofoSymbols_: string[] = (() => {
+    let bopomofolist: string[] = [];
+    for (let i = 0x3105; i < 0x311a; i++) {
+      bopomofolist.push(String.fromCharCode(i));
+    }
+    for (let i = 0x3127; i < 0x312a; i++) {
+      bopomofolist.push(String.fromCharCode(i));
+    }
+    for (let i = 0x311a; i < 0x3127; i++) {
+      bopomofolist.push(String.fromCharCode(i));
+    }
+    bopomofolist.push(String.fromCharCode(0x02d9));
+    bopomofolist.push(String.fromCharCode(0x02ca));
+    bopomofolist.push(String.fromCharCode(0x02c7));
+    bopomofolist.push(String.fromCharCode(0x02cb));
+    return bopomofolist;
+  })();
+
+  get bopomofoSymbols(): string[] {
+    return this.bopomofoSymbols_;
+  }
+
   getTables(): [string, string][] {
     return this.tables.map((table) => [table.id, table.table.cname]);
   }
