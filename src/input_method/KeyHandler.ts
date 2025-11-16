@@ -10,6 +10,7 @@ import {
   MenuState,
   SettingsState,
   SymbolInputtingState,
+  CancelAssociatedPhraseState,
 } from './InputState';
 import { Key, KeyName } from './Key';
 import { Settings } from './Settings';
@@ -71,7 +72,7 @@ export class KeyHandler {
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
     /// Empty State
-    if (state instanceof EmptyState) {
+    if (state instanceof EmptyState || state instanceof CancelAssociatedPhraseState) {
       if (key.ascii === '`') {
         /// Enter Symbol Inputting State
         const selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
@@ -132,6 +133,10 @@ export class KeyHandler {
         }
       }
 
+      if (state instanceof CancelAssociatedPhraseState) {
+        stateCallback(new EmptyState());
+        return true;
+      }
       return false;
     }
 
@@ -176,7 +181,7 @@ export class KeyHandler {
         return true;
       } else {
         if (state instanceof AssociatedPhrasesState && key.ascii !== 'Shift') {
-          let newState = new EmptyState();
+          let newState = new CancelAssociatedPhraseState();
           stateCallback(newState);
           this.handle(key, newState, stateCallback, errorCallback);
           return true;

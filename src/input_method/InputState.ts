@@ -4,6 +4,7 @@ import { Settings } from './Settings';
 export abstract class InputState {}
 
 export class EmptyState extends InputState {}
+export class CancelAssociatedPhraseState extends InputState {}
 
 export class CommittingState extends InputState {
   readonly commitString: string;
