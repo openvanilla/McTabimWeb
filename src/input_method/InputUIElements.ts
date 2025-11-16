@@ -1,4 +1,4 @@
-import Candidate from '../data';
+import { Candidate } from '../data';
 import { InputtingState } from './InputState';
 
 class CandidateWrapper {

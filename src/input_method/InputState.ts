@@ -1,4 +1,4 @@
-import Candidate from '../data';
+import { Candidate } from '../data';
 
 export abstract class InputState {}
 

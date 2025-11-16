@@ -1,4 +1,5 @@
-import Candidate, { InputTableManager, InputTableWrapper } from '../data';
+import { Candidate } from '../data';
+import { InputTableManager, InputTableWrapper } from '../data/InputTableManager';
 import {
   CommittingState,
   EmptyState,

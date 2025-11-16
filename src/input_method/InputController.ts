@@ -1,4 +1,4 @@
-import { InputTableManager } from '../data';
+import { InputTableManager } from '../data/InputTableManager';
 
 import { CommittingState, EmptyState, InputState, InputtingState } from './InputState';
 import { InputUI } from './InputUI';
