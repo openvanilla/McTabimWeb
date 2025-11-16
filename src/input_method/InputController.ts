@@ -19,7 +19,8 @@ export class InputController {
   private ui_: InputUI;
   private settings_: Settings = {
     associatedPhrasesEnabled: true,
-    shiftKeyForSymbolsEnabled: true,
+    shiftPunctuationForSymbolsEnabled: true,
+    shiftLetterForSymbolsEnabled: true,
   };
 
   get settings(): Settings {

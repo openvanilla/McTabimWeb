@@ -68,6 +68,7 @@ export class KeyHandler {
     const table = this.onRequestTable();
     const inputKeys = Object.keys(table.table.keynames);
     const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
+    const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
     /// Empty State
     if (state instanceof EmptyState) {
@@ -100,8 +101,27 @@ export class KeyHandler {
         stateCallback(newState);
         return true;
       }
+      const settings = this.onRequestSettings();
+      if (settings.shiftPunctuationForSymbolsEnabled) {
+        if (shiftPunctuationsSymbols.hasOwnProperty(key.ascii)) {
+          const chr = shiftPunctuationsSymbols[key.ascii];
+          const components = chr.split('');
+          if (components.length > 1) {
+            const inputtingState = new SymbolInputtingState({
+              radicals: '',
+              selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+              candidates: components.map((c) => new Candidate(c, '')),
+            });
+            stateCallback(inputtingState);
+          } else {
+            const newState = new CommittingState(chr);
+            stateCallback(newState);
+          }
+          return true;
+        }
+      }
 
-      if (this.onRequestSettings().shiftKeyForSymbolsEnabled) {
+      if (settings.shiftLetterForSymbolsEnabled) {
         if (shiftLetterSymbols.hasOwnProperty(key.ascii)) {
           const chr = shiftLetterSymbols[key.ascii];
           const newState = new CommittingState(chr);

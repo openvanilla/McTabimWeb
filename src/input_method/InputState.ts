@@ -163,6 +163,7 @@ export class EmojiMenuState extends InputtingState {
     previousState: InputState;
     nodes: EmojiCategory[];
     selectionKeys: string;
+    selectedCandidateIndex?: number | undefined;
   }) {
     var candidates = args.nodes.map((singleNode) => {
       const name = singleNode.name;
@@ -197,13 +198,21 @@ export class EmojiMenuState extends InputtingState {
       displayedRadicals: args.displayedRadicals,
       selectionKeys: args.selectionKeys,
       candidates: candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
     });
     this.previousState = args.previousState;
     this.nodes = args.nodes;
   }
 
   copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
-    throw new Error('Shall not be called');
+    return new EmojiMenuState({
+      title: this.displayedRadicals,
+      displayedRadicals: this.displayedRadicals,
+      selectionKeys: this.selectionKeys,
+      previousState: this.previousState,
+      nodes: this.nodes,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
   }
 }
 
@@ -229,9 +238,9 @@ export class SettingsState extends InputtingState {
       ],
       [
         '使用 Shift + 字母輸入全型符號',
-        args.settings.shiftKeyForSymbolsEnabled,
+        args.settings.shiftLetterForSymbolsEnabled,
         () => {
-          this.settings.shiftKeyForSymbolsEnabled = !args.settings.shiftKeyForSymbolsEnabled;
+          this.settings.shiftLetterForSymbolsEnabled = !args.settings.shiftLetterForSymbolsEnabled;
         },
       ],
     ];

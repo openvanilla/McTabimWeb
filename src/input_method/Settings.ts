@@ -1,4 +1,5 @@
 export interface Settings {
   associatedPhrasesEnabled: boolean;
-  shiftKeyForSymbolsEnabled: boolean;
+  shiftPunctuationForSymbolsEnabled: boolean;
+  shiftLetterForSymbolsEnabled: boolean;
 }

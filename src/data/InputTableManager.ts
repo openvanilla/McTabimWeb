@@ -10,6 +10,7 @@ import associatedPhrasesJson from './associated_phrases/phrase.json';
 
 import symbols from './symbols/msymbols.json';
 import shiftLetters from './symbols/swkb.json';
+import shiftPunctuations from './symbols/fsymbols.json';
 
 import { Candidate } from './Candidate';
 import { EmojiTable } from './Emoji';
@@ -129,6 +130,10 @@ export class InputTableManager {
 
   get shiftLetterSymbols(): { [key: string]: string } {
     return shiftLetterSymbols;
+  }
+
+  get shiftPunctuationsSymbols(): { [key: string]: string } {
+    return shiftPunctuations;
   }
 
   getTables(): [string, string][] {

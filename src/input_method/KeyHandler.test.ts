@@ -9,7 +9,8 @@ describe('Test KeyHandler', () => {
     () => {
       return {
         associatedPhrasesEnabled: false,
-        shiftKeyForSymbolsEnabled: false,
+        shiftLetterForSymbolsEnabled: false,
+        shiftPunctuationForSymbolsEnabled: false,
       };
     },
     (settings) => {},
@@ -260,7 +261,8 @@ describe('Test Associated Phrases', () => {
     () => {
       return {
         associatedPhrasesEnabled: true,
-        shiftKeyForSymbolsEnabled: false,
+        shiftLetterForSymbolsEnabled: false,
+        shiftPunctuationForSymbolsEnabled: false,
       };
     },
     (settings) => {},
@@ -390,7 +392,8 @@ describe('Test Associated Phrases', () => {
       () => InputTableManager.getInstance().currentTable,
       () => ({
         associatedPhrasesEnabled: true,
-        shiftKeyForSymbolsEnabled: false,
+        shiftLetterForSymbolsEnabled: false,
+        shiftPunctuationForSymbolsEnabled: false,
       }),
       () => {},
     );

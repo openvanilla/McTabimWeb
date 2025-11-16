@@ -112,7 +112,8 @@ describe('Test EmptyState', () => {
     // Mock Settings and MenuCandidate
     class MockSettings {
       associatedPhrasesEnabled = true;
-      shiftKeyForSymbolsEnabled = false;
+      shiftLetterForSymbolsEnabled = false;
+      shiftPunctuationForSymbolsEnabled = false;
     }
 
     it('should initialize with correct candidates and settings', () => {
@@ -159,9 +160,9 @@ describe('Test EmptyState', () => {
 
       // The second candidate toggles shiftKeyForSymbolsEnabled
       const candidate2 = state.candidates[1];
-      expect(settings.shiftKeyForSymbolsEnabled).toBe(false);
+      expect(settings.shiftLetterForSymbolsEnabled).toBe(false);
       candidate2.nextState();
-      expect(settings.shiftKeyForSymbolsEnabled).toBe(true);
+      expect(settings.shiftLetterForSymbolsEnabled).toBe(true);
       expect(onSettingsChanged).toHaveBeenCalledWith(settings);
     });
 
@@ -309,7 +310,7 @@ describe('Other InputState subclasses', () => {
         nodes: emojiNodes as any,
         selectionKeys: '1',
       });
-      expect(() => state.copyWithArgs({ selectedCandidateIndex: 0 })).toThrow();
+      expect(() => state.copyWithArgs({ selectedCandidateIndex: 0 })).not.toThrow();
     });
   });
 });
