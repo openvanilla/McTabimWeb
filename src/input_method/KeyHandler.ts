@@ -178,7 +178,8 @@ export class KeyHandler {
         if (state instanceof AssociatedPhrasesState && key.ascii !== 'Shift') {
           let newState = new EmptyState();
           stateCallback(newState);
-          return this.handle(key, newState, stateCallback, errorCallback);
+          this.handle(key, newState, stateCallback, errorCallback);
+          return true;
         }
       }
 
