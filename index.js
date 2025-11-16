@@ -87,7 +87,6 @@
         }
         s += '<tr class="page_info"> ';
         s += '<td colspan="2">';
-        s += 'Tab 補完單詞';
         s += '</td>';
         s += '<td colspan="1">';
         s += '' + (state.candidatePageIndex + 1) + ' / ' + state.candidatePageCount;
