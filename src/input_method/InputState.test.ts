@@ -8,7 +8,6 @@ import {
 } from './InputState';
 
 import { Candidate } from '../data';
-import { MenuCandidate } from '../data/Candidate';
 
 describe('Test EmptyState', () => {
   it('should create an instance of EmptyState', () => {
@@ -38,12 +37,12 @@ describe('Test EmptyState', () => {
     it('should store radicals, displayedRadicals, selectionKeys, and candidates', () => {
       const state = new InputtingState({
         radicals: 'xyz',
-        displayedRadicals: 'XYZ',
+        displayedRadicals: ['X', 'Y', 'Z'],
         selectionKeys: '123',
         candidates: mockCandidates,
       });
       expect(state.radicals).toBe('xyz');
-      expect(state.displayedRadicals).toBe('XYZ');
+      expect(state.displayedRadicals).toEqual(['X', 'Y', 'Z']);
       expect(state.selectionKeys).toBe('123');
       expect(state.candidates).toEqual(mockCandidates);
     });
@@ -51,7 +50,7 @@ describe('Test EmptyState', () => {
     it('should set selectedCandidateIndex to 0 if not provided and candidates exist', () => {
       const state = new InputtingState({
         radicals: 'a',
-        displayedRadicals: 'A',
+        displayedRadicals: ['A'],
         selectionKeys: '12',
         candidates: mockCandidates,
       });
@@ -61,7 +60,7 @@ describe('Test EmptyState', () => {
     it('should use provided selectedCandidateIndex', () => {
       const state = new InputtingState({
         radicals: 'b',
-        displayedRadicals: 'B',
+        displayedRadicals: ['B'],
         selectionKeys: '12',
         candidates: mockCandidates,
         selectedCandidateIndex: 3,
@@ -72,7 +71,7 @@ describe('Test EmptyState', () => {
     it('should calculate candidatePageCount correctly', () => {
       const state = new InputtingState({
         radicals: 'c',
-        displayedRadicals: 'C',
+        displayedRadicals: ['C'],
         selectionKeys: '12',
         candidates: mockCandidates,
       });
@@ -82,7 +81,7 @@ describe('Test EmptyState', () => {
     it('should calculate candidatesInCurrentPage and selectedCandidateIndexInCurrentPage', () => {
       const state = new InputtingState({
         radicals: 'd',
-        displayedRadicals: 'D',
+        displayedRadicals: ['D'],
         selectionKeys: '12',
         candidates: mockCandidates,
         selectedCandidateIndex: 3,
@@ -95,7 +94,7 @@ describe('Test EmptyState', () => {
     it('should not set paging properties if candidates is empty', () => {
       const state = new InputtingState({
         radicals: '',
-        displayedRadicals: '',
+        displayedRadicals: [],
         selectionKeys: '123',
         candidates: [],
       });
@@ -130,7 +129,7 @@ describe('Test EmptyState', () => {
       expect(state.previousState).toBe(previousState);
       expect(state.settings).toBe(settings);
       expect(state.selectionKeys).toBe(selectionKeys);
-      expect(state.displayedRadicals).toBe('功能開關');
+      expect(state.displayedRadicals).toStrictEqual(['功能開關']);
       // expect(state.candidates.length).toBe(2);
       expect(state.candidates[0].displayText).toContain('■');
       expect(state.candidates[1].displayText).toContain('□');
@@ -199,7 +198,7 @@ describe('Other InputState subclasses', () => {
         candidates: mockCandidates,
         selectedCandidateIndex: 1,
       });
-      expect(state.displayedRadicals).toBe('聯想詞');
+      expect(state.displayedRadicals).toStrictEqual(['聯想詞']);
       expect(state.candidates).toEqual(mockCandidates);
       expect(state.selectedCandidateIndex).toBe(1);
     });
@@ -225,7 +224,7 @@ describe('Other InputState subclasses', () => {
         candidates: mockCandidates,
         selectedCandidateIndex: 0,
       });
-      expect(state.displayedRadicals).toBe('[符]abc');
+      expect(state.displayedRadicals).toStrictEqual(['[符]abc']);
       expect(state.candidates).toEqual(mockCandidates);
     });
 
@@ -259,14 +258,14 @@ describe('Other InputState subclasses', () => {
       ];
       const state = new SymbolCategoryState({
         title: 'Emoji',
-        displayedRadicals: '表情',
+        displayedRadicals: ['表情'],
         previousState: prevState,
         nodes: emojiNodes as any,
         selectionKeys: '12',
       });
       expect(state.candidates.length).toBe(2);
       expect(state.candidates[0]).toBeInstanceOf(Candidate);
-      expect(state.displayedRadicals).toBe('表情');
+      expect(state.displayedRadicals).toStrictEqual(['表情']);
       expect(state.previousState).toBe(prevState);
       expect(state.nodes).toBe(emojiNodes);
     });
@@ -276,7 +275,7 @@ describe('Other InputState subclasses', () => {
       const emojiNodes = [new MockSymbolCategory('Smileys', ['😀', '😁'])];
       const state = new SymbolCategoryState({
         title: 'Emoji',
-        displayedRadicals: '表情',
+        displayedRadicals: ['表情'],
         previousState: prevState,
         nodes: emojiNodes as any,
         selectionKeys: '1',

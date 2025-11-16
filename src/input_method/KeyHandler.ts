@@ -118,7 +118,7 @@ export class KeyHandler {
         const candidates = table.lookupForCandidate(chr) || [];
         const newState = new InputtingState({
           radicals: chr,
-          displayedRadicals: displayedChr,
+          displayedRadicals: [displayedChr],
           selectionKeys: selectionKeys,
           candidates: candidates,
         });
@@ -131,7 +131,7 @@ export class KeyHandler {
           const components = chr.split('');
           if (components.length > 1) {
             const inputtingState = new SymbolCategoryState({
-              displayedRadicals: '[符]' + key.ascii,
+              displayedRadicals: ['[符]' + key.ascii],
               nodes: components,
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
               previousState: state,
@@ -203,7 +203,7 @@ export class KeyHandler {
           if (key.ascii === 'e') {
             const newState = new SymbolCategoryState({
               title: '表情符號',
-              displayedRadicals: '表情符號',
+              displayedRadicals: ['表情符號'],
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
               previousState: state,
               nodes: InputTableManager.getInstance().emojiTable.tables,
@@ -282,11 +282,11 @@ export class KeyHandler {
           return true;
         }
         const joined = state.radicals + chr;
-        const displayedJoined = state.displayedRadicals + displayedChr;
+        const displayedConcat = state.displayedRadicals.concat([displayedChr]);
         const candidates = table.lookupForCandidate(joined) || [];
         const newState = new InputtingState({
           radicals: joined,
-          displayedRadicals: displayedJoined,
+          displayedRadicals: displayedConcat,
           selectionKeys: selectionKeys,
           candidates: candidates,
         });
@@ -414,6 +414,14 @@ export class KeyHandler {
           return true;
         }
       }
+      if (state instanceof AssociatedPhrasesState) {
+        if (key.ascii === 'Shift') {
+          return true;
+        }
+        stateCallback(new EmptyState());
+        return false;
+      }
+
       return true; // Printable characters other than input keys are ignored
     }
 

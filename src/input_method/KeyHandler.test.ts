@@ -87,7 +87,7 @@ describe('Test KeyHandler', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', '')],
     });
@@ -115,7 +115,7 @@ describe('Test KeyHandler', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', ''), new Candidate('文', '')],
     });
@@ -143,7 +143,7 @@ describe('Test KeyHandler', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', '')],
     });
@@ -168,7 +168,7 @@ describe('Test KeyHandler', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', '')],
     });
@@ -193,7 +193,7 @@ describe('Test KeyHandler', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', ''), new Candidate('文', ''), new Candidate('測', '')],
       selectedCandidateIndex: 0,
@@ -236,7 +236,7 @@ describe('Test KeyHandler', () => {
     const table = InputTableManager.getInstance().currentTable;
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a'.repeat(table.settings.maxRadicals),
-      displayedRadicals: 'a'.repeat(table.settings.maxRadicals),
+      displayedRadicals: Array(table.settings.maxRadicals).fill('a'),
       selectionKeys: '1234567890',
       candidates: [],
     });
@@ -279,7 +279,7 @@ describe('Test Associated Phrases', () => {
       .mockReturnValue([new Candidate('聯想1', ''), new Candidate('聯想2', '')]);
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', '')],
     });
@@ -313,7 +313,7 @@ describe('Test Associated Phrases', () => {
       .mockReturnValue([]);
     let state: InputtingState | EmptyState = new InputtingState({
       radicals: 'a',
-      displayedRadicals: 'a',
+      displayedRadicals: ['a'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('中', '')],
     });

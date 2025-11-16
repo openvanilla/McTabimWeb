@@ -90,10 +90,13 @@ export class InputUIStateBuilder {
 
   build(): InputUIState {
     const composingBufferTexts: ComposingBufferText[] = [];
-    const text = this.state.displayedRadicals;
-    composingBufferTexts.push(new ComposingBufferText(text));
+    const displayedRadicals = this.state.displayedRadicals;
+    let cursorIndex = 0;
+    for (const text of displayedRadicals) {
+      composingBufferTexts.push(new ComposingBufferText(text));
+      cursorIndex += text.length;
+    }
     const selectionKeys = this.state.selectionKeys;
-
     const candidateWrappers: CandidateWrapper[] = [];
     if (this.state.candidatesInCurrentPage) {
       for (let i = 0; i < this.state.candidatesInCurrentPage.length; i++) {
@@ -104,7 +107,7 @@ export class InputUIStateBuilder {
     }
     return new InputUIState(
       composingBufferTexts,
-      this.state.displayedRadicals.length,
+      cursorIndex,
       candidateWrappers, // candidates
       this.state.candidatePageCount ?? 0,
       this.state.candidatePageIndex ?? 0,

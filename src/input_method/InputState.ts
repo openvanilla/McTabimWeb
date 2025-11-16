@@ -15,7 +15,7 @@ export class CommittingState extends InputState {
 
 export class InputtingState extends InputState {
   readonly radicals: string;
-  readonly displayedRadicals: string;
+  readonly displayedRadicals: string[];
   readonly selectionKeys: string;
   readonly exactSelectionKeys?: string | undefined;
   readonly candidates: Candidate[];
@@ -28,7 +28,7 @@ export class InputtingState extends InputState {
 
   constructor(args: {
     radicals: string;
-    displayedRadicals: string;
+    displayedRadicals: string[];
     selectionKeys: string;
     candidates: Candidate[];
     selectedCandidateIndex?: number | undefined;
@@ -76,7 +76,7 @@ export class AssociatedPhrasesState extends InputtingState {
   }) {
     super({
       radicals: '',
-      displayedRadicals: '聯想詞',
+      displayedRadicals: ['聯想詞'],
       selectionKeys: args.selectionKeys,
       exactSelectionKeys: args.exactSelectionKeys,
       candidates: args.candidates,
@@ -103,7 +103,7 @@ export class SymbolInputtingState extends InputtingState {
   }) {
     super({
       radicals: args.radicals,
-      displayedRadicals: `[符]${args.radicals}`,
+      displayedRadicals: [`[符]${args.radicals}`],
       selectionKeys: args.selectionKeys,
       candidates: args.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex,
@@ -126,7 +126,7 @@ export class SymbolCategoryState extends InputtingState {
 
   constructor(args: {
     title: string;
-    displayedRadicals: string;
+    displayedRadicals: string[];
     previousState: InputState;
     nodes: (SymbolCategory | string)[];
     selectionKeys: string;
@@ -135,7 +135,7 @@ export class SymbolCategoryState extends InputtingState {
     var candidates = args.nodes.map((singleNode) => {
       if (singleNode instanceof SymbolCategory) {
         const name = singleNode.name;
-        const newDisplayedRadicals = args.displayedRadicals + '/' + name;
+        const newDisplayedRadicals = [args.displayedRadicals.join('') + '/' + name];
         return new MenuCandidate(name, '', () => {
           return new SymbolCategoryState({
             title: name,
@@ -163,7 +163,7 @@ export class SymbolCategoryState extends InputtingState {
 
   copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
     return new SymbolCategoryState({
-      title: this.displayedRadicals,
+      title: this.displayedRadicals.join(''),
       displayedRadicals: this.displayedRadicals,
       selectionKeys: this.selectionKeys,
       previousState: this.previousState,
@@ -235,7 +235,7 @@ export class SettingsState extends InputtingState {
 
     super({
       radicals: '',
-      displayedRadicals: '功能開關',
+      displayedRadicals: ['功能開關'],
       selectionKeys: args.selectionKeys,
       candidates: candidates,
       selectedCandidateIndex: args.selectedCandidateIndex,
@@ -300,7 +300,7 @@ export class MenuState extends InputtingState {
         new MenuCandidate('特殊符號', '', () => {
           return new SymbolCategoryState({
             title: '特殊符號',
-            displayedRadicals: '特殊符號',
+            displayedRadicals: ['特殊符號'],
             selectionKeys: args.selectionKeys,
             previousState: this,
             nodes: customSymbolTable.tables,
@@ -313,7 +313,7 @@ export class MenuState extends InputtingState {
       new MenuCandidate('注音符號', '', () => {
         return new SymbolCategoryState({
           title: '注音符號',
-          displayedRadicals: '注音符號',
+          displayedRadicals: ['注音符號'],
           selectionKeys: args.selectionKeys,
           previousState: this,
           nodes: InputTableManager.getInstance().bopomofoSymbols,
@@ -327,7 +327,7 @@ export class MenuState extends InputtingState {
         new MenuCandidate('外語符號', '', () => {
           return new SymbolCategoryState({
             title: '外語符號',
-            displayedRadicals: '外語符號',
+            displayedRadicals: ['外語符號'],
             selectionKeys: args.selectionKeys,
             previousState: this,
             nodes: foreignLanguage.tables,
@@ -340,7 +340,7 @@ export class MenuState extends InputtingState {
       new MenuCandidate('表情符號', '', () => {
         return new SymbolCategoryState({
           title: '表情符號',
-          displayedRadicals: '表情符號',
+          displayedRadicals: ['表情符號'],
           selectionKeys: args.selectionKeys,
           previousState: this,
           nodes: InputTableManager.getInstance().emojiTable.tables,
@@ -350,7 +350,7 @@ export class MenuState extends InputtingState {
 
     super({
       radicals: '',
-      displayedRadicals: '主選單',
+      displayedRadicals: ['主選單'],
       selectionKeys: args.selectionKeys,
       candidates: candidates,
       selectedCandidateIndex: args.selectedCandidateIndex,
