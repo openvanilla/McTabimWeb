@@ -122,7 +122,7 @@ export class InputTableManager {
     new InputTableWrapper('simplex5', simplex5, { maxRadicals: 2 }),
     new InputTableWrapper('dayi3', dayi3, { maxRadicals: 3 }),
     new InputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
-    new InputTableWrapper('array30', array30, { maxRadicals: 3 }),
+    new InputTableWrapper('array30', array30, { maxRadicals: 4 }),
     new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
   ];
 }
