@@ -8,6 +8,7 @@ describe('Test KeyHandler', () => {
     () => InputTableManager.getInstance().currentTable,
     () => {
       return {
+        chineseConversionEnabled: false,
         associatedPhrasesEnabled: false,
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
@@ -260,6 +261,7 @@ describe('Test Associated Phrases', () => {
     () => InputTableManager.getInstance().currentTable,
     () => {
       return {
+        chineseConversionEnabled: false,
         associatedPhrasesEnabled: true,
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
@@ -391,6 +393,7 @@ describe('Test Associated Phrases', () => {
     const keyHandler2 = new KeyHandler(
       () => InputTableManager.getInstance().currentTable,
       () => ({
+        chineseConversionEnabled: false,
         associatedPhrasesEnabled: true,
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,

@@ -260,6 +260,22 @@ export class MenuState extends InputtingState {
     selectedCandidateIndex?: number | undefined;
   }) {
     const candidates = [];
+
+    var title = args.settings.chineseConversionEnabled ? '簡體輸出' : '繁體輸出';
+
+    candidates.push(
+      new MenuCandidate(title, '', () => {
+        this.settings.chineseConversionEnabled = !this.settings.chineseConversionEnabled;
+        this.onSettingsChanged?.(this.settings);
+        return new MenuState({
+          settings: this.settings,
+          selectionKeys: args.selectionKeys,
+          onSettingsChanged: this.onSettingsChanged,
+          selectedCandidateIndex: 0,
+        });
+      }),
+    );
+
     candidates.push(
       new MenuCandidate('功能開關', '', () => {
         return new SettingsState({

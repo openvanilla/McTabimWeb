@@ -58,5 +58,8 @@
   "homepage": "https://github.com/openvanilla/McTabimWeb#readme",
   "browser": {
     "assert": false
+  },
+  "dependencies": {
+    "chinese_convert": "^1.0.8"
   }
 }

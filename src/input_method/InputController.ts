@@ -7,6 +7,8 @@ import { KeyHandler } from './KeyHandler';
 import { KeyMapping } from './KeyMapping';
 import { Settings } from './Settings';
 
+const ChineseConvert = require('chinese_convert');
+
 export class InputController {
   private state_: InputState = new EmptyState();
   private keyHandler_: KeyHandler = new KeyHandler(
@@ -18,6 +20,7 @@ export class InputController {
   );
   private ui_: InputUI;
   private settings_: Settings = {
+    chineseConversionEnabled: false,
     associatedPhrasesEnabled: true,
     shiftPunctuationForSymbolsEnabled: true,
     shiftLetterForSymbolsEnabled: true,
@@ -91,7 +94,13 @@ export class InputController {
   }
 
   private handleCommittingState(oldState: InputState, newState: CommittingState): void {
-    this.ui_.commitString(newState.commitString);
+    let commitString = newState.commitString;
+    if (this.settings_.chineseConversionEnabled) {
+      commitString = ChineseConvert.tw2cn(commitString);
+    } else {
+      commitString = ChineseConvert.cn2tw(commitString);
+    }
+    this.ui_.commitString(commitString);
     this.ui_.reset();
     this.state_ = new EmptyState();
   }
