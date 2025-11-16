@@ -1,5 +1,4 @@
-import { Candidate, MenuCandidate } from '../data';
-import { InputTableManager, InputTableWrapper } from '../data/InputTableManager';
+import { Candidate, MenuCandidate, InputTableManager, InputTableWrapper } from '../data';
 import {
   AssociatedPhrasesState,
   CommittingState,
@@ -72,7 +71,7 @@ export class KeyHandler {
 
     if (state instanceof AssociatedPhrasesState) {
       let selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
-      if (selectionKeys.includes(key.ascii)) {
+      if (key.ascii && selectionKeys.includes(key.ascii)) {
         let candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
@@ -159,7 +158,6 @@ export class KeyHandler {
 
     ///  Inputting State
     if (state instanceof InputtingState) {
-      // Perhaps handle tab key to commit the current candidate
       if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
         if (state instanceof AssociatedPhrasesState) {
           stateCallback(new EmptyState());
@@ -177,7 +175,7 @@ export class KeyHandler {
 
       if (!(state instanceof AssociatedPhrasesState)) {
         let selectionKeys = state.selectionKeys;
-        if (selectionKeys.includes(key.ascii)) {
+        if (key.ascii && selectionKeys.includes(key.ascii)) {
           let candidates = state.candidatesInCurrentPage;
           if (candidates === undefined || candidates.length === 0) {
             errorCallback();
@@ -198,27 +196,28 @@ export class KeyHandler {
       /// Symbol Inputting State
       if (state instanceof SymbolInputtingState) {
         if (state.radicals.length === 0) {
-          // if (key.ascii === 'e') {
-          //   const newState = new EmojiMenuState({
-          //     title: '表情符號',
-          //     displayedRadicals: '表情符號',
-          //     selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-          //     previousState: state,
-          //     nodes: InputTableManager.getInstance().emojiTable.tables,
-          //   });
-          //   stateCallback(newState);
-          //   return true;
-          // }
-          // if (key.ascii === 's') {
-          //   const newState = new SettingsState({
-          //     previousState: state,
-          //     settings: this.onRequestSettings(),
-          //     selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-          //     onSettingsChanged: this.onSettingChanged,
-          //   });
-          //   stateCallback(newState);
-          //   return true;
-          // }
+          if (key.ascii === 'e') {
+            const newState = new SymbolCategoryState({
+              title: '表情符號',
+              displayedRadicals: '表情符號',
+              selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+              previousState: state,
+              nodes: InputTableManager.getInstance().emojiTable.tables,
+            });
+            stateCallback(newState);
+            return true;
+          }
+
+          if (key.ascii === 's') {
+            const newState = new SettingsState({
+              previousState: state,
+              settings: this.onRequestSettings(),
+              selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+              onSettingsChanged: this.onSettingChanged,
+            });
+            stateCallback(newState);
+            return true;
+          }
 
           if (key.ascii === 'm') {
             const newState = new MenuState({
@@ -293,17 +292,6 @@ export class KeyHandler {
 
       // Ignore ESC key in inputting state
       if (key.name === KeyName.ESC) {
-        if (state instanceof AssociatedPhrasesState) {
-          stateCallback(new EmptyState());
-          return true;
-        } else if (state instanceof SymbolCategoryState) {
-          stateCallback(state.previousState);
-          return true;
-        } else if (state instanceof SettingsState) {
-          stateCallback(state.previousState);
-          return true;
-        }
-
         stateCallback(new EmptyState());
         return true;
       }

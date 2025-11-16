@@ -3,8 +3,8 @@ import { SymbolCategory } from './SymbolCategory';
 export class SymbolTableParser {
   private constructor() {}
 
-  static parse(text: string): SymbolCategory[] {
-    let categories: SymbolCategory[] = [];
+  static parse(text: string): (SymbolCategory | string)[] {
+    let categories: (SymbolCategory | string)[] = [];
     let lines = text.split('\n');
     for (let line of lines) {
       const trimmed = line.trim();
@@ -13,6 +13,7 @@ export class SymbolTableParser {
       }
       const parts = trimmed.split('=');
       if (parts.length < 2) {
+        categories.push(trimmed);
         continue;
       }
       const name = parts[0].trim();

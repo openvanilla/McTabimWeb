@@ -1,5 +1,5 @@
-const tseslint = require('@typescript-eslint/eslint-plugin');
 const tsParser = require('@typescript-eslint/parser');
+const tseslint = require('@typescript-eslint/eslint-plugin');
 
 module.exports = [
   {
@@ -19,11 +19,9 @@ module.exports = [
     languageOptions: {
       parser: tsParser,
     },
-
     plugins: {
       '@typescript-eslint': tseslint,
     },
-
     rules: {
       eqeqeq: [
         'warn',
@@ -32,7 +30,6 @@ module.exports = [
           null: 'ignore',
         },
       ],
-
       '@typescript-eslint/naming-convention': [
         'warn',
         {

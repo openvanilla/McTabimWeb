@@ -190,14 +190,14 @@ export class SettingsState extends InputtingState {
         '使用聯想詞',
         args.settings.associatedPhrasesEnabled,
         () => {
-          this.settings.associatedPhrasesEnabled = !args.settings.associatedPhrasesEnabled;
+          this.settings.associatedPhrasesEnabled = !this.settings.associatedPhrasesEnabled;
         },
       ],
       [
         '使用 Shift + 字母輸入全形符號',
         args.settings.shiftLetterForSymbolsEnabled,
         () => {
-          this.settings.shiftLetterForSymbolsEnabled = !args.settings.shiftLetterForSymbolsEnabled;
+          this.settings.shiftLetterForSymbolsEnabled = !this.settings.shiftLetterForSymbolsEnabled;
         },
       ],
       [
@@ -205,7 +205,7 @@ export class SettingsState extends InputtingState {
         args.settings.shiftPunctuationForSymbolsEnabled,
         () => {
           this.settings.shiftPunctuationForSymbolsEnabled =
-            !args.settings.shiftPunctuationForSymbolsEnabled;
+            !this.settings.shiftPunctuationForSymbolsEnabled;
         },
       ],
     ];
@@ -250,10 +250,14 @@ export class SettingsState extends InputtingState {
 }
 
 export class MenuState extends InputtingState {
+  settings: Settings;
+  onSettingsChanged: ((settings: Settings) => void) | undefined;
+
   constructor(args: {
     settings: Settings;
     selectionKeys: string;
     onSettingsChanged: ((settings: Settings) => void) | undefined;
+    selectedCandidateIndex?: number | undefined;
   }) {
     let candidates = [];
     candidates.push(
@@ -266,6 +270,22 @@ export class MenuState extends InputtingState {
         });
       }),
     );
+
+    let customSymbolTable = InputTableManager.getInstance().customSymbolTable;
+    if (customSymbolTable.tables.length > 0) {
+      candidates.push(
+        new MenuCandidate('特殊符號', '', () => {
+          return new SymbolCategoryState({
+            title: '特殊符號',
+            displayedRadicals: '特殊符號',
+            selectionKeys: args.selectionKeys,
+            previousState: this,
+            nodes: customSymbolTable.tables,
+          });
+        }),
+      );
+    }
+
     candidates.push(
       new MenuCandidate('注音符號', '', () => {
         return new SymbolCategoryState({
@@ -278,9 +298,9 @@ export class MenuState extends InputtingState {
       }),
     );
 
-    let ForeignLanguage = InputTableManager.getInstance().foreignLanguage;
-    console.log(ForeignLanguage.tables);
-    if (ForeignLanguage.tables.length > 0) {
+    let foreignLanguage = InputTableManager.getInstance().foreignLanguage;
+    console.log(foreignLanguage.tables);
+    if (foreignLanguage.tables.length > 0) {
       candidates.push(
         new MenuCandidate('外語符號', '', () => {
           return new SymbolCategoryState({
@@ -288,7 +308,7 @@ export class MenuState extends InputtingState {
             displayedRadicals: '外語符號',
             selectionKeys: args.selectionKeys,
             previousState: this,
-            nodes: ForeignLanguage.tables,
+            nodes: foreignLanguage.tables,
           });
         }),
       );
@@ -311,6 +331,18 @@ export class MenuState extends InputtingState {
       displayedRadicals: '主選單',
       selectionKeys: args.selectionKeys,
       candidates: candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
+    });
+    this.settings = args.settings;
+    this.onSettingsChanged = args.onSettingsChanged;
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+    return new MenuState({
+      settings: this.settings,
+      selectionKeys: this.selectionKeys,
+      onSettingsChanged: this.onSettingsChanged,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
   }
 }

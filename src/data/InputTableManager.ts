@@ -15,6 +15,7 @@ import shiftPunctuations from './symbols/fsymbols.json';
 import { Candidate } from './Candidate';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
+import { CustomSymbolTable } from './CustomSymbolTable';
 
 type AssociatedPhrases = {
   chardefs: { [key: string]: string[] };
@@ -137,6 +138,7 @@ export class InputTableManager {
     return shiftPunctuations;
   }
 
+  readonly customSymbolTable: CustomSymbolTable = new CustomSymbolTable();
   readonly foreignLanguage: ForeignLanguage = new ForeignLanguage();
 
   private bopomofoSymbols_: string[] = (() => {

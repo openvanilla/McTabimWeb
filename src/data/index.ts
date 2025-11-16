@@ -3,3 +3,4 @@ export { InputTableManager, InputTableWrapper } from './InputTableManager';
 export { EmojiTable } from './Emoji';
 export { SymbolCategory } from './SymbolCategory';
 export { ForeignLanguage } from './ForeignLanguage';
+export { CustomSymbolTable as SymbolTable } from './CustomSymbolTable';

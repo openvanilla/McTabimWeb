@@ -24,8 +24,12 @@ describe('ForeignLanguage', () => {
     foreignLanguage.sourceData = newSource;
     expect(foreignLanguage.sourceData).toBe(newSource);
     expect(foreignLanguage.tables.length).toBe(1);
-    expect(foreignLanguage.tables[0].name).toBe('TestCategory');
-    expect(foreignLanguage.tables[0].nodes).toEqual(['a', 'b', 'c']);
+    const table = foreignLanguage.tables[0];
+    expect(table).toBeInstanceOf(SymbolCategory);
+    if (table instanceof SymbolCategory) {
+      expect(table.name).toBe('TestCategory');
+      expect(table.nodes).toEqual(['a', 'b', 'c']);
+    }
   });
 
   it('should trim sourceData on initialization', () => {
@@ -39,7 +43,13 @@ describe('ForeignLanguage', () => {
     const instance2 = new ForeignLanguage();
     instance1.sourceData = 'A=1';
     instance2.sourceData = 'B=2';
-    expect(instance1.tables[0].name).toBe('A');
-    expect(instance2.tables[0].name).toBe('B');
+    const table0 = instance1.tables[0];
+    const table1 = instance2.tables[0];
+    expect(table0).toBeInstanceOf(SymbolCategory);
+    expect(table1).toBeInstanceOf(SymbolCategory);
+    if (table0 instanceof SymbolCategory && table1 instanceof SymbolCategory) {
+      expect(table0.name).toBe('A');
+      expect(table1.name).toBe('B');
+    }
   });
 });
