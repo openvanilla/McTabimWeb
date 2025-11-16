@@ -163,14 +163,15 @@ export class KeyHandler {
     ///  Inputting State
     if (state instanceof InputtingState) {
       if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
-        if (state instanceof AssociatedPhrasesState) {
+        if (key.name === KeyName.RETURN && state instanceof AssociatedPhrasesState) {
           stateCallback(new EmptyState());
           return true;
         }
 
         if (state.candidates.length > 0) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
-          this.handleCandidate(selectedCandidate, stateCallback);
+          const allowAssociatedPhrases = !(state instanceof AssociatedPhrasesState);
+          this.handleCandidate(selectedCandidate, stateCallback, allowAssociatedPhrases);
         } else {
           errorCallback();
         }
