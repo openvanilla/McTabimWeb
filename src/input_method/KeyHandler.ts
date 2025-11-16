@@ -219,6 +219,7 @@ export class KeyHandler {
             });
             stateCallback(newState);
             return true;
+          }
         }
         const symbolTable = InputTableManager.getInstance().symbolTable;
         if (symbolTable.keynames.includes(state.radicals + key.ascii)) {
