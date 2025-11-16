@@ -71,10 +71,10 @@ export class InputTableWrapper {
   constructor(public id: string, public table: InputTable, public settings: InputTableSettings) {}
 
   lookupForCandidate(radicals: string): Candidate[] | [] {
-    let founds = this.table.chardefs[radicals];
-    let candidates: Candidate[] = [];
+    const founds = this.table.chardefs[radicals];
+    const candidates: Candidate[] = [];
     if (founds) {
-      for (let found of founds) {
+      for (const found of founds) {
         candidates.push(new Candidate(found, ''));
       }
     }
@@ -142,7 +142,7 @@ export class InputTableManager {
   readonly foreignLanguage: ForeignLanguage = new ForeignLanguage();
 
   private bopomofoSymbols_: string[] = (() => {
-    let bopomofolist: string[] = [];
+    const bopomofolist: string[] = [];
     for (let i = 0x3105; i < 0x311a; i++) {
       bopomofolist.push(String.fromCharCode(i));
     }
@@ -180,9 +180,9 @@ export class InputTableManager {
 
   lookUpForAssociatedPhrases(prefix: string): Candidate[] | [] {
     const founds = associatedPhrases.chardefs[prefix];
-    let candidates: Candidate[] = [];
+    const candidates: Candidate[] = [];
     if (founds) {
-      for (let found of founds) {
+      for (const found of founds) {
         candidates.push(new Candidate(found, ''));
       }
     }

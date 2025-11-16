@@ -4,9 +4,9 @@ export class SymbolTableParser {
   private constructor() {}
 
   static parse(text: string): (SymbolCategory | string)[] {
-    let categories: (SymbolCategory | string)[] = [];
-    let lines = text.split('\n');
-    for (let line of lines) {
+    const categories: (SymbolCategory | string)[] = [];
+    const lines = text.split('\n');
+    for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed.length === 0) {
         continue;

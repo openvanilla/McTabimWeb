@@ -208,7 +208,7 @@ class PimeMcTabim {
         let selectedIndex = 0;
         let index = 0;
         const candidateList = [];
-        for (let candidate of state.candidates) {
+        for (const candidate of state.candidates) {
           if (candidate.selected) {
             selectedIndex = index;
           }
@@ -220,7 +220,7 @@ class PimeMcTabim {
         // Note: McTabim's composing buffer are composed by segments so
         // it allows an input method framework to draw underlines
         let compositionString = '';
-        for (let item of composingBuffer) {
+        for (const item of composingBuffer) {
           compositionString += item.text;
         }
 
@@ -357,7 +357,7 @@ class PimeMcTabim {
 
       case PimeMcTabimCommand.Help:
         {
-          let python3 = path.join(__dirname, '..', '..', '..', 'python', 'python3', 'python.exe');
+          const python3 = path.join(__dirname, '..', '..', '..', 'python', 'python3', 'python.exe');
           const script = path.join(__dirname, 'config_tool.py');
           const command = `"${python3}" "${script}" help`;
           console.log('Run ' + command);
@@ -442,7 +442,7 @@ module.exports = {
     }
 
     if (request.method === 'filterKeyUp') {
-      let handled = pimeMcTabim.isLastFilterKeyDownHandled;
+      const handled = pimeMcTabim.isLastFilterKeyDownHandled;
       if (
         lastRequest &&
         lastRequest.method === 'filterKeyUp' &&
@@ -468,7 +468,7 @@ module.exports = {
       ) {
         // NOTE: Some app, like MS Word, may send repeated key down event.
         // We should ignore such events.
-        let response = Object.assign({}, responseTemplate, {
+        const response = Object.assign({}, responseTemplate, {
           return: true,
         });
         return response;
@@ -542,7 +542,7 @@ module.exports = {
         return response;
       }
       const uiState: any = pimeMcTabim.uiState;
-      let response = Object.assign({}, responseTemplate, uiState, {
+      const response = Object.assign({}, responseTemplate, uiState, {
         return: pimeMcTabim.isLastFilterKeyDownHandled,
       });
       return response;

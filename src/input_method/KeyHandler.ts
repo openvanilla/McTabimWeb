@@ -70,9 +70,9 @@ export class KeyHandler {
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
     if (state instanceof AssociatedPhrasesState) {
-      let selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
+      const selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
       if (key.ascii && selectionKeys.includes(key.ascii)) {
-        let candidates = state.candidatesInCurrentPage;
+        const candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
           return true;
@@ -174,9 +174,9 @@ export class KeyHandler {
       }
 
       if (!(state instanceof AssociatedPhrasesState)) {
-        let selectionKeys = state.selectionKeys;
+        const selectionKeys = state.selectionKeys;
         if (key.ascii && selectionKeys.includes(key.ascii)) {
-          let candidates = state.candidatesInCurrentPage;
+          const candidates = state.candidatesInCurrentPage;
           if (candidates === undefined || candidates.length === 0) {
             errorCallback();
             return true;
@@ -241,16 +241,16 @@ export class KeyHandler {
         }
         const symbolTable = InputTableManager.getInstance().symbolTable;
         if (symbolTable.keynames.includes(state.radicals + key.ascii)) {
-          let chr = key.ascii;
+          const chr = key.ascii;
           if (state.radicals.length >= 2) {
             errorCallback();
             return true;
           }
-          let joined = state.radicals + chr;
-          let founds = symbolTable.chardefs[joined];
-          let candidates: Candidate[] = [];
+          const joined = state.radicals + chr;
+          const founds = symbolTable.chardefs[joined];
+          const candidates: Candidate[] = [];
           if (founds) {
-            for (let found of founds) {
+            for (const found of founds) {
               candidates.push(new Candidate(found, ''));
             }
           }
@@ -266,8 +266,8 @@ export class KeyHandler {
         // pass
       } else if (inputKeys.includes(key.ascii)) {
         // associated phrase state also reach here, and start to input a new radical
-        let chr = key.ascii;
-        let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
+        const chr = key.ascii;
+        const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
         let selectionKeys = table.table.selkey;
         if (selectionKeys === undefined || selectionKeys.length === 0) {
           selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
@@ -277,9 +277,9 @@ export class KeyHandler {
           errorCallback();
           return true;
         }
-        let joined = state.radicals + chr;
-        let displayedJoined = state.displayedRadicals + displayedChr;
-        let candidates = table.lookupForCandidate(joined) || [];
+        const joined = state.radicals + chr;
+        const displayedJoined = state.displayedRadicals + displayedChr;
+        const candidates = table.lookupForCandidate(joined) || [];
         const newState = new InputtingState({
           radicals: joined,
           displayedRadicals: displayedJoined,
@@ -312,7 +312,7 @@ export class KeyHandler {
           stateCallback(new EmptyState());
           return true;
         }
-        let newRadicals = state.radicals.slice(0, -1);
+        const newRadicals = state.radicals.slice(0, -1);
         if (newRadicals.length === 0) {
           stateCallback(new EmptyState());
           return true;
@@ -320,8 +320,8 @@ export class KeyHandler {
 
         if (state instanceof SymbolInputtingState) {
           const symbolTable = InputTableManager.getInstance().symbolTable;
-          let found = symbolTable.chardefs[newRadicals];
-          let candidates = found?.map((chr) => new Candidate(chr, '')) || [];
+          const found = symbolTable.chardefs[newRadicals];
+          const candidates = found?.map((chr) => new Candidate(chr, '')) || [];
           const newState = new SymbolInputtingState({
             radicals: newRadicals,
             selectionKeys: state.selectionKeys,
@@ -331,8 +331,8 @@ export class KeyHandler {
           return true;
         }
 
-        let newDisplayedRadicals = state.displayedRadicals.slice(0, -1);
-        let candidates = table.lookupForCandidate(newRadicals) || [];
+        const newDisplayedRadicals = state.displayedRadicals.slice(0, -1);
+        const candidates = table.lookupForCandidate(newRadicals) || [];
         const newState = new InputtingState({
           radicals: newRadicals,
           displayedRadicals: newDisplayedRadicals,

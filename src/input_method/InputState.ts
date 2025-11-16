@@ -42,7 +42,7 @@ export class InputtingState extends InputState {
     this.candidates = args.candidates;
     this.selectedCandidateIndex = args.selectedCandidateIndex;
 
-    let candidatesPerPage = Math.max(this.selectionKeys.length, 1);
+    const candidatesPerPage = Math.max(this.selectionKeys.length, 1);
     if (this.candidates.length > 0) {
       this.selectedCandidateIndex = args.selectedCandidateIndex ?? 0;
       this.candidatePageCount = Math.ceil(this.candidates.length / candidatesPerPage);
@@ -134,7 +134,7 @@ export class SymbolCategoryState extends InputtingState {
   }) {
     var candidates = args.nodes.map((singleNode) => {
       if (singleNode instanceof SymbolCategory) {
-        let name = singleNode.name;
+        const name = singleNode.name;
         const newDisplayedRadicals = args.displayedRadicals + '/' + name;
         return new MenuCandidate(name, '', () => {
           return new SymbolCategoryState({
@@ -259,7 +259,7 @@ export class MenuState extends InputtingState {
     onSettingsChanged: ((settings: Settings) => void) | undefined;
     selectedCandidateIndex?: number | undefined;
   }) {
-    let candidates = [];
+    const candidates = [];
     candidates.push(
       new MenuCandidate('功能開關', '', () => {
         return new SettingsState({
@@ -271,7 +271,7 @@ export class MenuState extends InputtingState {
       }),
     );
 
-    let customSymbolTable = InputTableManager.getInstance().customSymbolTable;
+    const customSymbolTable = InputTableManager.getInstance().customSymbolTable;
     if (customSymbolTable.tables.length > 0) {
       candidates.push(
         new MenuCandidate('特殊符號', '', () => {
@@ -298,7 +298,7 @@ export class MenuState extends InputtingState {
       }),
     );
 
-    let foreignLanguage = InputTableManager.getInstance().foreignLanguage;
+    const foreignLanguage = InputTableManager.getInstance().foreignLanguage;
     console.log(foreignLanguage.tables);
     if (foreignLanguage.tables.length > 0) {
       candidates.push(
