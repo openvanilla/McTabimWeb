@@ -27,3 +27,8 @@
 
 - Update this file when introducing new subsystems so Copilot understands how to wire things together.
 - Prefer concise prose and actionable bullet points that tell Copilot _what to favor or avoid_ rather than lengthy narratives.
+
+## Commit expectations
+
+- Follow Conventional Commits for every commit title (e.g., `feat: add reverse lookup cache`).
+- Always include 3–4 short lines after the title that summarize the change, rationale, and any testing performed so history stays self-explanatory.
