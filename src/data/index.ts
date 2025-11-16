@@ -4,7 +4,8 @@ import simplex from './simplex.json';
 import simplex5 from './simplex5.json';
 import dayi3 from './dayi3.json';
 import dayi4 from './dayi4.json';
-
+import array30 from './array30.json';
+import array40 from './array40.json';
 
 export default class Candidate {
   readonly displayText: string;
@@ -119,6 +120,7 @@ export class InputTableManager {
     new InputTableWrapper('simplex5', simplex5, { maxRadicals: 2 }),
     new InputTableWrapper('dayi3', dayi3, { maxRadicals: 3 }),
     new InputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
-
+    new InputTableWrapper('array30', array30, { maxRadicals: 3 }),
+    new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
   ];
 }

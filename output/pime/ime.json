@@ -1,7 +1,7 @@
 {
   "name": "小麥他命 (PIME)",
-  "version": "0.3.0",
-  "guid": "{27c57701-b6b9-4bef-983a-fa7737245075}",
+  "version": "0.1.0",
+  "guid": "{b0c8205b-d044-4df0-9ef4-4ba927747db0}",
   "locale": "zh-Hant-TW",
   "fallbackLocale": "zh-TW",
   "icon": "icon.ico",
