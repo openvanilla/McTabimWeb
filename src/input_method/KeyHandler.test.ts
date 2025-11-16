@@ -384,7 +384,7 @@ describe('Test Associated Phrases', () => {
       exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
       candidates: phrases,
     });
-    const key2 = new Key('2', KeyName.UNKNOWN);
+    const key2 = new Key('@', KeyName.UNKNOWN);
     let committed = false;
     const keyHandler2 = new KeyHandler(
       () => InputTableManager.getInstance().currentTable,
@@ -408,7 +408,7 @@ describe('Test Associated Phrases', () => {
     );
     expect(handled).toBe(true);
     expect(committed).toBe(true);
-    expect(handleCandidateSpy).toHaveBeenCalledWith(phrases[1], expect.any(Function));
+    expect(handleCandidateSpy).toHaveBeenCalledWith(phrases[1], expect.any(Function), false);
     handleCandidateSpy.mockRestore();
   });
 });

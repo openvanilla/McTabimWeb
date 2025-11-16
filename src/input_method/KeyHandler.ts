@@ -67,6 +67,7 @@ export class KeyHandler {
   ): boolean {
     const table = this.onRequestTable();
     const inputKeys = Object.keys(table.table.keynames);
+    const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
 
     /// Empty State
     if (state instanceof EmptyState) {
@@ -99,6 +100,16 @@ export class KeyHandler {
         stateCallback(newState);
         return true;
       }
+
+      if (this.onRequestSettings().shiftKeyForSymbolsEnabled) {
+        if (shiftLetterSymbols.hasOwnProperty(key.ascii)) {
+          const chr = shiftLetterSymbols[key.ascii];
+          const newState = new CommittingState(chr);
+          stateCallback(newState);
+          return true;
+        }
+      }
+
       return false;
     }
 

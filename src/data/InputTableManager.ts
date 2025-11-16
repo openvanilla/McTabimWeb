@@ -9,6 +9,8 @@ import array40 from './cin/array40.json';
 import associatedPhrasesJson from './associated_phrases/phrase.json';
 
 import symbols from './symbols/msymbols.json';
+import shiftLetters from './symbols/swkb.json';
+
 import { Candidate } from './Candidate';
 import { EmojiTable } from './Emoji';
 
@@ -19,6 +21,8 @@ type AssociatedPhrases = {
 const associatedPhrases: AssociatedPhrases = {
   chardefs: associatedPhrasesJson.chardefs as { [key: string]: string[] },
 };
+
+const shiftLetterSymbols: { [key: string]: string } = shiftLetters;
 
 export interface InputTable {
   cname: string;
@@ -121,6 +125,10 @@ export class InputTableManager {
 
   get symbolTable(): SymbolTable {
     return symbols;
+  }
+
+  get shiftLetterSymbols(): { [key: string]: string } {
+    return shiftLetterSymbols;
   }
 
   getTables(): [string, string][] {

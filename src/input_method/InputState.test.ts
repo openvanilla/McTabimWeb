@@ -1,4 +1,16 @@
-import { CommittingState, EmptyState, InputtingState } from './InputState';
+import {
+  CommittingState,
+  EmptyState,
+  InputtingState,
+  AssociatedPhrasesState,
+  SymbolInputtingState,
+  EmojiInputtingState,
+  EmojiMenuState,
+  SettingsState,
+} from './InputState';
+
+import { Candidate } from '../data';
+import { MenuCandidate } from '../data/Candidate';
 
 describe('Test EmptyState', () => {
   it('should create an instance of EmptyState', () => {
@@ -166,6 +178,138 @@ describe('Test EmptyState', () => {
 
       expect(() => state.candidates[0].nextState()).not.toThrow();
       expect(() => state.candidates[1].nextState()).not.toThrow();
+    });
+  });
+});
+
+describe('Other InputState subclasses', () => {
+  const mockCandidate = new Candidate('A', '');
+  const mockCandidates = [
+    new Candidate('A', ''),
+    new Candidate('B', ''),
+    new Candidate('C', ''),
+    new Candidate('D', ''),
+    new Candidate('E', ''),
+  ];
+
+  describe('AssociatedPhrasesState', () => {
+    it('should initialize with correct displayedRadicals and candidates', () => {
+      const state = new AssociatedPhrasesState({
+        selectionKeys: '12',
+        exactSelectionKeys: '12',
+        candidates: mockCandidates,
+        selectedCandidateIndex: 1,
+      });
+      expect(state.displayedRadicals).toBe('聯想詞');
+      expect(state.candidates).toEqual(mockCandidates);
+      expect(state.selectedCandidateIndex).toBe(1);
+    });
+
+    it('copyWithArgs should update selectedCandidateIndex', () => {
+      const state = new AssociatedPhrasesState({
+        selectionKeys: '12',
+        exactSelectionKeys: '12',
+        candidates: mockCandidates,
+        selectedCandidateIndex: 1,
+      });
+      const newState = state.copyWithArgs({ selectedCandidateIndex: 2 });
+      expect(newState.selectedCandidateIndex).toBe(2);
+      expect(newState.candidates).toEqual(mockCandidates);
+    });
+  });
+
+  describe('SymbolInputtingState', () => {
+    it('should set displayedRadicals with [符]', () => {
+      const state = new SymbolInputtingState({
+        radicals: 'abc',
+        selectionKeys: '12',
+        candidates: mockCandidates,
+        selectedCandidateIndex: 0,
+      });
+      expect(state.displayedRadicals).toBe('[符]abc');
+      expect(state.candidates).toEqual(mockCandidates);
+    });
+
+    it('copyWithArgs should update selectedCandidateIndex', () => {
+      const state = new SymbolInputtingState({
+        radicals: 'abc',
+        selectionKeys: '12',
+        candidates: mockCandidates,
+        selectedCandidateIndex: 0,
+      });
+      const newState = state.copyWithArgs({ selectedCandidateIndex: 1 });
+      expect(newState.selectedCandidateIndex).toBe(1);
+    });
+  });
+
+  describe('EmojiInputtingState', () => {
+    it('should set displayedRadicals to categoryName', () => {
+      const prevState = new EmptyState();
+      const state = new EmojiInputtingState({
+        categoryName: '表情',
+        selectionKeys: '12',
+        candidates: mockCandidates,
+        previousState: prevState,
+      });
+      expect(state.displayedRadicals).toBe('表情');
+      expect(state.previousState).toBe(prevState);
+    });
+
+    it('copyWithArgs should update selectedCandidateIndex', () => {
+      const prevState = new EmptyState();
+      const state = new EmojiInputtingState({
+        categoryName: '表情',
+        selectionKeys: '12',
+        candidates: mockCandidates,
+        previousState: prevState,
+        selectedCandidateIndex: 0,
+      });
+      const newState = state.copyWithArgs({ selectedCandidateIndex: 2 });
+      expect(newState.selectedCandidateIndex).toBe(2);
+    });
+  });
+
+  describe('EmojiMenuState', () => {
+    class MockEmojiCategory {
+      name: string;
+      nodes: any[];
+      constructor(name: string, nodes: any[]) {
+        this.name = name;
+        this.nodes = nodes;
+      }
+    }
+
+    it('should create MenuCandidates for each node', () => {
+      const prevState = new EmptyState();
+      const emojiNodes = [
+        new MockEmojiCategory('Smileys', ['😀', '😁']),
+        new MockEmojiCategory('Animals', ['🐶', '🐱']),
+      ];
+      const state = new EmojiMenuState({
+        title: 'Emoji',
+        displayedRadicals: '表情',
+        previousState: prevState,
+        nodes: emojiNodes as any,
+        selectionKeys: '12',
+      });
+      expect(state.candidates.length).toBe(2);
+      expect(state.candidates[0]).toBeInstanceOf(MenuCandidate);
+      expect(state.displayedRadicals).toBe('表情');
+      expect(state.previousState).toBe(prevState);
+      expect(state.nodes).toBe(emojiNodes);
+    });
+
+    it('copyWithArgs should throw error', () => {
+      const prevState = new EmptyState();
+      const emojiNodes = [new MockEmojiCategory('Smileys', ['😀', '😁'])];
+      const state = new EmojiMenuState({
+        title: 'Emoji',
+        displayedRadicals: '表情',
+        previousState: prevState,
+        nodes: emojiNodes as any,
+        selectionKeys: '1',
+      });
+      expect(() => state.copyWithArgs({ selectedCandidateIndex: 0 })).toThrow();
     });
   });
 });
