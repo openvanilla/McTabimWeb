@@ -1,18 +1,19 @@
 import src from './symbols/emoji.json';
 
 export class EmojiCategory {
-  id: string;
-  name: string;
-  emojis: string[] | EmojiCategory[];
+  readonly id: string;
+  readonly name: string;
+  readonly nodes: string[] | EmojiCategory[];
+
   constructor(args: { name: string; id: string; nodes: string[] | EmojiCategory[] }) {
     this.id = args.id;
     this.name = args.name;
-    this.emojis = args.nodes;
+    this.nodes = args.nodes;
   }
 }
 
 export class EmojiTable {
-  table: EmojiCategory[] = (() => {
+  tables: EmojiCategory[] = (() => {
     const emoticons = new EmojiCategory({
       name: '表情符號',
       id: 'emoticons',

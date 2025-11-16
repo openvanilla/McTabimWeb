@@ -1,7 +1,10 @@
 import { Candidate } from '../data';
+import { MenuCandidate } from '../data/Candidate';
 import { InputTableManager, InputTableWrapper } from '../data/InputTableManager';
 import {
   CommittingState,
+  EmojiInputtingState,
+  EmojiMenuState,
   EmptyState,
   InputState,
   InputtingState,
@@ -63,6 +66,12 @@ export class KeyHandler {
       if (key.name === KeyName.RETURN) {
         if (state.candidates.length > 0) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
+          if (selectedCandidate instanceof MenuCandidate) {
+            const newState = selectedCandidate.nextState();
+            stateCallback(newState);
+            return true;
+          }
+
           const newState = new CommittingState(selectedCandidate.displayText);
           stateCallback(newState);
         } else {
@@ -83,6 +92,12 @@ export class KeyHandler {
             return true;
           }
           const selectedCandidate = candidates[index];
+          if (selectedCandidate instanceof MenuCandidate) {
+            const newState = selectedCandidate.nextState();
+            stateCallback(newState);
+            return true;
+          }
+
           const newState = new CommittingState(selectedCandidate.displayText);
           stateCallback(newState);
         }
@@ -90,7 +105,21 @@ export class KeyHandler {
       }
 
       if (state instanceof SymbolInputtingState) {
-        const symbolTable = InputTableManager.getInstance().getSymbolTable();
+        if (state.radicals.length === 0) {
+          if (key.ascii === 'e') {
+            const newState = new EmojiMenuState({
+              title: 'Emoji',
+              displayedRadicals: 'Emoji',
+              selectionKeys: '1234567890',
+              previousState: state,
+              nodes: InputTableManager.getInstance().emojiTable.tables,
+            });
+            stateCallback(newState);
+            return true;
+          }
+        }
+        const symbolTable = InputTableManager.getInstance().symbolTable;
+
         if (symbolTable.keynames.includes(key.ascii)) {
           let chr = key.ascii;
           let selectionKeys = symbolTable.keynames.join('');
@@ -118,31 +147,33 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-      } else {
-        if (inputKeys.includes(key.ascii)) {
-          let chr = key.ascii;
-          let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
-          let selectionKeys = table.table.selkey;
-          if (selectionKeys === undefined || selectionKeys.length === 0) {
-            selectionKeys = '1234567890';
-          }
+      } else if (state instanceof EmojiMenuState) {
+        // pass
+      } else if (state instanceof EmojiInputtingState) {
+        // pass
+      } else if (inputKeys.includes(key.ascii)) {
+        let chr = key.ascii;
+        let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
+        let selectionKeys = table.table.selkey;
+        if (selectionKeys === undefined || selectionKeys.length === 0) {
+          selectionKeys = '1234567890';
+        }
 
-          if (state.radicals.length >= table.settings.maxRadicals) {
-            errorCallback();
-            return true;
-          }
-          let joined = state.radicals + chr;
-          let displayedJoined = state.displayedRadicals + displayedChr;
-          let candidates = table.lookupForCandidate(joined) || [];
-          const newState = new InputtingState({
-            radicals: joined,
-            displayedRadicals: displayedJoined,
-            selectionKeys: selectionKeys,
-            candidates: candidates,
-          });
-          stateCallback(newState);
+        if (state.radicals.length >= table.settings.maxRadicals) {
+          errorCallback();
           return true;
         }
+        let joined = state.radicals + chr;
+        let displayedJoined = state.displayedRadicals + displayedChr;
+        let candidates = table.lookupForCandidate(joined) || [];
+        const newState = new InputtingState({
+          radicals: joined,
+          displayedRadicals: displayedJoined,
+          selectionKeys: selectionKeys,
+          candidates: candidates,
+        });
+        stateCallback(newState);
+        return true;
       }
 
       if (key.name === KeyName.SPACE) {
@@ -150,6 +181,12 @@ export class KeyHandler {
           return true;
         }
         const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
+        if (selectedCandidate instanceof MenuCandidate) {
+          const newState = selectedCandidate.nextState();
+          stateCallback(newState);
+          return true;
+        }
+
         const newState = new CommittingState(selectedCandidate.displayText);
         stateCallback(newState);
         return true;
@@ -157,11 +194,29 @@ export class KeyHandler {
 
       // Ignore ESC key in inputting state
       if (key.name === KeyName.ESC) {
+        if (state instanceof EmojiMenuState) {
+          stateCallback(state.previousState);
+          return true;
+        }
+        if (state instanceof EmojiInputtingState) {
+          stateCallback(state.previousState);
+          return true;
+        }
+
         stateCallback(new EmptyState());
         return true;
       }
 
       if (key.name === KeyName.BACKSPACE) {
+        if (state instanceof EmojiMenuState) {
+          stateCallback(state.previousState);
+          return true;
+        }
+        if (state instanceof EmojiInputtingState) {
+          stateCallback(state.previousState);
+          return true;
+        }
+
         if (state.radicals.length === 0) {
           stateCallback(new EmptyState());
           return true;

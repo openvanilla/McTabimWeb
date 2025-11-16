@@ -1,4 +1,6 @@
 import { Candidate } from '../data';
+import { MenuCandidate } from '../data/Candidate';
+import { EmojiCategory } from '../data/Emoji';
 
 export abstract class InputState {}
 
@@ -98,5 +100,91 @@ export class SymbolInputtingState extends InputtingState {
       candidates: args.candidates ?? this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
+  }
+}
+
+export class EmojiInputtingState extends InputtingState {
+  previousState: InputState;
+
+  constructor(args: {
+    categoryName: string;
+    selectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+    previousState: InputState;
+  }) {
+    super({
+      radicals: '',
+      displayedRadicals: args.categoryName,
+      selectionKeys: args.selectionKeys,
+      candidates: args.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
+    });
+    this.previousState = args.previousState;
+  }
+
+  copyWithArgs(args: {
+    categoryName?: string;
+    selectionKeys?: string;
+    candidates?: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+  }): InputtingState {
+    return new EmojiInputtingState({
+      categoryName: args.categoryName ?? this.displayedRadicals,
+      selectionKeys: args.selectionKeys ?? this.selectionKeys,
+      candidates: args.candidates ?? this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      previousState: this.previousState,
+    });
+  }
+}
+
+export class EmojiMenuState extends InputtingState {
+  nodes: EmojiCategory[];
+  previousState: InputState;
+
+  constructor(args: {
+    title: string;
+    displayedRadicals: string;
+    previousState: InputState;
+    nodes: EmojiCategory[];
+    selectionKeys: string;
+  }) {
+    var candidates = args.nodes.map((singleNode) => {
+      const name = singleNode.name;
+      const newDisplayedRadicals = args.displayedRadicals + '/' + name;
+      const subNodes = singleNode.nodes;
+
+      return new MenuCandidate(name, '', () => {
+        let nextState = new EmptyState();
+        const first = subNodes[0];
+        if (first instanceof EmojiCategory) {
+          nextState = new EmojiMenuState({
+            title: name,
+            displayedRadicals: newDisplayedRadicals,
+            selectionKeys: args.selectionKeys,
+            previousState: this,
+            nodes: subNodes as EmojiCategory[],
+          });
+        } else if (typeof first === 'string') {
+          nextState = new EmojiInputtingState({
+            categoryName: newDisplayedRadicals,
+            selectionKeys: args.selectionKeys,
+            candidates: subNodes.map((emoji) => new Candidate(emoji as string, '')),
+            previousState: this,
+          });
+        }
+        return nextState;
+      });
+    });
+
+    super({
+      radicals: '',
+      displayedRadicals: args.displayedRadicals,
+      selectionKeys: args.selectionKeys,
+      candidates: candidates,
+    });
+    this.previousState = args.previousState;
+    this.nodes = args.nodes;
   }
 }

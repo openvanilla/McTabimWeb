@@ -9,6 +9,7 @@ import array40 from './cin/array40.json';
 
 import symbols from './symbols/msymbols.json';
 import { Candidate } from './Candidate';
+import { EmojiTable } from './Emoji';
 
 export interface InputTable {
   cname: string;
@@ -107,7 +108,9 @@ export class InputTableManager {
     }
   }
 
-  getSymbolTable(): SymbolTable {
+  readonly emojiTable: EmojiTable = new EmojiTable();
+
+  get symbolTable(): SymbolTable {
     return symbols;
   }
 
