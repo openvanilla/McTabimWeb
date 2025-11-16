@@ -23,6 +23,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
+    "src/data/**/*.json",
     "!src/chromeos_ime.ts",
     "!src/pime.ts",
     "!src/pime_keys.ts",
