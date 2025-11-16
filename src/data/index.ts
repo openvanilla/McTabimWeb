@@ -1,11 +1,13 @@
-import checj from './checj.json';
-import cj5 from './cj5.json';
-import simplex from './simplex.json';
-import simplex5 from './simplex5.json';
-import dayi3 from './dayi3.json';
-import dayi4 from './dayi4.json';
-import array30 from './array30.json';
-import array40 from './array40.json';
+import checj from './cin/checj.json';
+import cj5 from './cin/cj5.json';
+import simplex from './cin/simplex.json';
+import simplex5 from './cin/simplex5.json';
+import dayi3 from './cin/dayi3.json';
+import dayi4 from './cin/dayi4.json';
+import array30 from './cin/array30.json';
+import array40 from './cin/array40.json';
+
+import symbols from './symbols/msymbols.json';
 
 export default class Candidate {
   readonly displayText: string;
@@ -46,6 +48,11 @@ export interface InputTable {
   keynames: { [key: string]: string };
   privateuse: { [key: string]: string[] };
   selkey: string;
+}
+
+export interface SymbolTable {
+  chardefs: { [key: string]: string[] };
+  keynames: string[];
 }
 
 export interface InputTableSettings {
@@ -109,11 +116,15 @@ export class InputTableManager {
     }
   }
 
+  getSymbolTable(): SymbolTable {
+    return symbols;
+  }
+
   getTables(): [string, string][] {
     return this.tables.map((table) => [table.id, table.table.cname]);
   }
 
-  readonly tables: Array<InputTableWrapper> = [
+  private readonly tables: Array<InputTableWrapper> = [
     new InputTableWrapper('checj', checj, { maxRadicals: 5 }),
     new InputTableWrapper('cj5', cj5, { maxRadicals: 5 }),
     new InputTableWrapper('simplex', simplex, { maxRadicals: 2 }),

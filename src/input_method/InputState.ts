@@ -51,4 +51,52 @@ export class InputtingState extends InputState {
       this.candidatePageIndex = pageIndex;
     }
   }
+
+  copyWithArgs(args: {
+    radicals?: string;
+    displayedRadicals?: string;
+    selectionKeys?: string;
+    candidates?: Candidate[];
+    selectedCandidateIndex?: number;
+  }): InputtingState {
+    return new InputtingState({
+      radicals: args.radicals ?? this.radicals,
+      displayedRadicals: args.displayedRadicals ?? this.displayedRadicals,
+      selectionKeys: args.selectionKeys ?? this.selectionKeys,
+      candidates: args.candidates ?? this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
+  }
+}
+
+export class SymbolInputtingState extends InputtingState {
+  constructor(args: {
+    radicals: string;
+    selectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+  }) {
+    super({
+      radicals: args.radicals,
+      displayedRadicals: `[符]${args.radicals}`,
+      selectionKeys: args.selectionKeys,
+      candidates: args.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
+    });
+  }
+
+  copyWithArgs(args: {
+    radicals: string | undefined;
+    displayedRadicals: string | undefined;
+    selectionKeys: string | undefined;
+    candidates: Candidate[] | undefined;
+    selectedCandidateIndex?: number | undefined;
+  }): InputtingState {
+    return new SymbolInputtingState({
+      radicals: args.radicals ?? this.radicals,
+      selectionKeys: args.selectionKeys ?? this.selectionKeys,
+      candidates: args.candidates ?? this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
+  }
 }
