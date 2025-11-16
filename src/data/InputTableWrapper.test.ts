@@ -1,0 +1,80 @@
+import { InputTableWrapper, InputTableSettings } from './InputTableWrapper';
+import { Candidate } from './Candidate';
+import { InputTable } from './InputTable';
+
+const mockTable: InputTable = {
+  chardefs: {
+    a: ['你', '呢'],
+    b: ['好'],
+    ab: ['嗎'],
+  },
+  cname: 'test',
+  ename: 'test',
+  cincount: undefined,
+  privateuse: {},
+  keynames: {
+    a: 'ㄅ',
+    b: 'ㄆ',
+  },
+  selkey: '1234567890',
+};
+
+const settings: InputTableSettings = { maxRadicals: 2 };
+
+describe('InputTableWrapper', () => {
+  let wrapper: InputTableWrapper;
+
+  beforeEach(() => {
+    wrapper = new InputTableWrapper('test', mockTable, settings);
+  });
+
+  describe('lookupForCandidate', () => {
+    it('returns candidates for existing radicals', () => {
+      const candidates = wrapper.lookupForCandidate('a');
+      expect(candidates).toHaveLength(2);
+      expect(candidates[0]).toBeInstanceOf(Candidate);
+      expect(candidates[0].displayText).toBe('你');
+      expect(candidates[1].displayText).toBe('呢');
+    });
+
+    it('returns empty array for non-existing radicals', () => {
+      expect(wrapper.lookupForCandidate('z')).toEqual([]);
+    });
+  });
+
+  describe('lookUpForDisplayedKeyName', () => {
+    it('returns mapped key name if exists', () => {
+      expect(wrapper.lookUpForDisplayedKeyName('a')).toBe('ㄅ');
+    });
+
+    it('returns original key if mapping does not exist', () => {
+      expect(wrapper.lookUpForDisplayedKeyName('z')).toBe('z');
+    });
+  });
+
+  describe('reverseLookupForRadicals', () => {
+    it('returns radicals for a character', () => {
+      // '你' is mapped from 'a'
+      const radicals = wrapper.reverseLookupForRadicals('你');
+      // Should map 'a' to ['ㄅ']
+      expect(radicals).toEqual(['ㄅ']);
+    });
+
+    it('returns empty array for character not in table', () => {
+      expect(wrapper.reverseLookupForRadicals('無')).toEqual([]);
+    });
+
+    it('returns radicals with keynames mapping', () => {
+      // '嗎' is mapped from 'ab'
+      const radicals = wrapper.reverseLookupForRadicals('嗎');
+      // Should map 'ab' to ['ㄅ', 'ㄆ']
+      expect(radicals).toEqual(['ㄅㄆ']);
+    });
+  });
+
+  it('does not mutate input objects', () => {
+    const originalChardefs = JSON.parse(JSON.stringify(mockTable.chardefs));
+    wrapper.lookupForCandidate('a');
+    expect(mockTable.chardefs).toEqual(originalChardefs);
+  });
+});

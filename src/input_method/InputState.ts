@@ -315,7 +315,6 @@ export class MenuState extends InputtingState {
     );
 
     const foreignLanguage = InputTableManager.getInstance().foreignLanguage;
-    console.log(foreignLanguage.tables);
     if (foreignLanguage.tables.length > 0) {
       candidates.push(
         new MenuCandidate('外語符號', '', () => {

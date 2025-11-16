@@ -16,6 +16,7 @@ import { Candidate } from './Candidate';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
 import { CustomSymbolTable } from './CustomSymbolTable';
+import { InputTableWrapper } from './InputTableWrapper';
 
 type AssociatedPhrases = {
   chardefs: { [key: string]: string[] };
@@ -27,63 +28,9 @@ const associatedPhrases: AssociatedPhrases = {
 
 const shiftLetterSymbols: { [key: string]: string } = shiftLetters;
 
-export interface InputTable {
-  cname: string;
-  ename: string | undefined;
-  cincount:
-    | {
-        big5F: number | undefined;
-        big5LF: number | undefined;
-        big5Other: number | undefined;
-        big5S: number | undefined;
-        bopomofo: number | undefined;
-        cjk: number | undefined;
-        cjkCI: number | undefined;
-        cjkCIS: number | undefined;
-        cjkExtA: number | undefined;
-        cjkExtB: number | undefined;
-        cjkExtC: number | undefined;
-        cjkExtD: number | undefined;
-        cjkExtE: number | undefined;
-        cjkExtF: number | undefined;
-        cjkOther: number | undefined;
-        phrases: number | undefined;
-        privateuse: number | undefined;
-        totalchardefs: number | undefined;
-      }
-    | undefined;
-  chardefs: { [key: string]: string[] };
-  keynames: { [key: string]: string };
-  privateuse: { [key: string]: string[] };
-  selkey: string;
-}
-
 export interface SymbolTable {
   chardefs: { [key: string]: string[] };
   keynames: string[];
-}
-
-export interface InputTableSettings {
-  maxRadicals: number;
-}
-
-export class InputTableWrapper {
-  constructor(public id: string, public table: InputTable, public settings: InputTableSettings) {}
-
-  lookupForCandidate(radicals: string): Candidate[] | [] {
-    const founds = this.table.chardefs[radicals];
-    const candidates: Candidate[] = [];
-    if (founds) {
-      for (const found of founds) {
-        candidates.push(new Candidate(found, ''));
-      }
-    }
-    return candidates;
-  }
-
-  lookUpForDisplayedKeyName(key: string): string {
-    return this.table.keynames[key] || key;
-  }
 }
 
 export class InputTableManager {

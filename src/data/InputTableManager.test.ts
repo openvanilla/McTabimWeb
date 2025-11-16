@@ -1,4 +1,5 @@
-import { InputTableManager, InputTable } from './InputTableManager';
+import { InputTable } from './InputTable';
+import { InputTableManager } from './InputTableManager';
 
 describe('InputTableManager', () => {
   it('test get keynames', () => {
