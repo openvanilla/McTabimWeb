@@ -10,7 +10,6 @@ import {
   MenuState,
   SettingsState,
   SymbolInputtingState,
-  CancelAssociatedPhraseState,
 } from './InputState';
 import { Key, KeyName } from './Key';
 import { Settings } from './Settings';
@@ -71,8 +70,28 @@ export class KeyHandler {
     const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
+    if (state instanceof AssociatedPhrasesState) {
+      let selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
+      if (selectionKeys.includes(key.ascii)) {
+        let candidates = state.candidatesInCurrentPage;
+        if (candidates === undefined || candidates.length === 0) {
+          errorCallback();
+          return true;
+        }
+        const index = selectionKeys.indexOf(key.ascii);
+        if (index > candidates.length - 1) {
+          errorCallback();
+          return true;
+        }
+
+        const selectedCandidate = candidates[index];
+        this.handleCandidate(selectedCandidate, stateCallback, false);
+        return true;
+      }
+    }
+
     /// Empty State
-    if (state instanceof EmptyState || state instanceof CancelAssociatedPhraseState) {
+    if (state instanceof EmptyState || state instanceof AssociatedPhrasesState) {
       if (key.ascii === '`') {
         /// Enter Symbol Inputting State
         const selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
@@ -133,11 +152,9 @@ export class KeyHandler {
         }
       }
 
-      if (state instanceof CancelAssociatedPhraseState) {
-        stateCallback(new EmptyState());
-        return true;
+      if (!(state instanceof AssociatedPhrasesState)) {
+        return false;
       }
-      return false;
     }
 
     ///  Inputting State
@@ -158,32 +175,22 @@ export class KeyHandler {
         return true;
       }
 
-      let selectionKeys = state.selectionKeys;
-      if (state instanceof AssociatedPhrasesState) {
-        selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
-      }
+      if (!(state instanceof AssociatedPhrasesState)) {
+        let selectionKeys = state.selectionKeys;
+        if (selectionKeys.includes(key.ascii)) {
+          let candidates = state.candidatesInCurrentPage;
+          if (candidates === undefined || candidates.length === 0) {
+            errorCallback();
+            return true;
+          }
+          const index = selectionKeys.indexOf(key.ascii);
+          if (index > candidates.length - 1) {
+            errorCallback();
+            return true;
+          }
 
-      if (selectionKeys.includes(key.ascii)) {
-        let candidates = state.candidatesInCurrentPage;
-        if (candidates === undefined || candidates.length === 0) {
-          errorCallback();
-          return true;
-        }
-        const index = selectionKeys.indexOf(key.ascii);
-        if (index > candidates.length - 1) {
-          errorCallback();
-          return true;
-        }
-
-        var allowAssociatedPhrases = !(state instanceof AssociatedPhrasesState);
-        const selectedCandidate = candidates[index];
-        this.handleCandidate(selectedCandidate, stateCallback, allowAssociatedPhrases);
-        return true;
-      } else {
-        if (state instanceof AssociatedPhrasesState && key.ascii !== 'Shift') {
-          let newState = new CancelAssociatedPhraseState();
-          stateCallback(newState);
-          this.handle(key, newState, stateCallback, errorCallback);
+          const selectedCandidate = candidates[index];
+          this.handleCandidate(selectedCandidate, stateCallback);
           return true;
         }
       }
@@ -286,7 +293,10 @@ export class KeyHandler {
 
       // Ignore ESC key in inputting state
       if (key.name === KeyName.ESC) {
-        if (state instanceof SymbolCategoryState) {
+        if (state instanceof AssociatedPhrasesState) {
+          stateCallback(new EmptyState());
+          return true;
+        } else if (state instanceof SymbolCategoryState) {
           stateCallback(state.previousState);
           return true;
         } else if (state instanceof SettingsState) {
@@ -416,6 +426,6 @@ export class KeyHandler {
     }
 
     errorCallback();
-    return false;
+    return true;
   }
 }
