@@ -4,7 +4,16 @@ import { Key, KeyName } from './Key';
 import { KeyHandler } from './KeyHandler';
 
 describe('Test KeyHandler', () => {
-  const keyHandler = new KeyHandler(() => InputTableManager.getInstance().currentTable);
+  const keyHandler = new KeyHandler(
+    () => InputTableManager.getInstance().currentTable,
+    () => {
+      return {
+        associatedPhrasesEnabled: true,
+        shiftKeyForSymbolsEnabled: true,
+      };
+    },
+    (settings) => {},
+  );
   it('test a in cj', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new EmptyState();

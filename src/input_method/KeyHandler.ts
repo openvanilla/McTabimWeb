@@ -1,5 +1,4 @@
-import { Candidate } from '../data';
-import { MenuCandidate } from '../data/Candidate';
+import { Candidate, MenuCandidate } from '../data';
 import { InputTableManager, InputTableWrapper } from '../data/InputTableManager';
 import {
   CommittingState,
@@ -8,15 +7,25 @@ import {
   EmptyState,
   InputState,
   InputtingState,
+  SettingsState,
   SymbolInputtingState,
 } from './InputState';
 import { Key, KeyName } from './Key';
+import { Settings } from './Settings';
 
 export class KeyHandler {
-  onGetTable: () => InputTableWrapper;
+  onRequestTable: () => InputTableWrapper;
+  onRequestSettings: () => Settings;
+  onSettingChanged: (settings: Settings) => void;
 
-  constructor(onGetTable: () => InputTableWrapper) {
-    this.onGetTable = onGetTable;
+  constructor(
+    onRequestTable: () => InputTableWrapper,
+    onRequestSettings: () => Settings,
+    onSettingChanged: (settings: Settings) => void,
+  ) {
+    this.onRequestTable = onRequestTable;
+    this.onRequestSettings = onRequestSettings;
+    this.onSettingChanged = onSettingChanged;
   }
 
   handle(
@@ -25,10 +34,8 @@ export class KeyHandler {
     stateCallback: (state: InputState) => void,
     errorCallback: () => void,
   ): boolean {
-    const table = this.onGetTable();
+    const table = this.onRequestTable();
     const inputKeys = Object.keys(table.table.keynames);
-    // console.log('Handling key:', key, 'in state:', state);
-    // console.log('inputKeys:', inputKeys);
 
     if (state instanceof EmptyState) {
       if (key.ascii === '`') {
@@ -63,7 +70,7 @@ export class KeyHandler {
 
     if (state instanceof InputtingState) {
       // Perhaps handle tab key to commit the current candidate
-      if (key.name === KeyName.RETURN) {
+      if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
         if (state.candidates.length > 0) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
           if (selectedCandidate instanceof MenuCandidate) {
@@ -118,6 +125,17 @@ export class KeyHandler {
             return true;
           }
         }
+        if (key.ascii === 's') {
+          const newState = new SettingsState({
+            previousState: state,
+            settings: this.onRequestSettings(),
+            selectionKeys: '1234567890',
+            onSettingsChanged: this.onSettingChanged,
+          });
+          stateCallback(newState);
+          return true;
+        }
+
         const symbolTable = InputTableManager.getInstance().symbolTable;
 
         if (symbolTable.keynames.includes(key.ascii)) {
@@ -147,9 +165,11 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-      } else if (state instanceof EmojiMenuState) {
-        // pass
-      } else if (state instanceof EmojiInputtingState) {
+      } else if (
+        state instanceof EmojiMenuState ||
+        state instanceof EmojiInputtingState ||
+        state instanceof SettingsState
+      ) {
         // pass
       } else if (inputKeys.includes(key.ascii)) {
         let chr = key.ascii;
@@ -172,22 +192,6 @@ export class KeyHandler {
           selectionKeys: selectionKeys,
           candidates: candidates,
         });
-        stateCallback(newState);
-        return true;
-      }
-
-      if (key.name === KeyName.SPACE) {
-        if (state.candidates.length === 0) {
-          return true;
-        }
-        const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
-        if (selectedCandidate instanceof MenuCandidate) {
-          const newState = selectedCandidate.nextState();
-          stateCallback(newState);
-          return true;
-        }
-
-        const newState = new CommittingState(selectedCandidate.displayText);
         stateCallback(newState);
         return true;
       }

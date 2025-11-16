@@ -1,18 +1,35 @@
 import { InputTableManager } from '../data/InputTableManager';
-
 import { CommittingState, EmptyState, InputState, InputtingState } from './InputState';
 import { InputUI } from './InputUI';
 import { InputUIStateBuilder } from './InputUIElements';
 import { Key } from './Key';
 import { KeyHandler } from './KeyHandler';
 import { KeyMapping } from './KeyMapping';
+import { Settings } from './Settings';
 
 export class InputController {
   private state_: InputState = new EmptyState();
   private keyHandler_: KeyHandler = new KeyHandler(
     () => InputTableManager.getInstance().currentTable,
+    () => this.settings_ as Settings,
+    (settings) => {
+      this.settings_ = settings;
+    },
   );
   private ui_: InputUI;
+  private settings_: Settings = {
+    associatedPhrasesEnabled: true,
+    shiftKeyForSymbolsEnabled: true,
+  };
+
+  get settings(): Settings {
+    return this.settings_;
+  }
+
+  set settings(value: Settings) {
+    this.settings_ = value;
+    this.reset();
+  }
 
   get state(): InputState {
     return this.state_;

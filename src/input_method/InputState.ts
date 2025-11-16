@@ -1,6 +1,7 @@
 import { Candidate } from '../data';
 import { MenuCandidate } from '../data/Candidate';
 import { EmojiCategory } from '../data/Emoji';
+import { Settings } from './Settings';
 
 export abstract class InputState {}
 
@@ -186,5 +187,63 @@ export class EmojiMenuState extends InputtingState {
     });
     this.previousState = args.previousState;
     this.nodes = args.nodes;
+  }
+}
+
+export class SettingsState extends InputtingState {
+  previousState: InputState;
+  settings: Settings;
+  onSettingsChanged: ((settings: Settings) => void) | undefined;
+
+  constructor(args: {
+    previousState: InputState;
+    settings: Settings;
+    selectionKeys: string;
+    onSettingsChanged?: ((settings: Settings) => void) | undefined;
+    readonly selectedCandidateIndex?: number | undefined;
+  }) {
+    const mapping: [string, boolean, () => void][] = [
+      [
+        '使用聯想詞',
+        args.settings.associatedPhrasesEnabled,
+        () => {
+          this.settings.associatedPhrasesEnabled = !args.settings.associatedPhrasesEnabled;
+        },
+      ],
+      [
+        '使用 Shift + 字母輸入全型符號',
+        args.settings.shiftKeyForSymbolsEnabled,
+        () => {
+          this.settings.shiftKeyForSymbolsEnabled = !args.settings.shiftKeyForSymbolsEnabled;
+        },
+      ],
+    ];
+    const candidates = mapping.map((item) => {
+      const name = item[0];
+      const status = item[1] ? '開' : '關';
+      const joined = `${status} - ${name}：`;
+      return new MenuCandidate(joined, '', () => {
+        item[2]();
+        args.onSettingsChanged?.(args.settings);
+        return new SettingsState({
+          previousState: this.previousState,
+          settings: this.settings,
+          selectionKeys: args.selectionKeys,
+          onSettingsChanged: this.onSettingsChanged,
+          selectedCandidateIndex: mapping.indexOf(item),
+        });
+      }); // Toggle the setting
+    });
+
+    super({
+      radicals: '',
+      displayedRadicals: '設定',
+      selectionKeys: args.selectionKeys,
+      candidates: candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
+    });
+    this.previousState = args.previousState;
+    this.settings = args.settings;
+    this.onSettingsChanged = args.onSettingsChanged;
   }
 }
