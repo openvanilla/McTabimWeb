@@ -45,6 +45,23 @@ export class InputTableWrapper {
   }
 
   lookupForCandidate(radicals: string): Candidate[] | [] {
+    if (radicals.includes('*')) {
+      // Support wildcard '*' in radicals: match any single character at '*'
+      // Build a regex: replace '*' with '.', escape other regex chars
+      const pattern = radicals.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.');
+      const regex = new RegExp(`^${pattern}$`);
+      const candidates: Candidate[] = [];
+      for (const key in this.table.chardefs) {
+        if (regex.test(key)) {
+          const founds = this.table.chardefs[key];
+          for (const found of founds) {
+            candidates.push(new Candidate(found, ''));
+          }
+        }
+      }
+      return candidates;
+    }
+
     const founds = this.table.chardefs[radicals];
     const candidates: Candidate[] = [];
     if (founds) {

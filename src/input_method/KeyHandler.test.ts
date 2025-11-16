@@ -12,6 +12,7 @@ describe('Test KeyHandler', () => {
         associatedPhrasesEnabled: false,
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
+        wildcardMatchingEnabled: false,
       };
     },
     (settings) => {},
@@ -265,6 +266,7 @@ describe('Test Associated Phrases', () => {
         associatedPhrasesEnabled: true,
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
+        wildcardMatchingEnabled: false,
       };
     },
     (settings) => {},
@@ -397,6 +399,7 @@ describe('Test Associated Phrases', () => {
         associatedPhrasesEnabled: true,
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
+        wildcardMatchingEnabled: false,
       }),
       () => {},
     );

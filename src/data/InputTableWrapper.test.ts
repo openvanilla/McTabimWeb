@@ -77,4 +77,12 @@ describe('InputTableWrapper', () => {
     wrapper.lookupForCandidate('a');
     expect(mockTable.chardefs).toEqual(originalChardefs);
   });
+
+  it('does not mutate input objects', () => {
+    const originalChardefs = JSON.parse(JSON.stringify(mockTable.chardefs));
+    const result = wrapper.lookupForCandidate('a*');
+    expect(result).toHaveLength(1);
+    expect(result[0].displayText).toBe('嗎');
+    expect(mockTable.chardefs).toEqual(originalChardefs);
+  });
 });

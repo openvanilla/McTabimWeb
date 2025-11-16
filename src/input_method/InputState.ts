@@ -208,11 +208,18 @@ export class SettingsState extends InputtingState {
             !this.settings.shiftPunctuationForSymbolsEnabled;
         },
       ],
+      [
+        '使用萬用字元 (*)',
+        args.settings.wildcardMatchingEnabled,
+        () => {
+          this.settings.wildcardMatchingEnabled = !this.settings.wildcardMatchingEnabled;
+        },
+      ],
     ];
     const candidates = mapping.map((item) => {
       const name = item[0];
       const status = item[1] ? '■' : '□';
-      const joined = `${status} - ${name}`;
+      const joined = `${status} ${name}`;
       return new MenuCandidate(joined, '', () => {
         item[2]();
         args.onSettingsChanged?.(args.settings);

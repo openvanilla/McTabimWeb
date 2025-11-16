@@ -3,4 +3,5 @@ export interface Settings {
   associatedPhrasesEnabled: boolean;
   shiftPunctuationForSymbolsEnabled: boolean;
   shiftLetterForSymbolsEnabled: boolean;
+  wildcardMatchingEnabled: boolean;
 }

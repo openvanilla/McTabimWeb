@@ -24,6 +24,7 @@ export class InputController {
     associatedPhrasesEnabled: true,
     shiftPunctuationForSymbolsEnabled: true,
     shiftLetterForSymbolsEnabled: true,
+    wildcardMatchingEnabled: false,
   };
 
   get settings(): Settings {

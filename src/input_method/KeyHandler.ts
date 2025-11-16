@@ -64,8 +64,13 @@ export class KeyHandler {
     stateCallback: (state: InputState) => void,
     errorCallback: () => void,
   ): boolean {
+    const settings = this.onRequestSettings();
     const table = this.onRequestTable();
-    const inputKeys = Object.keys(table.table.keynames);
+    let inputKeys = Object.keys(table.table.keynames);
+    if (settings.wildcardMatchingEnabled) {
+      inputKeys = inputKeys.concat(['*', '#']);
+    }
+
     const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
@@ -120,7 +125,6 @@ export class KeyHandler {
         stateCallback(newState);
         return true;
       }
-      const settings = this.onRequestSettings();
       if (settings.shiftPunctuationForSymbolsEnabled) {
         if (shiftPunctuationsSymbols.hasOwnProperty(key.ascii)) {
           const chr = shiftPunctuationsSymbols[key.ascii];
