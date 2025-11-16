@@ -112,7 +112,7 @@ export class Key {
   }
 }
 
-/** Converts a keyboard event in the web browser to a key defined by McFoxim. */
+/** Converts a keyboard event in the web browser to a key defined by McTabim. */
 export function KeyFromKeyboardEvent(event: KeyboardEvent) {
   let isNumpadKey = false;
   let keyName = KeyName.UNKNOWN;

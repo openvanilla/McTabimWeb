@@ -16,47 +16,31 @@ export class KeyHandler {
     errorCallback: () => void,
   ): boolean {
     const table = this.onGetTable();
-    const inputKeys = Object.keys(table.table.chardefs);
+    const inputKeys = Object.keys(table.table.keynames);
+    // console.log('Handling key:', key, 'in state:', state);
+    // console.log('inputKeys:', inputKeys);
 
     if (state instanceof EmptyState) {
       if (!inputKeys.includes(key.ascii)) {
         return false;
-      }
-    }
-
-    if (inputKeys.includes(key.ascii)) {
-      let chr = key.ascii;
-      let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
-      let selectionKeys = table.table.selkey;
-      if (selectionKeys === undefined || selectionKeys.length === 0) {
-        selectionKeys = '1234567890';
-      }
-      if (state instanceof EmptyState) {
-        let candidates = table.lookupForCandidate(chr) || [];
-        const newState = new InputtingState({
-          radicals: chr,
-          displayedRadicals: displayedChr,
-          selectionKeys: selectionKeys,
-          candidates: candidates,
-        });
-        stateCallback(newState);
-        return true;
-      } else if (state instanceof InputtingState) {
-        if (state.radicals.length >= table.settings.maxRadicals) {
-          errorCallback();
+      } else {
+        let chr = key.ascii;
+        let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
+        let selectionKeys = table.table.selkey;
+        if (selectionKeys === undefined || selectionKeys.length === 0) {
+          selectionKeys = '1234567890';
+        }
+        if (state instanceof EmptyState) {
+          let candidates = table.lookupForCandidate(chr) || [];
+          const newState = new InputtingState({
+            radicals: chr,
+            displayedRadicals: displayedChr,
+            selectionKeys: selectionKeys,
+            candidates: candidates,
+          });
+          stateCallback(newState);
           return true;
         }
-        let joined = state.radicals + chr;
-        let displayedJoined = state.displayedRadicals + displayedChr;
-        let candidates = table.lookupForCandidate(joined) || [];
-        const newState = new InputtingState({
-          radicals: joined,
-          displayedRadicals: displayedJoined,
-          selectionKeys: selectionKeys,
-          candidates: candidates,
-        });
-        stateCallback(newState);
-        return true;
       }
     }
 
@@ -91,8 +75,33 @@ export class KeyHandler {
         return true;
       }
 
+      if (inputKeys.includes(key.ascii)) {
+        let chr = key.ascii;
+        let displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
+        let selectionKeys = table.table.selkey;
+        if (selectionKeys === undefined || selectionKeys.length === 0) {
+          selectionKeys = '1234567890';
+        }
+
+        if (state.radicals.length >= table.settings.maxRadicals) {
+          errorCallback();
+          return true;
+        }
+        let joined = state.radicals + chr;
+        let displayedJoined = state.displayedRadicals + displayedChr;
+        let candidates = table.lookupForCandidate(joined) || [];
+        const newState = new InputtingState({
+          radicals: joined,
+          displayedRadicals: displayedJoined,
+          selectionKeys: selectionKeys,
+          candidates: candidates,
+        });
+        stateCallback(newState);
+        return true;
+      }
+
       if (key.name === KeyName.SPACE) {
-        if (state.candidatePageCount === 0) {
+        if (state.candidates.length === 0) {
           return true;
         }
         const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
@@ -113,6 +122,11 @@ export class KeyHandler {
           return true;
         }
         let newRadicals = state.radicals.slice(0, -1);
+        if (newRadicals.length === 0) {
+          stateCallback(new EmptyState());
+          return true;
+        }
+
         let newDisplayedRadicals = state.displayedRadicals.slice(0, -1);
         let candidates = table.lookupForCandidate(newRadicals) || [];
         const newState = new InputtingState({

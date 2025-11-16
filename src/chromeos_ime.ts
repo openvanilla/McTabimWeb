@@ -13,15 +13,14 @@ import { Key, KeyName } from './input_method/Key';
 /**
  * Represents the settings for the mctabim IME on ChromeOS.
  */
-type ChromeMcFoximSettings = {
-  selected_input_table_index: number;
-  hidden_table_indices: number[];
+type ChromeMcTabimSettings = {
+  selected_input_table: string | undefined;
 };
 
 /**
  * The main class for the mctabim IME on ChromeOS.
  */
-class ChromeMcFoxim {
+class ChromeMcTabim {
   // The ID of the current input engine.
   engineID: string | undefined = undefined;
 
@@ -29,13 +28,11 @@ class ChromeMcFoxim {
   context: chrome.input.ime.InputContext | undefined = undefined;
 
   // The default settings.
-  readonly defaultSettings: ChromeMcFoximSettings = {
-    selected_input_table_index: 0,
-    hidden_table_indices: [],
+  readonly defaultSettings: ChromeMcTabimSettings = {
+    selected_input_table: undefined,
   };
-  settings: ChromeMcFoximSettings = {
-    selected_input_table_index: 0,
-    hidden_table_indices: [],
+  settings: ChromeMcTabimSettings = {
+    selected_input_table: undefined,
   };
   inputController: InputController;
 
@@ -55,9 +52,9 @@ class ChromeMcFoxim {
         this.settings = this.defaultSettings;
       }
 
-      const selected_input_table_index = this.settings.selected_input_table_index;
-      if (selected_input_table_index !== undefined) {
-        InputTableManager.getInstance().selectedIndexValue = selected_input_table_index;
+      const selected_input_table = this.settings.selected_input_table;
+      if (selected_input_table !== undefined) {
+        InputTableManager.getInstance().setInputTableById(selected_input_table);
       }
     });
   }
@@ -73,11 +70,6 @@ class ChromeMcFoxim {
     if (this.engineID === undefined) return;
     let menus: chrome.input.ime.MenuItem[] = [
       {
-        id: 'mctabim-options',
-        label: chrome.i18n.getMessage('menuOptions'),
-        style: 'check' as const,
-      },
-      {
         id: 'mctabim-help',
         label: chrome.i18n.getMessage('menuHelp'),
         style: 'check' as const,
@@ -89,47 +81,32 @@ class ChromeMcFoxim {
       },
     ];
 
-    const selectedIndex = this.settings.selected_input_table_index || 0;
-    const hiddenTableIndices = this.settings.hidden_table_indices || [];
-    const inputTables = InputTableManager.getInstance().tableNames;
+    const selectedIndex = this.settings.selected_input_table || 0;
+    const inputTables = InputTableManager.getInstance().getTables();
     let selectedTableSet = false;
 
     const inputTableMenus: chrome.input.ime.MenuItem[] = [];
 
     for (let i = 0; i < inputTables.length; i++) {
-      if (hiddenTableIndices.includes(i)) {
-        continue;
-      }
-      const tableName = inputTables[i];
+      const table = inputTables[i];
       const checked = i === selectedIndex;
       if (checked) {
         selectedTableSet = true;
       }
       const item = {
-        id: `mctabim-select-table-${i}`,
-        label: tableName,
+        id: `mctabim-select-table-${table[0]}`,
+        label: table[1],
         style: 'radio' as const,
         checked: checked,
       };
       inputTableMenus.push(item);
     }
-    if (inputTableMenus.length === 0) {
-      const tableName = inputTables[0];
-      const item = {
-        id: `mctabim-select-table-0`,
-        label: tableName,
-        style: 'check' as const,
-        checked: true,
-      };
-      inputTableMenus.push(item);
-      InputTableManager.getInstance().selectedIndexValue = 0;
-      this.settings.selected_input_table_index = 0;
-    } else if (!selectedTableSet) {
+
+    if (!selectedTableSet) {
       let item = inputTableMenus[0];
       let id = item.id.split('-').pop();
-      item.checked = true;
-      InputTableManager.getInstance().selectedIndexValue = Number(id);
-      this.settings.selected_input_table_index = Number(id);
+      InputTableManager.getInstance().setInputTableById(id || '');
+      this.settings.selected_input_table = id || '';
     }
 
     menus = menus.concat(inputTableMenus);
@@ -319,90 +296,89 @@ class ChromeMcFoxim {
   }
 }
 
-const chromeMcFoxim = new ChromeMcFoxim();
+const chromeMcTabim = new ChromeMcTabim();
 
 chrome.input?.ime.onActivate.addListener((engineID) => {
-  chromeMcFoxim.engineID = engineID;
-  chromeMcFoxim.loadSettings();
-  chromeMcFoxim.updateMenu();
+  chromeMcTabim.engineID = engineID;
+  chromeMcTabim.loadSettings();
+  chromeMcTabim.updateMenu();
 });
 
 // Called when the current text input are loses the focus.
 chrome.input?.ime.onBlur.addListener((context) => {
-  chromeMcFoxim.deferredReset();
+  chromeMcTabim.deferredReset();
 });
 
 chrome.input?.ime.onReset.addListener((context) => {
-  chromeMcFoxim.deferredReset();
+  chromeMcTabim.deferredReset();
 });
 
 // Called when the user switch to another input method.
 chrome.input?.ime.onDeactivated.addListener((context) => {
-  if (chromeMcFoxim.deferredResetTimeout !== null) {
-    clearTimeout(chromeMcFoxim.deferredResetTimeout);
+  if (chromeMcTabim.deferredResetTimeout !== null) {
+    clearTimeout(chromeMcTabim.deferredResetTimeout);
   }
-  chromeMcFoxim.context = undefined;
-  chromeMcFoxim.inputController.reset();
-  chromeMcFoxim.deferredResetTimeout = null;
+  chromeMcTabim.context = undefined;
+  chromeMcTabim.inputController.reset();
+  chromeMcTabim.deferredResetTimeout = null;
 });
 
 // Called when the current text input is focused. We reload the settings this
 // time.
 chrome.input?.ime.onFocus.addListener((context) => {
-  chromeMcFoxim.context = context;
-  if (chromeMcFoxim.deferredResetTimeout !== null) {
-    clearTimeout(chromeMcFoxim.deferredResetTimeout);
+  chromeMcTabim.context = context;
+  if (chromeMcTabim.deferredResetTimeout !== null) {
+    clearTimeout(chromeMcTabim.deferredResetTimeout);
   } else {
-    chromeMcFoxim.loadSettings();
+    chromeMcTabim.loadSettings();
   }
 });
 
 // The main keyboard event handler.
 chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
-  chromeMcFoxim.engineID = engineID;
+  chromeMcTabim.engineID = engineID;
   if (keyData.type !== 'keydown') {
     return false;
   }
 
   // We always prevent handling Ctrl + Space so we can switch input methods.
   if (keyData.ctrlKey) {
-    chromeMcFoxim.inputController.reset();
+    chromeMcTabim.inputController.reset();
     return false;
   }
 
   if (keyData.altKey || keyData.altgrKey || keyData.capsLock) {
-    chromeMcFoxim.inputController.reset();
+    chromeMcTabim.inputController.reset();
     return false;
   }
 
   const keyEvent = KeyFromKeyboardEvent(keyData);
-  return chromeMcFoxim.inputController.handle(keyEvent);
+  return chromeMcTabim.inputController.handle(keyEvent);
 });
 
 chrome.input.ime.onCandidateClicked.addListener((engineID, candidateID, button) => {
-  chromeMcFoxim.inputController.selectCandidateAtIndex(candidateID);
+  chromeMcTabim.inputController.selectCandidateAtIndex(candidateID);
 });
 
 chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
   if (name.search('mctabim-select-table-') === 0) {
     const id = name.split('-').pop();
-    const tableIndex = Number(id);
-    InputTableManager.getInstance().selectedIndexValue = tableIndex;
-    chromeMcFoxim.settings.selected_input_table_index = tableIndex;
-    chromeMcFoxim.saveSettings();
-    chromeMcFoxim.updateMenu();
+    InputTableManager.getInstance().setInputTableById(id || '');
+    chromeMcTabim.settings.selected_input_table = id || '';
+    chromeMcTabim.saveSettings();
+    chromeMcTabim.updateMenu();
     return;
   }
 
   switch (name) {
     case 'mctabim-options':
-      chromeMcFoxim.tryOpen(chrome.runtime.getURL('options.html'));
+      chromeMcTabim.tryOpen(chrome.runtime.getURL('options.html'));
       break;
     case 'mctabim-help':
-      chromeMcFoxim.tryOpen(chrome.runtime.getURL('help/index.html'));
+      chromeMcTabim.tryOpen(chrome.runtime.getURL('help/index.html'));
       break;
     case 'mctabim-homepage':
-      chromeMcFoxim.tryOpen('https://openvanilla.org/');
+      chromeMcTabim.tryOpen('https://openvanilla.org/');
       break;
   }
 });
@@ -411,27 +387,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log(request);
 
   if (request.command === 'get_table_names_and_settings') {
-    const tableNames = InputTableManager.getInstance().tableNames;
-    const hiddenTableIndices = chromeMcFoxim.settings.hidden_table_indices;
-    sendResponse({ status: 'ok', tableNames, hiddenTableIndices });
-  }
-
-  if (request.command === 'set_table_hidden') {
-    const tableIndex: number = request.tableIndex;
-    const hidden: boolean = request.hidden;
-    let hiddenTableIndices = chromeMcFoxim.settings.hidden_table_indices;
-    if (hidden) {
-      if (!hiddenTableIndices.includes(tableIndex)) {
-        hiddenTableIndices.push(tableIndex);
-      }
-    } else {
-      hiddenTableIndices = hiddenTableIndices.filter((index) => index !== tableIndex);
-    }
-    console.log(hiddenTableIndices);
-    chromeMcFoxim.settings.hidden_table_indices = hiddenTableIndices;
-    chromeMcFoxim.saveSettings();
-    chromeMcFoxim.updateMenu();
-    sendResponse({ status: 'ok' });
+    const tables = InputTableManager.getInstance().getTables();
+    sendResponse({ status: 'ok', tables });
   }
 });
 
@@ -478,7 +435,7 @@ async function retryOnTabUpdate(
   }
 }
 
-chromeMcFoxim.loadSettings();
+chromeMcTabim.loadSettings();
 keepAlive();
 
 /**

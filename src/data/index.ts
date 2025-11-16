@@ -1,5 +1,10 @@
+import checj from './checj.json';
 import cj5 from './cj5.json';
+import simplex from './simplex.json';
 import simplex5 from './simplex5.json';
+import dayi3 from './dayi3.json';
+import dayi4 from './dayi4.json';
+
 
 export default class Candidate {
   readonly displayText: string;
@@ -108,7 +113,12 @@ export class InputTableManager {
   }
 
   readonly tables: Array<InputTableWrapper> = [
-    new InputTableWrapper('cj5', cj5, { maxRadicals: 4 }),
+    new InputTableWrapper('checj', checj, { maxRadicals: 5 }),
+    new InputTableWrapper('cj5', cj5, { maxRadicals: 5 }),
+    new InputTableWrapper('simplex', simplex, { maxRadicals: 2 }),
     new InputTableWrapper('simplex5', simplex5, { maxRadicals: 2 }),
+    new InputTableWrapper('dayi3', dayi3, { maxRadicals: 3 }),
+    new InputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
+
   ];
 }

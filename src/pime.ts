@@ -21,7 +21,7 @@ interface Settings {
 }
 
 /**
- * A middle data structure between McFoxim input controller and PIME.
+ * A middle data structure between McTabim input controller and PIME.
  * @interface
  */
 interface UiState {
@@ -50,10 +50,10 @@ const defaultSettings: Settings = {
 };
 
 /**
- * The commands for PIME McFoxim.
+ * The commands for PIME McTabim.
  * @enum
  */
-enum PimeMcFoximCommand {
+enum PimeMcTabimCommand {
   ModeIcon = 0,
   SwitchLanguage = 1,
   OpenHomepage = 2,
@@ -63,7 +63,7 @@ enum PimeMcFoximCommand {
 }
 
 /** Wraps InputController and required states.  */
-class PimeMcFoxim {
+class PimeMcTabim {
   /** The input controller. */
   readonly inputController: InputController;
   /** The UI state. */
@@ -168,10 +168,10 @@ class PimeMcFoxim {
 
   /**
    * Creates an InputUI object.
-   * @param instance The PimeMcFoxim instance.
+   * @param instance The PimeMcTabim instance.
    * @returns The InputUI object.
    */
-  public makeUI(instance: PimeMcFoxim): InputUI {
+  public makeUI(instance: PimeMcTabim): InputUI {
     const that: InputUI = {
       reset: () => {
         const commitString = instance.uiState.commitString;
@@ -217,7 +217,7 @@ class PimeMcFoxim {
           index++;
         }
 
-        // Note: McFoxim's composing buffer are composed by segments so
+        // Note: McTabim's composing buffer are composed by segments so
         // it allows an input method framework to draw underlines
         let compositionString = '';
         for (let item of composingBuffer) {
@@ -269,7 +269,7 @@ class PimeMcFoxim {
         addButton.push({
           id: 'windows-mode-icon',
           icon: windowsModeIconPath,
-          commandId: PimeMcFoximCommand.ModeIcon,
+          commandId: PimeMcTabimCommand.ModeIcon,
           tooltip: '輸入模式切換',
         });
       }
@@ -277,7 +277,7 @@ class PimeMcFoxim {
       addButton.push({
         id: 'switch-lang',
         icon: windowsModeIconPath,
-        commandId: PimeMcFoximCommand.SwitchLanguage,
+        commandId: PimeMcTabimCommand.SwitchLanguage,
         tooltip: '輸入模式切換',
       });
       addButton.push({
@@ -323,13 +323,13 @@ class PimeMcFoxim {
    * Handles a command.
    * @param id The command ID.
    */
-  public handleCommand(id: PimeMcFoximCommand): void {
+  public handleCommand(id: PimeMcTabimCommand): void {
     switch (id) {
-      case PimeMcFoximCommand.ModeIcon:
+      case PimeMcTabimCommand.ModeIcon:
         break;
-      case PimeMcFoximCommand.SwitchLanguage:
+      case PimeMcTabimCommand.SwitchLanguage:
         break;
-      case PimeMcFoximCommand.OpenHomepage:
+      case PimeMcTabimCommand.OpenHomepage:
         {
           const url = 'https://mctabim.openvanilla.org/';
           const command = `start ${url}`;
@@ -337,7 +337,7 @@ class PimeMcFoxim {
           child_process.exec(command);
         }
         break;
-      case PimeMcFoximCommand.OpenBugReport:
+      case PimeMcTabimCommand.OpenBugReport:
         {
           const url = 'https://github.com/openvanilla/McTabimWeb/issues';
           const command = `start ${url}`;
@@ -345,7 +345,7 @@ class PimeMcFoxim {
           child_process.exec(command);
         }
         break;
-      case PimeMcFoximCommand.OpenOptions:
+      case PimeMcTabimCommand.OpenOptions:
         {
           const python3 = path.join(__dirname, '..', '..', '..', 'python', 'python3', 'python.exe');
           const script = path.join(__dirname, 'config_tool.py');
@@ -355,7 +355,7 @@ class PimeMcFoxim {
         }
         break;
 
-      case PimeMcFoximCommand.Help:
+      case PimeMcTabimCommand.Help:
         {
           let python3 = path.join(__dirname, '..', '..', '..', 'python', 'python3', 'python.exe');
           const script = path.join(__dirname, 'config_tool.py');
@@ -370,16 +370,16 @@ class PimeMcFoxim {
   }
 }
 
-const pimeMcFoxim = new PimeMcFoxim();
+const pimeMcTabim = new PimeMcTabim();
 
 try {
-  if (!fs.existsSync(pimeMcFoxim.userSettingsPath)) {
-    fs.writeFileSync(pimeMcFoxim.userSettingsPath, JSON.stringify(defaultSettings));
+  if (!fs.existsSync(pimeMcTabim.userSettingsPath)) {
+    fs.writeFileSync(pimeMcTabim.userSettingsPath, JSON.stringify(defaultSettings));
   }
 
-  fs.watch(pimeMcFoxim.userSettingsPath, (event, filename) => {
+  fs.watch(pimeMcTabim.userSettingsPath, (event, filename) => {
     if (filename) {
-      pimeMcFoxim.loadSettings(() => {});
+      pimeMcTabim.loadSettings(() => {});
     }
   });
 } catch (e) {
@@ -389,15 +389,15 @@ try {
 module.exports = {
   textReducer(_: any, preState: any) {
     // Note: textReducer and response are the pattern of NIME. Actually, PIME
-    // only care about the response. Since we let pimeMcFoxim to do
+    // only care about the response. Since we let pimeMcTabim to do
     // everything, we just left textReducer as an empty implementation to let
     // NIME to call it.
     return preState;
   },
 
   response(request: any, _: any) {
-    const lastRequest = pimeMcFoxim.lastRequest;
-    pimeMcFoxim.lastRequest = request;
+    const lastRequest = pimeMcTabim.lastRequest;
+    pimeMcTabim.lastRequest = request;
     const responseTemplate = {
       return: false,
       success: true,
@@ -405,8 +405,8 @@ module.exports = {
     };
     if (request.method === 'init') {
       const { isWindows8Above } = request;
-      pimeMcFoxim.isWindows8Above = isWindows8Above;
-      const customUi = pimeMcFoxim.customUiResponse();
+      pimeMcTabim.isWindows8Above = isWindows8Above;
+      const customUi = pimeMcTabim.customUiResponse();
       const response = Object.assign({}, responseTemplate, customUi, {
         removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
       });
@@ -416,13 +416,13 @@ module.exports = {
       const response = Object.assign({}, responseTemplate, {
         removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
       });
-      pimeMcFoxim.alreadyAddButton = false;
+      pimeMcTabim.alreadyAddButton = false;
       return response;
     }
 
     if (request.method === 'onActivate') {
-      const customUi = pimeMcFoxim.customUiResponse();
-      const buttonUi = pimeMcFoxim.buttonUiResponse();
+      const customUi = pimeMcTabim.customUiResponse();
+      const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, customUi, buttonUi);
       return response;
     }
@@ -431,7 +431,7 @@ module.exports = {
       const response = Object.assign({}, responseTemplate, {
         removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
       });
-      pimeMcFoxim.alreadyAddButton = false;
+      pimeMcTabim.alreadyAddButton = false;
       return response;
     }
 
@@ -442,7 +442,7 @@ module.exports = {
     }
 
     if (request.method === 'filterKeyUp') {
-      let handled = pimeMcFoxim.isLastFilterKeyDownHandled;
+      let handled = pimeMcTabim.isLastFilterKeyDownHandled;
       if (
         lastRequest &&
         lastRequest.method === 'filterKeyUp' &&
@@ -477,8 +477,8 @@ module.exports = {
       const { keyCode, charCode, keyStates } = request;
 
       if ((keyStates[VK_Keys.VK_CONTROL] & 1) !== 0 || (keyStates[VK_Keys.VK_MENU] & 1) !== 0) {
-        pimeMcFoxim.resetBeforeHandlingKey();
-        pimeMcFoxim.resetController();
+        pimeMcTabim.resetBeforeHandlingKey();
+        pimeMcTabim.resetController();
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
@@ -487,31 +487,31 @@ module.exports = {
 
       if ((keyStates[VK_Keys.VK_CAPITAL] & 1) !== 0) {
         // Ignores caps lock.
-        pimeMcFoxim.resetBeforeHandlingKey();
-        pimeMcFoxim.resetController();
-        pimeMcFoxim.isCapsLockHold = true;
-        pimeMcFoxim.isLastFilterKeyDownHandled = false;
+        pimeMcTabim.resetBeforeHandlingKey();
+        pimeMcTabim.resetController();
+        pimeMcTabim.isCapsLockHold = true;
+        pimeMcTabim.isLastFilterKeyDownHandled = false;
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
         return response;
       } else {
-        pimeMcFoxim.isCapsLockHold = false;
+        pimeMcTabim.isCapsLockHold = false;
       }
 
       const key = KeyFromKeyboardEvent(keyCode, keyStates, String.fromCharCode(charCode), charCode);
-      pimeMcFoxim.resetBeforeHandlingKey();
+      pimeMcTabim.resetBeforeHandlingKey();
 
       if (key.ctrlPressed) {
-        pimeMcFoxim.resetController();
+        pimeMcTabim.resetController();
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
         return response;
       }
 
-      const handled = pimeMcFoxim.inputController.handle(key);
-      pimeMcFoxim.isLastFilterKeyDownHandled = handled;
+      const handled = pimeMcTabim.inputController.handle(key);
+      pimeMcTabim.isLastFilterKeyDownHandled = handled;
       const response = Object.assign({}, responseTemplate, {
         return: handled,
       });
@@ -521,8 +521,8 @@ module.exports = {
 
     if (request.method === 'onKeyDown') {
       // Ignore caps lock.
-      if (pimeMcFoxim.isCapsLockHold) {
-        pimeMcFoxim.resetController();
+      if (pimeMcTabim.isCapsLockHold) {
+        pimeMcTabim.resetController();
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
@@ -541,39 +541,39 @@ module.exports = {
         });
         return response;
       }
-      const uiState: any = pimeMcFoxim.uiState;
+      const uiState: any = pimeMcTabim.uiState;
       let response = Object.assign({}, responseTemplate, uiState, {
-        return: pimeMcFoxim.isLastFilterKeyDownHandled,
+        return: pimeMcTabim.isLastFilterKeyDownHandled,
       });
       return response;
     }
 
     if (request.method === 'onKeyboardStatusChanged') {
       const { opened } = request;
-      pimeMcFoxim.isOpened = opened;
-      pimeMcFoxim.resetController();
-      const customUi = pimeMcFoxim.customUiResponse();
-      const buttonUi = pimeMcFoxim.buttonUiResponse();
+      pimeMcTabim.isOpened = opened;
+      pimeMcTabim.resetController();
+      const customUi = pimeMcTabim.customUiResponse();
+      const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, customUi, buttonUi);
       return response;
     }
 
     if (request.method === 'onCompositionTerminated') {
-      pimeMcFoxim.resetController();
-      const uiState = pimeMcFoxim.uiState;
-      const customUi = pimeMcFoxim.customUiResponse();
-      const buttonUi = pimeMcFoxim.buttonUiResponse();
+      pimeMcTabim.resetController();
+      const uiState = pimeMcTabim.uiState;
+      const customUi = pimeMcTabim.customUiResponse();
+      const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, uiState, customUi, buttonUi);
-      pimeMcFoxim.resetBeforeHandlingKey();
+      pimeMcTabim.resetBeforeHandlingKey();
       return response;
     }
 
     if (request.method === 'onCommand') {
       const { id } = request;
-      pimeMcFoxim.handleCommand(id);
-      const uiState = pimeMcFoxim.uiState;
-      const customUi = pimeMcFoxim.customUiResponse();
-      const buttonUi = pimeMcFoxim.buttonUiResponse();
+      pimeMcTabim.handleCommand(id);
+      const uiState = pimeMcTabim.uiState;
+      const customUi = pimeMcTabim.customUiResponse();
+      const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, uiState, customUi, buttonUi);
       return response;
     }
@@ -582,21 +582,21 @@ module.exports = {
       const menu = [
         {
           text: '小麥注音輸入法網站',
-          id: PimeMcFoximCommand.OpenHomepage,
+          id: PimeMcTabimCommand.OpenHomepage,
         },
         {
           text: '問題回報',
-          id: PimeMcFoximCommand.OpenBugReport,
+          id: PimeMcTabimCommand.OpenBugReport,
         },
         {
           text: '輔助說明',
-          id: PimeMcFoximCommand.Help,
+          id: PimeMcTabimCommand.Help,
         },
 
         {},
         {
           text: '偏好設定 (&O)',
-          id: PimeMcFoximCommand.OpenOptions,
+          id: PimeMcTabimCommand.OpenOptions,
         },
       ];
       const response = Object.assign({}, responseTemplate, { return: menu });
