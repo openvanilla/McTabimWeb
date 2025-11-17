@@ -222,7 +222,7 @@ export class SettingsState extends InputtingState {
       const joined = `${status} ${name}`;
       return new MenuCandidate(joined, '', () => {
         item[2]();
-        args.onSettingsChanged?.(args.settings);
+        this.onSettingsChanged?.(this.settings);
         return new SettingsState({
           previousState: this.previousState,
           settings: this.settings,

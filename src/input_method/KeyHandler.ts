@@ -234,7 +234,9 @@ export class KeyHandler {
             const newState = new MenuState({
               settings: this.onRequestSettings(),
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-              onSettingsChanged: this.onSettingChanged,
+              onSettingsChanged: (settings: Settings) => {
+                this.onSettingChanged(settings);
+              },
             });
             stateCallback(newState);
             return true;

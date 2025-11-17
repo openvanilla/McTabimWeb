@@ -182,7 +182,6 @@ export function KeyFromKeyboardEvent(event: KeyboardEvent) {
         keyName = KeyName.ASCII;
         isNumpadKey = true;
       } else {
-        // console.log(event.key);
         switch (event.key) {
           case 'ArrowLeft':
             keyName = KeyName.LEFT;
