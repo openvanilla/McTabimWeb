@@ -32,6 +32,7 @@ export class KeyHandler {
   }
 
   handleCandidate(
+    state: InputtingState,
     selectedCandidate: Candidate,
     stateCallback: (state: InputState) => void,
     allowAssociatedPhrases: boolean = true,
@@ -48,9 +49,14 @@ export class KeyHandler {
     if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
       const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
       if (phrases && phrases.length > 0) {
+        let selectionKeys = state.selectionKeys;
+        let exactSelectionKeys = state.selectionKeys;
+        if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS) {
+          exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
+        }
         const associatedPhrasesState = new AssociatedPhrasesState({
-          selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-          exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+          selectionKeys: selectionKeys,
+          exactSelectionKeys: exactSelectionKeys,
           candidates: phrases,
         });
         stateCallback(associatedPhrasesState);
@@ -75,8 +81,8 @@ export class KeyHandler {
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
     if (state instanceof AssociatedPhrasesState) {
-      const selectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
-      if (key.ascii && selectionKeys.includes(key.ascii)) {
+      const selectionKeys = state.exactSelectionKeys;
+      if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
         const candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
@@ -89,7 +95,7 @@ export class KeyHandler {
         }
 
         const selectedCandidate = candidates[index];
-        this.handleCandidate(selectedCandidate, stateCallback, false);
+        this.handleCandidate(state, selectedCandidate, stateCallback, false);
         return true;
       }
     }
@@ -171,7 +177,7 @@ export class KeyHandler {
         if (state.candidates.length > 0) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
           const allowAssociatedPhrases = !(state instanceof AssociatedPhrasesState);
-          this.handleCandidate(selectedCandidate, stateCallback, allowAssociatedPhrases);
+          this.handleCandidate(state, selectedCandidate, stateCallback, allowAssociatedPhrases);
         } else {
           errorCallback();
         }
@@ -193,7 +199,7 @@ export class KeyHandler {
           }
 
           const selectedCandidate = candidates[index];
-          this.handleCandidate(selectedCandidate, stateCallback);
+          this.handleCandidate(state, selectedCandidate, stateCallback);
           return true;
         }
       }
@@ -267,8 +273,14 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-      } else if (state instanceof SymbolCategoryState || state instanceof SettingsState) {
+      } else if (
+        state instanceof SymbolCategoryState ||
+        state instanceof SettingsState ||
+        state instanceof MenuState ||
+        state instanceof AssociatedPhrasesState
+      ) {
         // pass
+        // Note: `AssociatedPhrasesState` shall not reach here because it is handled above
       } else if (inputKeys.includes(key.ascii)) {
         // associated phrase state also reach here, and start to input a new radical
         const chr = key.ascii;
