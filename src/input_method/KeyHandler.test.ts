@@ -1,5 +1,11 @@
 import { Candidate, InputTableManager } from '../data';
-import { CommittingState, EmptyState, InputtingState, AssociatedPhrasesState } from './InputState';
+import {
+  CommittingState,
+  EmptyState,
+  InputtingState,
+  AssociatedPhrasesState,
+  InputState,
+} from './InputState';
 import { Key, KeyName } from './Key';
 import { KeyHandler } from './KeyHandler';
 
@@ -417,7 +423,12 @@ describe('Test Associated Phrases', () => {
     );
     expect(handled).toBe(true);
     expect(committed).toBe(true);
-    expect(handleCandidateSpy).toHaveBeenCalledWith(phrases[1], expect.any(Function), false);
+    expect(handleCandidateSpy).toHaveBeenCalledWith(
+      expect.any(InputState),
+      phrases[1],
+      expect.any(Function),
+      false,
+    );
     handleCandidateSpy.mockRestore();
   });
 });
