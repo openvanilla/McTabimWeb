@@ -149,7 +149,7 @@ h1 {
 
 h2 {
   margin-bottom: 0.5rem;
-  font-size: 18pt;
+  font-size: 14pt;
 }
 
 li {
@@ -235,4 +235,40 @@ textarea#text_area:focus {
   blockquote {
     background-color: #666;
   }
+}
+
+details summary {
+  font-size: 14pt;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+details td {
+  font-size: 12pt;
+  vertical-align: top;
+}
+
+details td input[type='checkbox'] {
+  transform: scale(1.2);
+  margin-right: 6px;
+}
+
+details td input[type='radio'] {
+  transform: scale(1.2);
+  margin-right: 6px;
+}
+
+div#feature_input {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  height: 100%;
+}
+
+div#feature_user_data {
+  display: none;
 }
