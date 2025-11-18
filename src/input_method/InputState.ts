@@ -268,7 +268,7 @@ export class MenuState extends InputtingState {
   }) {
     const candidates = [];
 
-    var title = args.settings.chineseConversionEnabled ? '簡體輸出' : '繁體輸出';
+    var title = args.settings.chineseConversionEnabled ? '简体中文' : '繁體中文';
 
     candidates.push(
       new MenuCandidate(title, '', () => {

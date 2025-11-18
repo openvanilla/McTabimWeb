@@ -294,7 +294,11 @@ export class KeyHandler {
           errorCallback();
           return true;
         }
-        const joined = state.radicals + chr;
+        let joined = state.radicals + chr;
+        if (state instanceof AssociatedPhrasesState) {
+          joined = chr;
+        }
+
         const displayedConcat = state.displayedRadicals.concat([displayedChr]);
         const candidates = table.lookupForCandidate(joined) || [];
         const newState = new InputtingState({
