@@ -1,6 +1,7 @@
 import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
 import {
   AssociatedPhrasesState,
+  BasicInputtingState,
   CommittingState,
   EmptyState,
   InputState,
@@ -122,7 +123,7 @@ export class KeyHandler {
         }
 
         const candidates = table.lookupForCandidate(chr) || [];
-        const newState = new InputtingState({
+        const newState = new BasicInputtingState({
           radicals: chr,
           displayedRadicals: [displayedChr],
           selectionKeys: selectionKeys,
@@ -278,42 +279,36 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-      } else if (
-        state instanceof SymbolCategoryState ||
-        state instanceof SettingsState ||
-        state instanceof MenuState ||
-        state instanceof AssociatedPhrasesState
-      ) {
-        // pass
-        // Note: `AssociatedPhrasesState` shall not reach here because it is handled above
-      } else if (inputKeys.includes(key.ascii)) {
-        // associated phrase state also reach here, and start to input a new radical
-        const chr = key.ascii;
-        const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
-        let selectionKeys = table.table.selkey;
-        if (selectionKeys === undefined || selectionKeys.length === 0) {
-          selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
-        }
+      } else if (state instanceof BasicInputtingState || state instanceof AssociatedPhrasesState) {
+        if (inputKeys.includes(key.ascii)) {
+          // associated phrase state also reach here, and start to input a new radical
+          const chr = key.ascii;
+          const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
+          let selectionKeys = table.table.selkey;
+          if (selectionKeys === undefined || selectionKeys.length === 0) {
+            selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
+          }
 
-        if (state.radicals.length >= table.settings.maxRadicals) {
-          errorCallback();
+          if (state.radicals.length >= table.settings.maxRadicals) {
+            errorCallback();
+            return true;
+          }
+          let joined = state.radicals + chr;
+          if (state instanceof AssociatedPhrasesState) {
+            joined = chr;
+          }
+
+          const displayedConcat = state.displayedRadicals.concat([displayedChr]);
+          const candidates = table.lookupForCandidate(joined) || [];
+          const newState = new BasicInputtingState({
+            radicals: joined,
+            displayedRadicals: displayedConcat,
+            selectionKeys: selectionKeys,
+            candidates: candidates,
+          });
+          stateCallback(newState);
           return true;
         }
-        let joined = state.radicals + chr;
-        if (state instanceof AssociatedPhrasesState) {
-          joined = chr;
-        }
-
-        const displayedConcat = state.displayedRadicals.concat([displayedChr]);
-        const candidates = table.lookupForCandidate(joined) || [];
-        const newState = new InputtingState({
-          radicals: joined,
-          displayedRadicals: displayedConcat,
-          selectionKeys: selectionKeys,
-          candidates: candidates,
-        });
-        stateCallback(newState);
-        return true;
       }
 
       // Ignore ESC key in inputting state

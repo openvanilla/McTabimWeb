@@ -67,6 +67,18 @@ export class InputtingState extends InputState {
   }
 }
 
+export class BasicInputtingState extends InputtingState {
+  copyWithArgs(args: { selectedCandidateIndex?: number }): BasicInputtingState {
+    return new BasicInputtingState({
+      radicals: this.radicals,
+      displayedRadicals: this.displayedRadicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
+  }
+}
+
 export class AssociatedPhrasesState extends InputtingState {
   constructor(args: {
     selectionKeys: string;

@@ -1,6 +1,7 @@
 import { Candidate, InputTableManager } from '../data';
 import {
   AssociatedPhrasesState,
+  BasicInputtingState,
   CommittingState,
   EmptyState,
   InputState,
@@ -93,7 +94,7 @@ describe('Test KeyHandler', () => {
 
   it('should commit candidate on RETURN in InputtingState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -121,7 +122,7 @@ describe('Test KeyHandler', () => {
 
   it('should select candidate by selection key', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -149,7 +150,7 @@ describe('Test KeyHandler', () => {
 
   it('should handle BACKSPACE in InputtingState to EmptyState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -174,7 +175,7 @@ describe('Test KeyHandler', () => {
 
   it('should handle ESC in InputtingState to EmptyState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -199,7 +200,7 @@ describe('Test KeyHandler', () => {
 
   it('should cycle candidates with UP and DOWN keys', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -242,7 +243,7 @@ describe('Test KeyHandler', () => {
   it('should call errorCallback if radicals exceed maxRadicals', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     const table = InputTableManager.getInstance().currentTable;
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a'.repeat(table.settings.maxRadicals),
       displayedRadicals: Array(table.settings.maxRadicals).fill('a'),
       selectionKeys: '1234567890',
@@ -287,7 +288,7 @@ describe('Test Associated Phrases', () => {
     const spy = jest
       .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
       .mockReturnValue([new Candidate('聯想1', ''), new Candidate('聯想2', '')]);
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -321,7 +322,7 @@ describe('Test Associated Phrases', () => {
     const spy = jest
       .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
       .mockReturnValue([]);
-    let state: InputtingState | EmptyState = new InputtingState({
+    let state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
