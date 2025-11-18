@@ -70,7 +70,6 @@ export class KeyMapping {
           keyName = KeyName.ASCII;
           isNumpadKey = true;
         } else {
-          // console.log(event.key);
           switch (event.key) {
             case 'ArrowLeft':
               keyName = KeyName.LEFT;

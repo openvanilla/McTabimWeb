@@ -16,6 +16,7 @@ export class InputController {
     () => this.settings_ as Settings,
     (settings) => {
       this.settings_ = settings;
+      this.onSettingChanged?.(this.settings_);
     },
   );
   private ui_: InputUI;
@@ -26,6 +27,8 @@ export class InputController {
     shiftLetterForSymbolsEnabled: true,
     wildcardMatchingEnabled: false,
   };
+
+  onSettingChanged?: ((settings: Settings) => void) | undefined;
 
   get settings(): Settings {
     return this.settings_;
