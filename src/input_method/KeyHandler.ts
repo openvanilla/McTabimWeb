@@ -1,13 +1,13 @@
-import { Candidate, MenuCandidate, InputTableManager, InputTableWrapper } from '../data';
+import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
 import {
   AssociatedPhrasesState,
   CommittingState,
-  SymbolCategoryState,
   EmptyState,
   InputState,
   InputtingState,
   MenuState,
   SettingsState,
+  SymbolCategoryState,
   SymbolInputtingState,
 } from './InputState';
 import { Key, KeyName } from './Key';
@@ -180,6 +180,9 @@ export class KeyHandler {
           this.handleCandidate(state, selectedCandidate, stateCallback, allowAssociatedPhrases);
         } else {
           errorCallback();
+          if (settings.clearOnErrors) {
+            stateCallback(new EmptyState());
+          }
         }
         return true;
       }

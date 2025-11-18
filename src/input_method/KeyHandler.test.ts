@@ -1,10 +1,10 @@
 import { Candidate, InputTableManager } from '../data';
 import {
+  AssociatedPhrasesState,
   CommittingState,
   EmptyState,
-  InputtingState,
-  AssociatedPhrasesState,
   InputState,
+  InputtingState,
 } from './InputState';
 import { Key, KeyName } from './Key';
 import { KeyHandler } from './KeyHandler';
@@ -19,6 +19,8 @@ describe('Test KeyHandler', () => {
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
         wildcardMatchingEnabled: false,
+        clearOnErrors: false,
+        beepOnErrors: false,
       };
     },
     (settings) => {},
@@ -273,6 +275,8 @@ describe('Test Associated Phrases', () => {
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
         wildcardMatchingEnabled: false,
+        clearOnErrors: false,
+        beepOnErrors: false,
       };
     },
     (settings) => {},
@@ -406,6 +410,8 @@ describe('Test Associated Phrases', () => {
         shiftLetterForSymbolsEnabled: false,
         shiftPunctuationForSymbolsEnabled: false,
         wildcardMatchingEnabled: false,
+        clearOnErrors: false,
+        beepOnErrors: false,
       }),
       () => {},
     );

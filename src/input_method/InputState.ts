@@ -1,4 +1,4 @@
-import { Candidate, InputTableManager, SymbolCategory, MenuCandidate } from '../data';
+import { Candidate, InputTableManager, MenuCandidate, SymbolCategory } from '../data';
 import { Settings } from './Settings';
 
 export abstract class InputState {}
@@ -206,6 +206,21 @@ export class SettingsState extends InputtingState {
         () => {
           this.settings.shiftPunctuationForSymbolsEnabled =
             !this.settings.shiftPunctuationForSymbolsEnabled;
+        },
+      ],
+
+      [
+        '組字錯誤時清除字根',
+        args.settings.clearOnErrors,
+        () => {
+          this.settings.clearOnErrors = !this.settings.clearOnErrors;
+        },
+      ],
+      [
+        '錯誤時發出提示音',
+        args.settings.beepOnErrors,
+        () => {
+          this.settings.beepOnErrors = !this.settings.beepOnErrors;
         },
       ],
       [

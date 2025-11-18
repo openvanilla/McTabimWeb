@@ -4,4 +4,6 @@ export interface Settings {
   shiftPunctuationForSymbolsEnabled: boolean;
   shiftLetterForSymbolsEnabled: boolean;
   wildcardMatchingEnabled: boolean;
+  clearOnErrors: boolean;
+  beepOnErrors: boolean;
 }

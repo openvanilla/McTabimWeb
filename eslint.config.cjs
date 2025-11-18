@@ -21,8 +21,11 @@ module.exports = [
     },
     plugins: {
       '@typescript-eslint': tseslint,
+      'simple-import-sort': require('eslint-plugin-simple-import-sort'),
     },
     rules: {
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
       eqeqeq: [
         'warn',
         'always',

@@ -1,13 +1,12 @@
+import { Candidate } from '../data';
 import {
+  AssociatedPhrasesState,
   CommittingState,
   EmptyState,
   InputtingState,
-  AssociatedPhrasesState,
-  SymbolInputtingState,
   SymbolCategoryState,
+  SymbolInputtingState,
 } from './InputState';
-
-import { Candidate } from '../data';
 
 describe('Test EmptyState', () => {
   it('should create an instance of EmptyState', () => {

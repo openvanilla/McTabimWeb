@@ -1,22 +1,20 @@
-import checj from './cin/checj.json';
-import cj5 from './cin/cj5.json';
-import simplex from './cin/simplex.json';
-import simplex5 from './cin/simplex5.json';
-import dayi3 from './cin/dayi3.json';
-import dayi4 from './cin/dayi4.json';
+import associatedPhrasesJson from './associated_phrases/phrase.json';
+import { Candidate } from './Candidate';
 import array30 from './cin/array30.json';
 import array40 from './cin/array40.json';
-import associatedPhrasesJson from './associated_phrases/phrase.json';
-
-import symbols from './symbols/msymbols.json';
-import shiftLetters from './symbols/swkb.json';
-import shiftPunctuations from './symbols/fsymbols.json';
-
-import { Candidate } from './Candidate';
+import checj from './cin/checj.json';
+import cj5 from './cin/cj5.json';
+import dayi3 from './cin/dayi3.json';
+import dayi4 from './cin/dayi4.json';
+import simplex from './cin/simplex.json';
+import simplex5 from './cin/simplex5.json';
+import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
-import { CustomSymbolTable } from './CustomSymbolTable';
 import { InputTableWrapper } from './InputTableWrapper';
+import shiftPunctuations from './symbols/fsymbols.json';
+import symbols from './symbols/msymbols.json';
+import shiftLetters from './symbols/swkb.json';
 
 type AssociatedPhrases = {
   chardefs: { [key: string]: string[] };

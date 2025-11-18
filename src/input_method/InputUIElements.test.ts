@@ -1,6 +1,6 @@
-import { InputUIStateBuilder } from './InputUIElements';
-import { InputtingState } from './InputState';
 import { Candidate } from '../data';
+import { InputtingState } from './InputState';
+import { InputUIStateBuilder } from './InputUIElements';
 
 describe('InputUIStateBuilder', () => {
   const makeCandidate = (text: string, desc = ''): Candidate => new Candidate(text, desc);

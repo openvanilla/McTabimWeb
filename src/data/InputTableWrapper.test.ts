@@ -1,6 +1,6 @@
-import { InputTableWrapper, InputTableSettings } from './InputTableWrapper';
 import { Candidate } from './Candidate';
 import { InputTable } from './InputTable';
+import { InputTableSettings, InputTableWrapper } from './InputTableWrapper';
 
 const mockTable: InputTable = {
   chardefs: {

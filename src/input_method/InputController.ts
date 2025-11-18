@@ -26,9 +26,12 @@ export class InputController {
     shiftPunctuationForSymbolsEnabled: true,
     shiftLetterForSymbolsEnabled: true,
     wildcardMatchingEnabled: false,
+    clearOnErrors: false,
+    beepOnErrors: false,
   };
 
   onSettingChanged?: ((settings: Settings) => void) | undefined;
+  onError?: (() => void) | undefined;
 
   get settings(): Settings {
     return this.settings_;
@@ -42,8 +45,6 @@ export class InputController {
   get state(): InputState {
     return this.state_;
   }
-
-  onError: () => void = () => {};
 
   constructor(ui: InputUI) {
     this.ui_ = ui;
@@ -63,7 +64,11 @@ export class InputController {
       key,
       this.state_,
       (state) => this.enterState(this.state_, state),
-      () => this.onError(),
+      () => {
+        if (this.onError && this.settings_.beepOnErrors) {
+          this.onError();
+        }
+      },
     );
     return handled;
   }
