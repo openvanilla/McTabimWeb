@@ -272,3 +272,14 @@ div#feature_input {
 div#feature_user_data {
   display: none;
 }
+
+.left h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.left button {
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  font-size: 12pt;
+}

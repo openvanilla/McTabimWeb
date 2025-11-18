@@ -171,6 +171,52 @@
     return that;
   })();
 
+  let symbolTableUserData = (() => {
+    let that = {};
+    that.data = '';
+    that.load = () => {
+      var saved = window.localStorage.getItem('symbolTableUserData');
+      if (saved) {
+        that.data = saved;
+      } else {
+        that.data = inputMethod.tableManager.customSymbolTable.sourceData;
+      }
+    };
+    that.save = () => {
+      window.localStorage.setItem('symbolTableUserData', that.data);
+    };
+    that.applyToUi = () => {
+      document.getElementById('user_data_symbol_area').value = that.data;
+    };
+    that.applyToInputMethod = () => {
+      inputMethod.tableManager.customSymbolTable.sourceData = that.data;
+    };
+    return that;
+  })();
+
+  let foreignLanguageUserData = (() => {
+    let that = {};
+    that.data = '';
+    that.load = () => {
+      var saved = window.localStorage.getItem('foreignLanguageUserData');
+      if (saved) {
+        that.data = saved;
+      } else {
+        that.data = inputMethod.tableManager.foreignLanguage.sourceData;
+      }
+    };
+    that.save = () => {
+      window.localStorage.setItem('foreignLanguageUserData', that.data);
+    };
+    that.applyToUi = () => {
+      document.getElementById('user_data_foreign_language_area').value = that.data;
+    };
+    that.applyToInputMethod = () => {
+      inputMethod.tableManager.foreignLanguage.sourceData = that.data;
+    };
+    return that;
+  })();
+
   let settings = (() => {
     let that = {};
     that.defaultSettings = {
@@ -360,11 +406,49 @@
     settings.load();
     settings.applyToUi();
     settings.applyToInputMethod();
+    symbolTableUserData.load();
+    symbolTableUserData.applyToUi();
+    symbolTableUserData.applyToInputMethod();
+    foreignLanguageUserData.load();
+    foreignLanguageUserData.applyToUi();
+    foreignLanguageUserData.applyToInputMethod();
 
     document.getElementById('loading').innerText = '載入完畢！';
     setTimeout(function () {
       document.getElementById('loading').style.display = 'none';
     }, 2000);
+
+    document.getElementById('load_user_data_button').onclick = () => {
+      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+      symbolTableUserData.applyToInputMethod();
+      symbolTableUserData.save();
+      document.getElementById('user_data_symbol_area').focus();
+    };
+
+    document.getElementById('save_user_data_button').onclick = () => {
+      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+      symbolTableUserData.applyToInputMethod();
+      symbolTableUserData.save();
+      document.getElementById('user_data_symbol_area').focus();
+    };
+
+    document.getElementById('load_user_data_foreign_language_button').onclick = () => {
+      foreignLanguageUserData.data = document.getElementById(
+        'user_data_foreign_language_area',
+      ).value;
+      foreignLanguageUserData.applyToInputMethod();
+      foreignLanguageUserData.save();
+      document.getElementById('user_data_foreign_language_area').focus();
+    };
+
+    document.getElementById('save_user_data_foreign_language_button').onclick = () => {
+      foreignLanguageUserData.data = document.getElementById(
+        'user_data_foreign_language_area',
+      ).value;
+      foreignLanguageUserData.applyToInputMethod();
+      foreignLanguageUserData.save();
+      document.getElementById('user_data_foreign_language_area').focus();
+    };
 
     document.getElementById('text_area').focus();
   })();
