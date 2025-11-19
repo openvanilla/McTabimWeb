@@ -1,4 +1,4 @@
-import { Candidate, InputTableManager } from '../data';
+import { Candidate, InputTableManager, MenuCandidate } from '../data';
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
@@ -6,9 +6,15 @@ import {
   EmptyState,
   InputState,
   InputtingState,
+  MenuState,
+  SettingsState,
+  SymbolCategoryState,
+  SymbolInputtingState,
+  TooltipOnlyState,
 } from './InputState';
 import { Key, KeyName } from './Key';
 import { KeyHandler } from './KeyHandler';
+import { Settings } from './Settings';
 
 describe('Test KeyHandler', () => {
   const keyHandler = new KeyHandler(
@@ -440,5 +446,331 @@ describe('Test Associated Phrases', () => {
       false,
     );
     handleCandidateSpy.mockRestore();
+  });
+});
+
+describe('KeyHandler edge cases', () => {
+  const buildSettings = (overrides: Partial<Settings> = {}): Settings => ({
+    chineseConversionEnabled: false,
+    associatedPhrasesEnabled: false,
+    shiftLetterForSymbolsEnabled: false,
+    shiftPunctuationForSymbolsEnabled: false,
+    wildcardMatchingEnabled: false,
+    clearOnErrors: false,
+    beepOnErrors: false,
+    reverseRadicalLookupEnabled: false,
+    ...overrides,
+  });
+
+  const createStubTable = () => ({
+    table: { keynames: { a: 'A' }, selkey: KeyHandler.COMMON_SELECTION_KEYS, chardefs: {} },
+    lookupForCandidate: jest.fn(() => []),
+    lookUpForDisplayedKeyName: jest.fn((key: string) => key.toUpperCase()),
+    reverseLookupForRadicals: jest.fn(() => ['Ａ']),
+    settings: { maxRadicals: 5 },
+  });
+
+  it('handleCandidate should return the next state for MenuCandidate', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const menuState = new MenuState({
+      settings: buildSettings(),
+      selectionKeys: '123',
+      onSettingsChanged: jest.fn(),
+    });
+    const candidate = new MenuCandidate('主選單', '', () => menuState);
+    const currentState = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1',
+      candidates: [candidate],
+    });
+    const stateCallback = jest.fn();
+    keyHandler.handleCandidate(currentState, candidate, stateCallback);
+    expect(stateCallback).toHaveBeenCalledWith(menuState);
+  });
+
+  it('handleCandidate emits TooltipOnlyState when reverse lookup has matches', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings({ reverseRadicalLookupEnabled: true }),
+      jest.fn(),
+    );
+    const currentState = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1',
+      candidates: [new Candidate('測', '')],
+    });
+    const states: InputState[] = [];
+    keyHandler.handleCandidate(
+      currentState,
+      new Candidate('測', ''),
+      (state) => states.push(state),
+      false,
+    );
+    expect(states[0]).toBeInstanceOf(CommittingState);
+    expect(states[1]).toBeInstanceOf(TooltipOnlyState);
+    expect((states[1] as TooltipOnlyState).tooltip).toContain('字根反查');
+  });
+
+  it('handleCandidate remaps selection keys when using the shorter layout', () => {
+    const spy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
+      .mockReturnValue([new Candidate('聯想', '')]);
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings({ associatedPhrasesEnabled: true }),
+      jest.fn(),
+    );
+    const state = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS2,
+      candidates: [new Candidate('測', '')],
+    });
+    const states: InputState[] = [];
+    keyHandler.handleCandidate(state, state.candidates[0], (s) => states.push(s));
+    expect(states[1]).toBeInstanceOf(AssociatedPhrasesState);
+    expect((states[1] as AssociatedPhrasesState).exactSelectionKeys).toBe(
+      KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS2,
+    );
+    spy.mockRestore();
+  });
+
+  it('opens a symbol menu when shift punctuation maps to multiple symbols', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings({ shiftPunctuationForSymbolsEnabled: true }),
+      jest.fn(),
+    );
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      new Key('+', KeyName.UNKNOWN),
+      new EmptyState(),
+      stateCallback,
+      jest.fn(),
+    );
+    expect(handled).toBe(true);
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(SymbolCategoryState);
+  });
+
+  it('commits a single symbol when shift punctuation maps to one character', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings({ shiftPunctuationForSymbolsEnabled: true }),
+      jest.fn(),
+    );
+    const stateCallback = jest.fn();
+    keyHandler.handle(new Key('~', KeyName.UNKNOWN), new EmptyState(), stateCallback, jest.fn());
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(CommittingState);
+  });
+
+  it('commits mapped symbols when shift + letter is enabled', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings({ shiftLetterForSymbolsEnabled: true }),
+      jest.fn(),
+    );
+    const stateCallback = jest.fn();
+    keyHandler.handle(new Key('Q', KeyName.UNKNOWN), new EmptyState(), stateCallback, jest.fn());
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(CommittingState);
+  });
+
+  it('errors when associated phrase page is empty', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: [],
+    });
+    const errorCallback = jest.fn();
+    keyHandler.handle(new Key('!', KeyName.UNKNOWN), state, jest.fn(), errorCallback);
+    expect(errorCallback).toHaveBeenCalled();
+  });
+
+  it('errors when associated phrase selection exceeds candidates', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: '!@',
+      candidates: [new Candidate('聯想', '')],
+    });
+    const errorCallback = jest.fn();
+    keyHandler.handle(new Key('@', KeyName.UNKNOWN), state, jest.fn(), errorCallback);
+    expect(errorCallback).toHaveBeenCalled();
+  });
+
+  it('navigates to emoji menu from SymbolInputtingState', () => {
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new SymbolInputtingState({
+      radicals: '',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [],
+    });
+    const stateCallback = jest.fn();
+    keyHandler.handle(new Key('e', KeyName.UNKNOWN), state, stateCallback, jest.fn());
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(SymbolCategoryState);
+  });
+
+  it('navigates to the menu from SymbolInputtingState and wires callbacks', () => {
+    const onSettingsChanged = jest.fn();
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      onSettingsChanged,
+    );
+    const state = new SymbolInputtingState({
+      radicals: '',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [],
+    });
+    const states: InputState[] = [];
+    keyHandler.handle(new Key('m', KeyName.UNKNOWN), state, (s) => states.push(s), jest.fn());
+    const menuState = states[0] as MenuState;
+    expect(menuState).toBeInstanceOf(MenuState);
+    (menuState.candidates[0] as MenuCandidate).nextState();
+    expect(onSettingsChanged).toHaveBeenCalled();
+  });
+
+  it('opens in-menu settings state from SymbolInputtingState', () => {
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new SymbolInputtingState({
+      radicals: '',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [],
+    });
+    const stateCallback = jest.fn();
+    keyHandler.handle(new Key('s', KeyName.UNKNOWN), state, stateCallback, jest.fn());
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(SettingsState);
+  });
+
+  it('opens menu when backtick is pressed twice in symbol mode', () => {
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new SymbolInputtingState({
+      radicals: '`',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [],
+    });
+    const stateCallback = jest.fn();
+    keyHandler.handle(new Key('`', KeyName.UNKNOWN), state, stateCallback, jest.fn());
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(MenuState);
+  });
+
+  it('updates symbol radicals when a valid symbol key is typed', () => {
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new SymbolInputtingState({
+      radicals: '',
+      selectionKeys: 'abcdef',
+      candidates: [],
+    });
+    const states: InputState[] = [];
+    keyHandler.handle(new Key('0', KeyName.UNKNOWN), state, (s) => states.push(s), jest.fn());
+    expect(states[0]).toBeInstanceOf(SymbolInputtingState);
+    expect((states[0] as SymbolInputtingState).radicals).toBe('0');
+  });
+
+  it('BACKSPACE returns to previous state for symbol/category specific states', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const prevState = new SymbolInputtingState({
+      radicals: '',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [],
+    });
+    const symbolState = new SymbolCategoryState({
+      title: 'cat',
+      displayedRadicals: ['cat'],
+      previousState: prevState,
+      nodes: ['★'],
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+    });
+    const stateCallback = jest.fn();
+    keyHandler.handle(Key.namedKey(KeyName.BACKSPACE), symbolState, stateCallback, jest.fn());
+    expect(stateCallback.mock.calls[0][0]).toBe(prevState);
+
+    const settingsState = new SettingsState({
+      previousState: prevState,
+      settings: buildSettings(),
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+    });
+    const stateCallback2 = jest.fn();
+    keyHandler.handle(Key.namedKey(KeyName.BACKSPACE), settingsState, stateCallback2, jest.fn());
+    expect(stateCallback2.mock.calls[0][0]).toBe(prevState);
+  });
+
+  it('handles Shift presses gracefully inside associated phrases', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: [new Candidate('聯想', '')],
+    });
+    const handled = keyHandler.handle(
+      new Key('Shift', KeyName.UNKNOWN),
+      state,
+      jest.fn(),
+      jest.fn(),
+    );
+    expect(handled).toBe(true);
+  });
+
+  it('exits associated phrases when other printable keys are pressed', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: [new Candidate('聯想', '')],
+    });
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      new Key('x', KeyName.UNKNOWN),
+      state,
+      stateCallback,
+      jest.fn(),
+    );
+    expect(handled).toBe(false);
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(EmptyState);
   });
 });

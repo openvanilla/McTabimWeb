@@ -1,12 +1,29 @@
-import { Candidate } from '../data';
+import { Candidate, MenuCandidate, SymbolCategory } from '../data';
 import {
   AssociatedPhrasesState,
+  BasicInputtingState,
   CommittingState,
   EmptyState,
   InputtingState,
+  MenuState,
+  SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
+  TooltipOnlyState,
 } from './InputState';
+import { Settings } from './Settings';
+
+const createSettings = (overrides: Partial<Settings> = {}): Settings => ({
+  chineseConversionEnabled: false,
+  associatedPhrasesEnabled: false,
+  shiftLetterForSymbolsEnabled: false,
+  shiftPunctuationForSymbolsEnabled: false,
+  wildcardMatchingEnabled: false,
+  clearOnErrors: false,
+  beepOnErrors: false,
+  reverseRadicalLookupEnabled: false,
+  ...overrides,
+});
 
 describe('Test EmptyState', () => {
   it('should create an instance of EmptyState', () => {
@@ -386,5 +403,144 @@ describe('SettingsState additional tests', () => {
     state.candidates[2].nextState();
     expect(settings.shiftPunctuationForSymbolsEnabled).toBe(false);
     expect(onSettingsChanged).toHaveBeenCalledTimes(3);
+  });
+
+  it('should toggle advanced settings options and emit callbacks', () => {
+    const settings = createSettings({
+      clearOnErrors: false,
+      beepOnErrors: false,
+      wildcardMatchingEnabled: false,
+      reverseRadicalLookupEnabled: false,
+    });
+    const onSettingsChanged = jest.fn();
+    const previousState = new EmptyState();
+    const state = new (require('./InputState').SettingsState)({
+      previousState,
+      settings,
+      selectionKeys: '1234567',
+      onSettingsChanged,
+    });
+
+    state.candidates[3].nextState();
+    expect(settings.clearOnErrors).toBe(true);
+    state.candidates[4].nextState();
+    expect(settings.beepOnErrors).toBe(true);
+    state.candidates[5].nextState();
+    expect(settings.wildcardMatchingEnabled).toBe(true);
+    state.candidates[6].nextState();
+    expect(settings.reverseRadicalLookupEnabled).toBe(true);
+    expect(onSettingsChanged).toHaveBeenCalledTimes(4);
+  });
+});
+
+describe('TooltipOnlyState', () => {
+  it('stores the tooltip text', () => {
+    const state = new TooltipOnlyState('提示');
+    expect(state.tooltip).toBe('提示');
+  });
+});
+
+describe('InputtingState helper behavior', () => {
+  const candidates = [new Candidate('一', ''), new Candidate('二', '')];
+
+  it('copyWithArgs clones state with updated index', () => {
+    const state = new InputtingState({
+      radicals: 'ab',
+      displayedRadicals: ['A', 'B'],
+      selectionKeys: '12',
+      candidates,
+      selectedCandidateIndex: 0,
+    });
+    const copied = state.copyWithArgs({ selectedCandidateIndex: 1 });
+    expect(copied).toBeInstanceOf(InputtingState);
+    expect(copied.selectedCandidateIndex).toBe(1);
+    expect(copied.displayedRadicals).toEqual(['A', 'B']);
+  });
+
+  it('BasicInputtingState copyWithArgs preserves annotations', () => {
+    const state = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1',
+      candidates,
+      candidateAnnotation: '注解',
+    });
+    const copied = state.copyWithArgs({ selectedCandidateIndex: 1 });
+    expect(copied).toBeInstanceOf(BasicInputtingState);
+    expect(copied.selectedCandidateIndex).toBe(1);
+    expect(copied.candidateAnnotation).toBe('注解');
+  });
+});
+
+describe('SymbolCategoryState deeper navigation', () => {
+  it('creates MenuCandidates for nested SymbolCategory nodes', () => {
+    const inner = new SymbolCategory({ name: '子層', id: 'child', nodes: ['★'] });
+    const root = new SymbolCategory({ name: '主分類', id: 'root', nodes: [inner] });
+    const previousState = new EmptyState();
+    const state = new SymbolCategoryState({
+      title: 'Symbols',
+      displayedRadicals: ['符號'],
+      previousState,
+      nodes: [root, '☆'],
+      selectionKeys: '12',
+    });
+    expect(state.candidates[0]).toBeInstanceOf(MenuCandidate);
+    const nextState = (state.candidates[0] as MenuCandidate).nextState();
+    expect(nextState).toBeInstanceOf(SymbolCategoryState);
+    if (nextState instanceof SymbolCategoryState) {
+      expect(nextState.displayedRadicals).toEqual(['符號/主分類']);
+      const copy = nextState.copyWithArgs({ selectedCandidateIndex: 0 });
+      expect(copy.selectedCandidateIndex).toBe(0);
+    }
+    expect(state.candidates[1]).toBeInstanceOf(Candidate);
+  });
+});
+
+describe('MenuState', () => {
+  const baseSettings = () =>
+    createSettings({
+      associatedPhrasesEnabled: true,
+    });
+
+  it('toggles Chinese conversion and calls the callback', () => {
+    const settings = baseSettings();
+    const onSettingsChanged = jest.fn();
+    const state = new MenuState({
+      settings,
+      selectionKeys: '1234567890',
+      onSettingsChanged,
+    });
+    expect(state.displayedRadicals).toEqual(['主選單']);
+    const nextState = (state.candidates[0] as MenuCandidate).nextState();
+    expect(settings.chineseConversionEnabled).toBe(true);
+    expect(onSettingsChanged).toHaveBeenCalledWith(settings);
+    expect(nextState).toBeInstanceOf(MenuState);
+    expect((nextState as MenuState).candidates[0].displayText).toBe('简体中文');
+  });
+
+  it('exposes menu entries for settings and symbol categories', () => {
+    const settings = baseSettings();
+    const state = new MenuState({
+      settings,
+      selectionKeys: '1234567890',
+      onSettingsChanged: jest.fn(),
+    });
+    const settingsCandidate = state.candidates.find(
+      (candidate) => candidate.displayText === '功能開關',
+    ) as MenuCandidate;
+    expect(settingsCandidate).toBeDefined();
+    const settingsState = settingsCandidate.nextState();
+    expect(settingsState).toBeInstanceOf(SettingsState);
+
+    const symbolCandidate = state.candidates.find(
+      (candidate) => candidate.displayText === '特殊符號',
+    ) as MenuCandidate;
+    expect(symbolCandidate).toBeDefined();
+    const symbolState = symbolCandidate.nextState() as SymbolCategoryState;
+    expect(symbolState).toBeInstanceOf(SymbolCategoryState);
+    expect(symbolState.displayedRadicals).toEqual(['特殊符號']);
+
+    const copied = state.copyWithArgs({ selectedCandidateIndex: 2 });
+    expect(copied.selectedCandidateIndex).toBe(2);
   });
 });
