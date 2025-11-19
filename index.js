@@ -30,6 +30,8 @@
       document.getElementById('composing_buffer').innerHTML = renderText;
       document.getElementById('candidates').innerHTML = '';
       composingBuffer = '';
+      document.getElementById('tooltip').innerText = '';
+      document.getElementById('tooltip').style.visibility = 'hidden';
     };
 
     that.commitString = (string) => {
@@ -48,32 +50,38 @@
       let state = JSON.parse(string);
       {
         let buffer = state.composingBuffer;
-        let renderText = '<p>';
-        let plainText = '';
-        let i = 0;
-        for (let item of buffer) {
-          if (item.style === 'highlighted') {
-            renderText += '<span class="marking">';
-          }
-          let text = item.text;
-          plainText += text;
-          for (let c of text) {
-            if (i === state.cursorIndex) {
-              renderText += "<span class='cursor'>|</span>";
+        if (buffer.length === 0) {
+          document.getElementById('composing_buffer').innerHTML = '';
+          document.getElementById('composing_buffer').style.visibility = 'hidden';
+        } else {
+          let renderText = '<p>';
+          let plainText = '';
+          let i = 0;
+          for (let item of buffer) {
+            if (item.style === 'highlighted') {
+              renderText += '<span class="marking">';
             }
-            renderText += c;
-            i++;
+            let text = item.text;
+            plainText += text;
+            for (let c of text) {
+              if (i === state.cursorIndex) {
+                renderText += "<span class='cursor'>|</span>";
+              }
+              renderText += c;
+              i++;
+            }
+            if (item.style === 'highlighted') {
+              renderText += '</span>';
+            }
           }
-          if (item.style === 'highlighted') {
-            renderText += '</span>';
+          if (i === state.cursorIndex) {
+            renderText += "<span class='cursor'>|</span>";
           }
+          renderText += '</p>';
+          document.getElementById('composing_buffer').innerHTML = renderText;
+          composingBuffer = plainText;
+          document.getElementById('composing_buffer').style.visibility = 'visible';
         }
-        if (i === state.cursorIndex) {
-          renderText += "<span class='cursor'>|</span>";
-        }
-        renderText += '</p>';
-        document.getElementById('composing_buffer').innerHTML = renderText;
-        composingBuffer = plainText;
       }
 
       if (state.candidates.length) {
@@ -95,8 +103,10 @@
           s += '</td>';
           s += '</tr>';
         }
+        const annotation = state.candidateAnnotation ?? '';
         s += '<tr class="page_info"> ';
         s += '<td colspan="2">';
+        s += annotation;
         s += '</td>';
         s += '<td colspan="1">';
         s += '' + (state.candidatePageIndex + 1) + ' / ' + state.candidatePageCount;
@@ -110,6 +120,14 @@
       document.getElementById('candidates').style.visibility = state.candidates.length
         ? 'visible'
         : 'hidden';
+
+      if (state.tooltip && state.tooltip.length > 0) {
+        document.getElementById('tooltip').innerText = state.tooltip;
+        document.getElementById('tooltip').style.visibility = 'visible';
+      } else {
+        document.getElementById('tooltip').innerText = '';
+        document.getElementById('tooltip').style.visibility = 'hidden';
+      }
 
       document.getElementById('function').style.visibility = 'visible';
       const textArea = document.getElementById('text_area');
@@ -171,6 +189,52 @@
     return that;
   })();
 
+  let symbolTableUserData = (() => {
+    let that = {};
+    that.data = '';
+    that.load = () => {
+      var saved = window.localStorage.getItem('symbolTableUserData');
+      if (saved) {
+        that.data = saved;
+      } else {
+        that.data = inputMethod.tableManager.customSymbolTable.sourceData;
+      }
+    };
+    that.save = () => {
+      window.localStorage.setItem('symbolTableUserData', that.data);
+    };
+    that.applyToUi = () => {
+      document.getElementById('user_data_symbol_area').value = that.data;
+    };
+    that.applyToInputMethod = () => {
+      inputMethod.tableManager.customSymbolTable.sourceData = that.data;
+    };
+    return that;
+  })();
+
+  let foreignLanguageUserData = (() => {
+    let that = {};
+    that.data = '';
+    that.load = () => {
+      var saved = window.localStorage.getItem('foreignLanguageUserData');
+      if (saved) {
+        that.data = saved;
+      } else {
+        that.data = inputMethod.tableManager.foreignLanguage.sourceData;
+      }
+    };
+    that.save = () => {
+      window.localStorage.setItem('foreignLanguageUserData', that.data);
+    };
+    that.applyToUi = () => {
+      document.getElementById('user_data_foreign_language_area').value = that.data;
+    };
+    that.applyToInputMethod = () => {
+      inputMethod.tableManager.foreignLanguage.sourceData = that.data;
+    };
+    return that;
+  })();
+
   let settings = (() => {
     let that = {};
     that.defaultSettings = {
@@ -183,6 +247,7 @@
         wildcardMatchingEnabled: false,
         clearOnErrors: false,
         beepOnErrors: false,
+        reverseRadicalLookupEnabled: false,
       },
     };
     that.settings = {
@@ -195,6 +260,7 @@
         wildcardMatchingEnabled: false,
         clearOnErrors: false,
         beepOnErrors: false,
+        reverseRadicalLookupEnabled: false,
       },
     };
     that.load = () => {
@@ -242,6 +308,8 @@
       document.getElementById('beep_on_error').checked = inputSettings.beepOnErrors;
       document.getElementById('wildcard_matching_enabled').checked =
         inputSettings.wildcardMatchingEnabled;
+      document.getElementById('reverse_radical_lookup_enabled').checked =
+        inputSettings.reverseRadicalLookupEnabled;
     };
     return that;
   })();
@@ -351,20 +419,83 @@
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
+    document.getElementById('clean_on_error').onchange = (event) => {
+      settings.settings.inputSettings.clearOnErrors = event.target.checked;
+      settings.save();
+      settings.applyToInputMethod();
+      document.getElementById('text_area').focus();
+    };
+    document.getElementById('beep_on_error').onchange = (event) => {
+      settings.settings.inputSettings.beepOnErrors = event.target.checked;
+      settings.save();
+      settings.applyToInputMethod();
+      document.getElementById('text_area').focus();
+    };
+    document.getElementById('reverse_radical_lookup_enabled').onchange = (event) => {
+      settings.settings.inputSettings.reverseRadicalLookupEnabled = event.target.checked;
+      settings.save();
+      settings.applyToInputMethod();
+      document.getElementById('text_area').focus();
+    };
 
     window.addEventListener('hashchange', () => {
       let hash = window.location.hash;
       toggle_feature(hash.substring(1));
     });
 
+    let hash = window.location.hash;
+    if (hash.length > 1) {
+      toggle_feature(hash.substring(1));
+    } else {
+      toggle_feature('feature_input');
+    }
+
     settings.load();
     settings.applyToUi();
     settings.applyToInputMethod();
+    symbolTableUserData.load();
+    symbolTableUserData.applyToUi();
+    symbolTableUserData.applyToInputMethod();
+    foreignLanguageUserData.load();
+    foreignLanguageUserData.applyToUi();
+    foreignLanguageUserData.applyToInputMethod();
 
     document.getElementById('loading').innerText = '載入完畢！';
     setTimeout(function () {
       document.getElementById('loading').style.display = 'none';
     }, 2000);
+
+    document.getElementById('load_user_data_button').onclick = () => {
+      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+      symbolTableUserData.applyToInputMethod();
+      symbolTableUserData.save();
+      document.getElementById('user_data_symbol_area').focus();
+    };
+
+    document.getElementById('save_user_data_button').onclick = () => {
+      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+      symbolTableUserData.applyToInputMethod();
+      symbolTableUserData.save();
+      document.getElementById('user_data_symbol_area').focus();
+    };
+
+    document.getElementById('load_user_data_foreign_language_button').onclick = () => {
+      foreignLanguageUserData.data = document.getElementById(
+        'user_data_foreign_language_area',
+      ).value;
+      foreignLanguageUserData.applyToInputMethod();
+      foreignLanguageUserData.save();
+      document.getElementById('user_data_foreign_language_area').focus();
+    };
+
+    document.getElementById('save_user_data_foreign_language_button').onclick = () => {
+      foreignLanguageUserData.data = document.getElementById(
+        'user_data_foreign_language_area',
+      ).value;
+      foreignLanguageUserData.applyToInputMethod();
+      foreignLanguageUserData.save();
+      document.getElementById('user_data_foreign_language_area').focus();
+    };
 
     document.getElementById('text_area').focus();
   })();
