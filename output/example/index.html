@@ -32,14 +32,19 @@
             <a href="#feature_user_data" title="自訂符號表管理">自訂符號表管理</a>
         </p>
 
-        <div id="feature_input">
+        <div id="feature_input" class="feature">
             <div class="left">
                 <div id="edit_area">
                     <textarea placeholder="請在此直接使用英數鍵盤打字" id="text_area" rows="10" cols="50" title="輸入區"
                         autocapitalize="off"></textarea>
                     <div class="function" id="function">
                         <div class="composing_buffer" id="composing_buffer"></div>
-                        <div class="candidates" id="candidates"></div>
+                        <div>
+                            <div class="tooltip" id="tooltip"></div>
+                        </div>
+                        <div>
+                            <div class="candidates" id="candidates"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,17 +73,19 @@
                                     checked="checked"><label for="shift_punctuation_for_symbols_enabled">Shift
                                     + 標點輸入全形符號</label><br>
                                 <input type="checkbox" id="shift_letter_for_symbols_enabled" checked="checked"><label
-                                    for="shift_letter_for_symbols_enabled">Shift + 字母輸入全形符號</label><br>
+                                    for="shift_letter_for_symbols_enabled">Shift +
+                                    字母輸入全形符號</label><br>
                                 <input type="checkbox" id="clean_on_error"><label
                                     for="clean_on_error">輸入錯誤時清除輸入緩衝區</label><br>
                                 <input type="checkbox" id="beep_on_error"><label
                                     for="beep_on_error">輸入錯誤時發出提示音</label><br>
                                 <input type="checkbox" id="wildcard_matching_enabled"><label
-                                    for="wildcard_matching_enabled">啟用萬用字元
+                                    for="wildcard_matching_enabled">啟用萬用字元</label><br>
+                                <input type="checkbox" id="reverse_radical_lookup_enabled"><label
+                                    for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
                             </td>
                         </tr>
                     </table>
-
                 </details>
 
                 <details open>
@@ -98,34 +105,47 @@
                     <p>輸入法表格資料來自 PIME 專案。</p>
                 </details>
 
-                <h2>版本資訊</h2>
-                <ul>
-                    <li>0.1.0 版</li>
-                    <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank">專案首頁</a></li>
-                    <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank">意見回報</a></li>
-                </ul>
+                <details>
+                    <summary> 版本資訊 </summary>
+                    <ul>
+                        <li>0.1.0 版</li>
+                        <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank">專案首頁</a></li>
+                        <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank">意見回報</a></li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+        <div class="content">
+
+
+
+            <div id="feature_user_data" class="feature">
+                <div class="left">
+                    <h2>自訂符號表管理</h2>
+                    <p>
+                        <button id="load_user_data_button">載入自訂符號表</button>
+                        <button id="save_user_data_button">儲存自訂符號表</button>
+                    </p>
+                    <textarea id="user_data_symbol_area" rows="20" cols="50" placeholder=""></textarea>
+                    <h2>自訂符號表管理</h2>
+                    <p>
+                        <button id="load_user_data_foreign_language_button">載入自訂外語符號表</button>
+                        <button id="save_user_data_foreign_language_button">儲存自訂外語符號表</button>
+                    </p>
+                    <textarea id="user_data_foreign_language_area" rows="20" cols="50" placeholder=""></textarea>
+                </div>
+                <div class="right">
+                    <p>請在編輯之後，按下儲存按鈕。</p>
+                </div>
             </div>
         </div>
 
-        <div id="feature_user_data">
-            <div class="left">
-                <h2>自訂符號表管理</h2>
-                <p>
-                    <button id="load_user_data_button">載入自訂符號表</button>
-                    <button id="save_user_data_button">儲存自訂符號表</button>
-                </p>
-                <textarea id="user_data_symbol_area" rows="20" cols="50" placeholder=""></textarea>
-                <h2>自訂符號表管理</h2>
-                <p>
-                    <button id="load_user_data_foreign_language_button">載入自訂外語符號表</button>
-                    <button id="save_user_data_foreign_language_button">儲存自訂外語符號表</button>
-                </p>
-                <textarea id="user_data_foreign_language_area" rows="20" cols="50" placeholder=""></textarea>
-            </div>
-            <div class=" right">
-            </div>
-        </div>
+        <p class="credit">Copyright (c) 2022 and onwards The McTabLM Authors. This code is released under the MIT
+            license.版本：0.1.0. <a href="privacy_policy.html">隱私權政策</a></p>
+
     </div>
+
+
 </body>
 
 </html>

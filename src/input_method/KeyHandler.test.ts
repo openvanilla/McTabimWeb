@@ -22,6 +22,7 @@ describe('Test KeyHandler', () => {
         wildcardMatchingEnabled: false,
         clearOnErrors: false,
         beepOnErrors: false,
+        reverseRadicalLookupEnabled: false,
       };
     },
     (settings) => {},
@@ -278,6 +279,7 @@ describe('Test Associated Phrases', () => {
         wildcardMatchingEnabled: false,
         clearOnErrors: false,
         beepOnErrors: false,
+        reverseRadicalLookupEnabled: false,
       };
     },
     (settings) => {},
@@ -413,6 +415,7 @@ describe('Test Associated Phrases', () => {
         wildcardMatchingEnabled: false,
         clearOnErrors: false,
         beepOnErrors: false,
+        reverseRadicalLookupEnabled: false,
       }),
       () => {},
     );

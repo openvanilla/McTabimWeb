@@ -1,5 +1,5 @@
 import { Candidate } from '../data';
-import { InputtingState } from './InputState';
+import { InputtingState, TooltipOnlyState } from './InputState';
 
 class CandidateWrapper {
   /** The key cap. */
@@ -61,6 +61,8 @@ class InputUIState {
 
   /** The current page index of the candidates, */
   readonly candidatePageIndex: number;
+  readonly tooltip?: string;
+  readonly candidateAnnotation?: string;
 
   constructor(
     composingBuffer: ComposingBufferText[],
@@ -68,12 +70,40 @@ class InputUIState {
     candidates: CandidateWrapper[],
     candidatePageCount: number,
     candidatePageIndex: number,
+    tooltip?: string,
+    candidateAnnotation?: string,
   ) {
     this.composingBuffer = composingBuffer;
     this.cursorIndex = cursorIndex;
     this.candidates = candidates;
     this.candidatePageCount = candidatePageCount;
     this.candidatePageIndex = candidatePageIndex;
+    this.tooltip = tooltip;
+    this.candidateAnnotation = candidateAnnotation;
+  }
+}
+
+export class TooltipOnlyStateBuilder {
+  state: TooltipOnlyState;
+
+  constructor(state: TooltipOnlyState) {
+    this.state = state;
+  }
+
+  buildJsonString(): string {
+    return JSON.stringify(this.build());
+  }
+
+  build(): InputUIState {
+    return new InputUIState(
+      [],
+      0,
+      [],
+      0,
+      0, // candidates
+      this.state.tooltip,
+      undefined,
+    );
   }
 }
 
@@ -111,6 +141,8 @@ export class InputUIStateBuilder {
       candidateWrappers, // candidates
       this.state.candidatePageCount ?? 0,
       this.state.candidatePageIndex ?? 0,
+      this.state.tooltip,
+      this.state.candidateAnnotation,
     );
   }
 }

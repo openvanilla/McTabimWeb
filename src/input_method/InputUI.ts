@@ -3,5 +3,3 @@ export interface InputUI {
   commitString(text: string): void;
   update(state: string): void;
 }
-
-export interface InputUIState {}

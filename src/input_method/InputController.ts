@@ -1,7 +1,13 @@
 import { InputTableManager } from '../data';
-import { CommittingState, EmptyState, InputState, InputtingState } from './InputState';
+import {
+  CommittingState,
+  EmptyState,
+  InputState,
+  InputtingState,
+  TooltipOnlyState,
+} from './InputState';
 import { InputUI } from './InputUI';
-import { InputUIStateBuilder } from './InputUIElements';
+import { InputUIStateBuilder, TooltipOnlyStateBuilder } from './InputUIElements';
 import { Key } from './Key';
 import { KeyHandler } from './KeyHandler';
 import { KeyMapping } from './KeyMapping';
@@ -28,6 +34,7 @@ export class InputController {
     wildcardMatchingEnabled: false,
     clearOnErrors: false,
     beepOnErrors: false,
+    reverseRadicalLookupEnabled: false,
   };
 
   onSettingChanged?: ((settings: Settings) => void) | undefined;
@@ -94,6 +101,8 @@ export class InputController {
       this.handleCommittingState(oldState, newState);
     } else if (newState instanceof InputtingState) {
       this.handleInputtingState(oldState, newState);
+    } else if (newState instanceof TooltipOnlyState) {
+      this.handleTooltipOnlyState(oldState, newState);
     }
   }
 
@@ -116,6 +125,14 @@ export class InputController {
 
   private handleInputtingState(oldState: InputState, newState: InputtingState): void {
     const builder = new InputUIStateBuilder(newState);
+    const uiState = builder.buildJsonString();
+    this.ui_.reset();
+    this.ui_.update(uiState);
+    this.state_ = newState;
+  }
+
+  handleTooltipOnlyState(oldState: InputState, newState: TooltipOnlyState) {
+    const builder = new TooltipOnlyStateBuilder(newState);
     const uiState = builder.buildJsonString();
     this.ui_.reset();
     this.ui_.update(uiState);

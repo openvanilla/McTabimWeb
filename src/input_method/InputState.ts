@@ -13,12 +13,23 @@ export class CommittingState extends InputState {
   }
 }
 
+export class TooltipOnlyState extends InputState {
+  readonly tooltip: string;
+
+  constructor(tooltip: string) {
+    super();
+    this.tooltip = tooltip;
+  }
+}
+
 export class InputtingState extends InputState {
   readonly radicals: string;
   readonly displayedRadicals: string[];
   readonly selectionKeys: string;
   readonly exactSelectionKeys?: string | undefined;
   readonly candidates: Candidate[];
+  readonly tooltip?: string | undefined;
+  readonly candidateAnnotation?: string | undefined;
 
   readonly selectedCandidateIndex?: number | undefined;
   readonly candidatesInCurrentPage?: Candidate[];
@@ -33,6 +44,8 @@ export class InputtingState extends InputState {
     candidates: Candidate[];
     selectedCandidateIndex?: number | undefined;
     exactSelectionKeys?: string | undefined;
+    tooltip?: string | undefined;
+    readonly candidateAnnotation?: string | undefined;
   }) {
     super();
     this.radicals = args.radicals;
@@ -41,6 +54,8 @@ export class InputtingState extends InputState {
     this.exactSelectionKeys = args.exactSelectionKeys;
     this.candidates = args.candidates;
     this.selectedCandidateIndex = args.selectedCandidateIndex;
+    this.tooltip = args.tooltip;
+    this.candidateAnnotation = args.candidateAnnotation;
 
     const candidatesPerPage = Math.max(this.selectionKeys.length, 1);
     if (this.candidates.length > 0) {
@@ -63,6 +78,7 @@ export class InputtingState extends InputState {
       selectionKeys: this.selectionKeys,
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      // tooltip: this.tooltip,
     });
   }
 }
@@ -75,6 +91,8 @@ export class BasicInputtingState extends InputtingState {
       selectionKeys: this.selectionKeys,
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      // tooltip: this.tooltip,
+      candidateAnnotation: this.candidateAnnotation,
     });
   }
 }
@@ -85,6 +103,8 @@ export class AssociatedPhrasesState extends InputtingState {
     exactSelectionKeys: string;
     candidates: Candidate[];
     selectedCandidateIndex?: number | undefined;
+    tooltip?: string | undefined;
+    candidateAnnotation?: string | undefined;
   }) {
     super({
       radicals: '',
@@ -93,6 +113,8 @@ export class AssociatedPhrasesState extends InputtingState {
       exactSelectionKeys: args.exactSelectionKeys,
       candidates: args.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex,
+      tooltip: args.tooltip,
+      candidateAnnotation: args.candidateAnnotation,
     });
   }
 
@@ -102,6 +124,8 @@ export class AssociatedPhrasesState extends InputtingState {
       exactSelectionKeys: this.exactSelectionKeys!,
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      candidateAnnotation: this.candidateAnnotation,
+      // tooltip: this.tooltip,
     });
   }
 }
@@ -240,6 +264,13 @@ export class SettingsState extends InputtingState {
         args.settings.wildcardMatchingEnabled,
         () => {
           this.settings.wildcardMatchingEnabled = !this.settings.wildcardMatchingEnabled;
+        },
+      ],
+      [
+        '使用字根反查',
+        args.settings.reverseRadicalLookupEnabled,
+        () => {
+          this.settings.reverseRadicalLookupEnabled = !this.settings.reverseRadicalLookupEnabled;
         },
       ],
     ];

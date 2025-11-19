@@ -10,6 +10,7 @@ import {
   SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
+  TooltipOnlyState,
 } from './InputState';
 import { Key, KeyName } from './Key';
 import { Settings } from './Settings';
@@ -17,6 +18,8 @@ import { Settings } from './Settings';
 export class KeyHandler {
   static readonly COMMON_SELECTION_KEYS = '1234567890';
   static readonly ASSOCIATED_PHRASES_SELECTION_KEYS = '!@#$%^&*()';
+  static readonly COMMON_SELECTION_KEYS2 = '123456789';
+  static readonly ASSOCIATED_PHRASES_SELECTION_KEYS2 = '!@#$%^&*(';
 
   onRequestTable: () => InputTableWrapper;
   onRequestSettings: () => Settings;
@@ -47,21 +50,41 @@ export class KeyHandler {
     const newState = new CommittingState(commitString);
     stateCallback(newState);
 
+    const tooltip = (() => {
+      if (this.onRequestSettings().reverseRadicalLookupEnabled) {
+        const radicalsArray = this.onRequestTable().reverseLookupForRadicals(commitString);
+        const joined = radicalsArray.join(', ');
+        if (joined.length > 0) {
+          return `字根反查: ${joined}`;
+        }
+      }
+      return undefined;
+    })();
+
     if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
       const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
       if (phrases && phrases.length > 0) {
         let selectionKeys = state.selectionKeys;
         let exactSelectionKeys = state.selectionKeys;
+        let annotation = '';
         if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
+        } else if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS2) {
+          exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS2;
         }
+
         const associatedPhrasesState = new AssociatedPhrasesState({
           selectionKeys: selectionKeys,
           exactSelectionKeys: exactSelectionKeys,
           candidates: phrases,
+          candidateAnnotation: annotation,
+          tooltip: tooltip,
         });
         stateCallback(associatedPhrasesState);
       }
+    } else if (tooltip) {
+      const newState = new TooltipOnlyState(tooltip);
+      stateCallback(newState);
     }
   }
 
@@ -102,7 +125,11 @@ export class KeyHandler {
     }
 
     /// Empty State
-    if (state instanceof EmptyState || state instanceof AssociatedPhrasesState) {
+    if (
+      state instanceof EmptyState ||
+      state instanceof AssociatedPhrasesState ||
+      state instanceof TooltipOnlyState
+    ) {
       if (key.ascii === '`') {
         /// Enter Symbol Inputting State
         const selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
