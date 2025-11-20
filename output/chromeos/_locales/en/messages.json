@@ -37,5 +37,71 @@
   },
   "input_tables_description": {
     "message": "Input tables displayed in the input menu."
+  },
+  "main_title": {
+    "message": "McTabim Input Method Options"
+  },
+  "input_options_title": {
+    "message": "Input Options"
+  },
+  "label_shift_punctuation": {
+    "message": "Shift + Punctuation for Symbols:"
+  },
+  "shift_punctuation_description": {
+    "message": "Enable you to enter symbols with Shift + Punctuation keys."
+  },
+  "label_shift_letter": {
+    "message": "Shift Letter for Symbols:"
+  },
+  "shift_letter_description": {
+    "message": "Enable you to enter symbols with Shift + Letter keys."
+  },
+  "label_associated_phrases": {
+    "message": "Associated Phrases:"
+  },
+  "associated_phrases_description": {
+    "message": "A list of associated phrases will appear when a character is entered."
+  },
+  "label_wildcard_matching": {
+    "message": "Wildcard Matching:"
+  },
+  "wildcard_matching_description": {
+    "message": "Enable you to use the wildcard character (*) when you are not sure about the exact radical."
+  },
+  "label_clear_on_errors": {
+    "message": "Clear Radicals on Errors:"
+  },
+  "clear_on_errors_description": {
+    "message": "Clear all entered radicals when an error occurs."
+  },
+  "label_beep_on_errors": {
+    "message": "Beep on Errors:"
+  },
+  "beep_on_errors_description": {
+    "message": "Beep when an error occurs."
+  },
+  "label_reverse_radical_lookup": {
+    "message": "Reverse Radical Lookup:"
+  },
+  "reverse_radical_lookup_description": {
+    "message": "It is useful when you enter a character with the wildcard character (*)."
+  },
+  "symbols_table_title": {
+    "message": "Symbols Table"
+  },
+  "load_symbols_table": {
+    "message": "Load"
+  },
+  "save_symbols_table": {
+    "message": "Save"
+  },
+  "foreign_languages_symbols_table": {
+    "message": "Foreign Languages Symbols Table"
+  },
+  "load_foreign_languages_symbols_table": {
+    "message": "Load"
+  },
+  "save_foreign_languages_symbols_table": {
+    "message": "Save"
   }
 }

@@ -5,42 +5,68 @@
     <meta charset="UTF-8">
     <title>McTabim Input Method Options</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="options.css">
+    <style>
+        body {
+            max-width: 900px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>McTabim Input Method Options</h1>
-    <p>Configure your McTabim input method settings here.</p>
+    <h1 id="main-title">McTabim Input Method Options</h1>
+    <h2 id="input-options-title">Input Options</h2>
     <table>
         <tr>
-            <th><label for="shift-punctuation">Shift + Punctuation for Symbols:</label></th>
+            <th><label id="label-shift-punctuation" for="shift-punctuation">Shift + Punctuation for Symbols:</label>
+            </th>
             <td><input type="checkbox" id="shift-punctuation"></td>
+            <td>Enable you to enter symbols with Shift + Punctuation keys.</td>
         </tr>
         <tr>
-            <th><label for="shift-letter">Shift Letter for Symbols:</label></th>
+            <th><label id="label-shift-letter" for="shift-letter">Shift Letter for Symbols:</label></th>
             <td><input type="checkbox" id="shift-letter"></td>
+            <td id="shift-letter-description">Enable you to enter symbols with Shift + Letter keys.</td>
         </tr>
         <tr>
-            <th><label for="associated-phrases">Associated Phrases:</label></th>
+            <th><label id="label-associated-phrases" for="associated-phrases">Associated Phrases:</label></th>
             <td><input type="checkbox" id="associated-phrases"></td>
+            <td id="associated-phrases-description">A list of associated phrases
+                will appear when a character is entered.</td>
         </tr>
         <tr>
-            <th><label for="wildcard-matching">Wildcard Matching:</label></th>
+            <th><label id="label-wildcard-matching" for="wildcard-matching">Wildcard Matching:</label></th>
             <td><input type="checkbox" id="wildcard-matching"></td>
+            <td id="wildcard-matching-description">Enable you to use the
+                wildcard character (*) when you are not sure about the exact
+                radical.</td>
         </tr>
         <tr>
-            <th><label for="clear-on-errors">Clear Radicals on Errors:</label></th>
+            <th><label id="label-clear-on-errors" for="clear-on-errors">Clear Radicals on Errors:</label></th>
             <td><input type="checkbox" id="clear-on-errors"></td>
+            <td id="clear-on-errors-description">Clear all entered radicals when
+                an error occurs.</td>
         </tr>
         <tr>
-            <th><label for="beep-on-errors">Beep on Errors:</label></th>
+            <th><label id="label-beep-on-errors" for="beep-on-errors">Beep on Errors:</label></th>
             <td><input type="checkbox" id="beep-on-errors"></td>
+            <td id="beep-on-errors-description">Beep when an error occurs.</td>
         </tr>
         <tr>
-            <th><label for="reverse-radical-lookup">Reverse Radical Lookup:</label></th>
+            <th><label id="label-reverse-radical-lookup" for="reverse-radical-lookup">Reverse Radical Lookup:</label>
+            </th>
             <td><input type="checkbox" id="reverse-radical-lookup"></td>
+            <td id="reverse-radical-lookup-description">It is useful when you
+                enter a character with the wildcard character (*).</td>
         </tr>
-
     </table>
+    <h2 id="symbols-table-title">Symbols Table</h2>
+    <p><button id="load-symbols-table">Load</button> <button id="save-symbols-table">Save</button></p>
+    <textarea id="symbols-table" rows="10" cols="80"></textarea>
+    <h2 id="foreign-languages-symbols-table">Foreign Languages Symbols Table</h2>
+    <p><button id="load-foreign-languages-symbols-table">Load</button> <button
+            id="save-foreign-languages-symbols-table">Save</button></p>
+    <textarea id="foreign-languages-symbols-table" rows="10" cols="80"></textarea>
 </body>
 
 </html>

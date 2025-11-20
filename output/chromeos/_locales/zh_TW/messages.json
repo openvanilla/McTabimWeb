@@ -37,5 +37,71 @@
   },
   "input_tables_description": {
     "message": "在輸入法選單中顯示的輸入法表格"
+  },
+  "main_title": {
+    "message": "McTabim 輸入法選項"
+  },
+  "input_options_title": {
+    "message": "輸入選項"
+  },
+  "label_shift_punctuation": {
+    "message": "Shift + 標點符號輸入符號："
+  },
+  "shift_punctuation_description": {
+    "message": "按下 Shift + 標點符號按鍵之後，會輸入全形標點符號。"
+  },
+  "label_shift_letter": {
+    "message": "Shift 字母輸入符號："
+  },
+  "shift_letter_description": {
+    "message": "按下 Shift + 字母鍵之後，會輸入特殊符號。"
+  },
+  "label_associated_phrases": {
+    "message": "使用聯想詞："
+  },
+  "associated_phrases_description": {
+    "message": "輸入字元之後，會顯示相關詞語列表。"
+  },
+  "label_wildcard_matching": {
+    "message": "萬用字元比對："
+  },
+  "wildcard_matching_description": {
+    "message": "當您不確定確切字根時，可使用萬用字元（*）。"
+  },
+  "label_clear_on_errors": {
+    "message": "錯誤時清除字根："
+  },
+  "clear_on_errors_description": {
+    "message": "發生錯誤時清除所有已輸入的字根。"
+  },
+  "label_beep_on_errors": {
+    "message": "錯誤時發出提示音："
+  },
+  "beep_on_errors_description": {
+    "message": "發生錯誤時發出提示音。"
+  },
+  "label_reverse_radical_lookup": {
+    "message": "反向字根查詢："
+  },
+  "reverse_radical_lookup_description": {
+    "message": "當您使用萬用字元（*）輸入字元時，可以幫您查詢字根。"
+  },
+  "symbols_table_title": {
+    "message": "符號表"
+  },
+  "load_symbols_table": {
+    "message": "載入"
+  },
+  "save_symbols_table": {
+    "message": "儲存"
+  },
+  "foreign_languages_symbols_table": {
+    "message": "外語符號表"
+  },
+  "load_foreign_languages_symbols_table": {
+    "message": "載入"
+  },
+  "save_foreign_languages_symbols_table": {
+    "message": "儲存"
   }
 }
