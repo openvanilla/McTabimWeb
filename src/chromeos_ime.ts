@@ -15,6 +15,8 @@ import { Key, KeyName } from './input_method/Key';
  */
 type ChromeMcTabimSettings = {
   selectedInputMethodId: string;
+  shiftKeyToToggleAlphabetMode: boolean;
+  useNotification: boolean;
   inputSettings: {
     chineseConversionEnabled: boolean;
     associatedPhrasesEnabled: boolean;
@@ -39,7 +41,9 @@ class ChromeMcTabim {
 
   // The default settings.
   readonly defaultSettings: ChromeMcTabimSettings = {
-    selectedInputMethodId: '',
+    selectedInputMethodId: 'checj',
+    shiftKeyToToggleAlphabetMode: true,
+    useNotification: true,
     inputSettings: {
       chineseConversionEnabled: false,
       associatedPhrasesEnabled: true,
@@ -53,6 +57,8 @@ class ChromeMcTabim {
   };
   settings: ChromeMcTabimSettings = {
     selectedInputMethodId: '',
+    shiftKeyToToggleAlphabetMode: true,
+    useNotification: true,
     inputSettings: {
       chineseConversionEnabled: false,
       associatedPhrasesEnabled: true,
@@ -65,7 +71,8 @@ class ChromeMcTabim {
     },
   };
   inputController: InputController;
-
+  isShiftHold = false;
+  isAlphabetMode = false;
   constructor() {
     // chrome.i18n.getAcceptLanguages((langs) => {});
     this.inputController = new InputController(this.makeUI());
@@ -74,6 +81,24 @@ class ChromeMcTabim {
       this.settings.inputSettings = settings;
       this.saveSettings();
     };
+  }
+
+  toggleAlphabetMode() {
+    this.isAlphabetMode = !this.isAlphabetMode;
+
+    if (this.settings.useNotification) {
+      const notificationId = 'mctabim-alphabet-mode';
+      chrome.notifications.clear(notificationId, () => {
+        chrome.notifications.create(notificationId, {
+          title: this.isAlphabetMode
+            ? chrome.i18n.getMessage('alphabet_mode')
+            : chrome.i18n.getMessage('chinese_mode'),
+          message: '',
+          type: 'basic',
+          iconUrl: 'icons/icon48.png',
+        });
+      });
+    }
   }
 
   /**
@@ -107,6 +132,23 @@ class ChromeMcTabim {
   updateMenu() {
     if (this.engineID === undefined) return;
     let menus: chrome.input.ime.MenuItem[] = [
+      {
+        id: 'mctabim-toggle-alphabet-mode',
+        label: chrome.i18n.getMessage('menuAlphabetMode'),
+        style: 'check' as const,
+        checked: this.isAlphabetMode === true,
+      },
+      {
+        id: 'mctabim-chinese-conversion',
+        label: chrome.i18n.getMessage('menuChineseConversion'),
+        style: 'check' as const,
+        checked: this.settings.inputSettings.chineseConversionEnabled === true,
+      },
+      {
+        id: 'mctabim-options',
+        label: chrome.i18n.getMessage('menuOptions'),
+        style: 'check' as const,
+      },
       {
         id: 'mctabim-help',
         label: chrome.i18n.getMessage('menuHelp'),
@@ -380,6 +422,20 @@ chrome.input?.ime.onFocus.addListener((context) => {
 // The main keyboard event handler.
 chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
   chromeMcTabim.engineID = engineID;
+  if (keyData.type === 'keyup') {
+    // If we have a shift in a key down event, then a key up event with the
+    // shift key, and there is no other key down event between them, it means it
+    // is a single shift down/up, and we can let some users to use this to
+    // toggle between Bopomofo mode and alphabet mode.
+    if (keyData.key === 'Shift' && chromeMcTabim.isShiftHold) {
+      chromeMcTabim.isShiftHold = false;
+      chromeMcTabim.inputController.reset();
+      chromeMcTabim.toggleAlphabetMode();
+      return true;
+    }
+    return false;
+  }
+
   if (keyData.type !== 'keydown') {
     return false;
   }
@@ -390,8 +446,18 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
     return false;
   }
 
+  const shouldHandleShift = chromeMcTabim.settings.shiftKeyToToggleAlphabetMode === true;
+
+  if (shouldHandleShift) {
+    chromeMcTabim.isShiftHold = keyData.key === 'Shift';
+  }
+
   if (keyData.altKey || keyData.altgrKey || keyData.capsLock) {
     chromeMcTabim.inputController.reset();
+    return false;
+  }
+
+  if (chromeMcTabim.isAlphabetMode) {
     return false;
   }
 

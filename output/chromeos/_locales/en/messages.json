@@ -17,6 +17,8 @@
   "imeColmak": {
     "message": "McTabIM (Colmak Keyboard)"
   },
+  "menuAlphabetMode": { "message": "English Mode" },
+  "menuChineseConversion": { "message": "Input Simplified Chinese" },
   "menuOptions": {
     "message": "Options"
   },
@@ -103,5 +105,11 @@
   },
   "save_foreign_languages_symbols_table": {
     "message": "Save"
+  },
+  "alphabet_mode": {
+    "message": "Alphabet Mode Enabled"
+  },
+  "chinese_mode": {
+    "message": "Chinese Mode Enabled"
   }
 }

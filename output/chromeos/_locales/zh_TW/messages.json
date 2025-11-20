@@ -17,6 +17,8 @@
   "imeColmak": {
     "message": "小麥他命 (Colmak 鍵盤)"
   },
+  "menuAlphabetMode": { "message": "輸入英文字母" },
+  "menuChineseConversion": { "message": "輸入簡體中文" },
   "menuOptions": {
     "message": "選項"
   },
@@ -103,5 +105,11 @@
   },
   "save_foreign_languages_symbols_table": {
     "message": "儲存"
+  },
+  "alphabet_mode": {
+    "message": "已切換到英文模式"
+  },
+  "chinese_mode": {
+    "message": "已切換到中文模式"
   }
 }
