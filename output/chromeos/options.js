@@ -2,7 +2,9 @@ window.onload = () => {
   const settings = (() => {
     let that = {};
     that.defaults = {
-      selectedInputMethodId: '',
+      selectedInputMethodId: 'checj',
+      shiftKeyToToggleAlphabetMode: true,
+      useNotification: true,
       inputSettings: {
         chineseConversionEnabled: false,
         associatedPhrasesEnabled: true,
@@ -39,6 +41,9 @@ window.onload = () => {
       document.getElementById('beep-on-errors').checked = that.settings.inputSettings.beepOnErrors;
       document.getElementById('reverse-radical-lookup').checked =
         that.settings.inputSettings.reverseRadicalLookupEnabled;
+      document.getElementById('shift-toggle-alphabet-mode').checked =
+        that.settings.shiftKeyToToggleAlphabetMode;
+      document.getElementById('use-notification').checked = that.settings.useNotification;
     };
     return that;
   })();
@@ -145,6 +150,14 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
     };
     document.getElementById('load-foreign-languages-symbols-table').onclick = () => {
       foreignLanguagesSymbolsTableSettings.load();
+    };
+    document.getElementById('shift-toggle-alphabet-mode').onchange = (e) => {
+      settings.settings.shiftKeyToToggleAlphabetMode = e.target.checked;
+      settings.save();
+    };
+    document.getElementById('use-notification').onchange = (e) => {
+      settings.settings.useNotification = e.target.checked;
+      settings.save();
     };
   };
 

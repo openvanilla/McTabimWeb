@@ -274,6 +274,26 @@ class ChromeMcTabim {
         const state = JSON.parse(stateString);
         const buffer = state.composingBuffer;
         const candidates = state.candidates;
+        const tooltip = state.tooltip;
+        if (tooltip && tooltip.length > 0) {
+          chrome.input.ime.setAssistiveWindowProperties({
+            contextID: this.context.contextID,
+            properties: {
+              visible: true,
+              type: 'undo' as const,
+              announceString: tooltip,
+            },
+          });
+        } else {
+          chrome.input.ime.setAssistiveWindowProperties({
+            contextID: this.context.contextID,
+            properties: {
+              visible: false,
+              type: 'undo' as const,
+              announceString: '',
+            },
+          });
+        }
 
         const segments = [];
         let text = '';

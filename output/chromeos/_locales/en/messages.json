@@ -111,5 +111,17 @@
   },
   "chinese_mode": {
     "message": "Chinese Mode Enabled"
+  },
+  "shift_toggle_alphabet_mode": {
+    "message": "Use Shift Key to Toggle Alphabet Mode:"
+  },
+  "shift_toggle_alphabet_mode_description": {
+    "message": "Pressing the Shift key will switch between Alphabet Mode and Chinese Input Mode."
+  },
+  "use_notification": {
+    "message": "Use Notifications for Mode Switching:"
+  },
+  "use_notification_description": {
+    "message": "Show a notification when switching between Alphabet Mode and Chinese Input Mode."
   }
 }

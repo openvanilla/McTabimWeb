@@ -111,5 +111,17 @@
   },
   "chinese_mode": {
     "message": "已切換到中文模式"
+  },
+  "shift_toggle_alphabet_mode": {
+    "message": "使用 Shift 鍵切換英文模式："
+  },
+  "shift_toggle_alphabet_mode_description": {
+    "message": "按下或放開 Shift 鍵時，切換英文模式和中文模式。"
+  },
+  "use_notification": {
+    "message": "使用通知"
+  },
+  "use_notification_description": {
+    "message": "切換英文模式和中文模式時顯示通知。"
   }
 }
