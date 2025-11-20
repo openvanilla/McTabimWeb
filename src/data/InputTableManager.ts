@@ -65,7 +65,8 @@ export class InputTableManager {
     if (index !== -1) {
       this.internalIndex_ = index;
     } else {
-      throw new Error(`Input table with id ${id} not found`);
+      this.internalIndex_ = 0;
+      // throw new Error(`Input table with id ${id} not found`);
     }
   }
 

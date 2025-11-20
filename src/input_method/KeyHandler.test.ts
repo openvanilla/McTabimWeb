@@ -99,6 +99,22 @@ describe('Test KeyHandler', () => {
     expect(state).toBeInstanceOf(EmptyState);
   });
 
+  it('enters SymbolInputtingState when pressing backtick in EmptyState', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      new Key('`', KeyName.UNKNOWN),
+      new EmptyState(),
+      stateCallback,
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    expect(stateCallback).toHaveBeenCalledTimes(1);
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(SymbolInputtingState);
+  });
+
   it('should commit candidate on RETURN in InputtingState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     let state: InputtingState | EmptyState = new BasicInputtingState({
@@ -203,6 +219,68 @@ describe('Test KeyHandler', () => {
     );
     expect(handled).toBe(true);
     expect(called).toBe(true);
+  });
+
+  it('should jump to the matching slot on the next page when PAGE_DOWN is pressed', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const state = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['a'],
+      selectionKeys: '123',
+      candidates: [
+        new Candidate('中', ''),
+        new Candidate('文', ''),
+        new Candidate('測', ''),
+        new Candidate('試', ''),
+        new Candidate('台', ''),
+      ],
+      selectedCandidateIndex: 1,
+    });
+    const states: InputState[] = [];
+    const handled = keyHandler.handle(
+      new Key('', KeyName.PAGE_DOWN),
+      state,
+      (newState) => states.push(newState),
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(InputtingState);
+    if (states[0] instanceof InputtingState) {
+      expect(states[0].selectedCandidateIndex).toBe(4);
+    }
+  });
+
+  it('should jump to the first slot of the previous page when PAGE_UP is pressed', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const state = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['a'],
+      selectionKeys: '123',
+      candidates: [
+        new Candidate('中', ''),
+        new Candidate('文', ''),
+        new Candidate('測', ''),
+        new Candidate('試', ''),
+        new Candidate('台', ''),
+      ],
+      selectedCandidateIndex: 4,
+    });
+    const states: InputState[] = [];
+    const handled = keyHandler.handle(
+      new Key('', KeyName.PAGE_UP),
+      state,
+      (newState) => states.push(newState),
+      () => {
+        throw new Error('Should not call errorCallback');
+      },
+    );
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(InputtingState);
+    if (states[0] instanceof InputtingState) {
+      expect(states[0].selectedCandidateIndex).toBe(0);
+    }
   });
 
   it('should cycle candidates with UP and DOWN keys', () => {

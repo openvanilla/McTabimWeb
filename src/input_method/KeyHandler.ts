@@ -69,8 +69,10 @@ export class KeyHandler {
         let annotation = '';
         if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
+          annotation = 'Shift +';
         } else if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS2) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS2;
+          annotation = 'Shift +';
         }
 
         const associatedPhrasesState = new AssociatedPhrasesState({

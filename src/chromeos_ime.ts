@@ -14,7 +14,17 @@ import { Key, KeyName } from './input_method/Key';
  * Represents the settings for the mctabim IME on ChromeOS.
  */
 type ChromeMcTabimSettings = {
-  selected_input_table: string | undefined;
+  selectedInputMethodId: string;
+  inputSettings: {
+    chineseConversionEnabled: boolean;
+    associatedPhrasesEnabled: boolean;
+    shiftPunctuationForSymbolsEnabled: boolean;
+    shiftLetterForSymbolsEnabled: boolean;
+    wildcardMatchingEnabled: boolean;
+    clearOnErrors: boolean;
+    beepOnErrors: boolean;
+    reverseRadicalLookupEnabled: boolean;
+  };
 };
 
 /**
@@ -29,10 +39,30 @@ class ChromeMcTabim {
 
   // The default settings.
   readonly defaultSettings: ChromeMcTabimSettings = {
-    selected_input_table: undefined,
+    selectedInputMethodId: '',
+    inputSettings: {
+      chineseConversionEnabled: false,
+      associatedPhrasesEnabled: true,
+      shiftPunctuationForSymbolsEnabled: true,
+      shiftLetterForSymbolsEnabled: true,
+      wildcardMatchingEnabled: false,
+      clearOnErrors: false,
+      beepOnErrors: false,
+      reverseRadicalLookupEnabled: false,
+    },
   };
   settings: ChromeMcTabimSettings = {
-    selected_input_table: undefined,
+    selectedInputMethodId: '',
+    inputSettings: {
+      chineseConversionEnabled: false,
+      associatedPhrasesEnabled: true,
+      shiftPunctuationForSymbolsEnabled: true,
+      shiftLetterForSymbolsEnabled: true,
+      wildcardMatchingEnabled: false,
+      clearOnErrors: false,
+      beepOnErrors: false,
+      reverseRadicalLookupEnabled: false,
+    },
   };
   inputController: InputController;
 
@@ -40,6 +70,10 @@ class ChromeMcTabim {
     // chrome.i18n.getAcceptLanguages((langs) => {});
     this.inputController = new InputController(this.makeUI());
     this.inputController.onError = () => {};
+    this.inputController.onSettingChanged = (settings) => {
+      this.settings.inputSettings = settings;
+      this.saveSettings();
+    };
   }
 
   /**
@@ -52,9 +86,13 @@ class ChromeMcTabim {
         this.settings = this.defaultSettings;
       }
 
-      const selected_input_table = this.settings.selected_input_table;
-      if (selected_input_table !== undefined) {
-        InputTableManager.getInstance().setInputTableById(selected_input_table);
+      const selectedInputMethodId = this.settings.selectedInputMethodId;
+      if (selectedInputMethodId !== undefined) {
+        InputTableManager.getInstance().setInputTableById(selectedInputMethodId);
+      }
+      const inputSettings = this.settings.inputSettings;
+      if (inputSettings !== undefined) {
+        this.inputController.settings = inputSettings;
       }
     });
   }
@@ -81,7 +119,7 @@ class ChromeMcTabim {
       },
     ];
 
-    const selectedIndex = this.settings.selected_input_table || 0;
+    const selectedIndex = this.settings.selectedInputMethodId || 0;
     const inputTables = InputTableManager.getInstance().getTables();
     let selectedTableSet = false;
 
@@ -106,7 +144,7 @@ class ChromeMcTabim {
       let item = inputTableMenus[0];
       let id = item.id.split('-').pop();
       InputTableManager.getInstance().setInputTableById(id || '');
-      this.settings.selected_input_table = id || '';
+      this.settings.selectedInputMethodId = id || '';
     }
 
     menus = menus.concat(inputTableMenus);
@@ -257,7 +295,12 @@ class ChromeMcTabim {
 
           const candidatePageCount = state.candidatePageCount;
           const candidatePageIndex = state.candidatePageIndex + 1;
-          const auxiliaryText = candidatePageIndex + '/' + candidatePageCount;
+          let candidateAnnotation = state.candidateAnnotation || '';
+          if (candidateAnnotation.length > 0) {
+            candidateAnnotation = candidateAnnotation + ' ';
+          }
+
+          const auxiliaryText = candidateAnnotation + candidatePageIndex + '/' + candidatePageCount;
 
           chrome.input.ime.setCandidateWindowProperties({
             engineID: this.engineID,
@@ -268,7 +311,7 @@ class ChromeMcTabim {
               cursorVisible: true,
               vertical: true,
               pageSize: candidates.length,
-              windowPosition: 'composition' as const,
+              windowPosition: 'cursor' as const,
             },
           });
 
@@ -364,7 +407,7 @@ chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
   if (name.search('mctabim-select-table-') === 0) {
     const id = name.split('-').pop();
     InputTableManager.getInstance().setInputTableById(id || '');
-    chromeMcTabim.settings.selected_input_table = id || '';
+    chromeMcTabim.settings.selectedInputMethodId = id || '';
     chromeMcTabim.saveSettings();
     chromeMcTabim.updateMenu();
     return;
