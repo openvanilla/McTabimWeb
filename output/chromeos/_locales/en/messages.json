@@ -3,19 +3,19 @@
     "message": "en"
   },
   "manifestName": {
-    "message": "McFoxIM"
+    "message": "McTabIM"
   },
   "manifestDesc": {
-    "message": "Input method based on the vocabulary list of the Indigenous Languages Development Foundation"
+    "message": "Table based Traditional Chinese Input Method"
   },
   "imeUS": {
-    "message": "McFoxIM (US Keyboard)"
+    "message": "McTabIM (US Keyboard)"
   },
   "imeDvorak": {
-    "message": "McFoxIM (Dvorak Keyboard)"
+    "message": "McTabIM (Dvorak Keyboard)"
   },
   "imeColmak": {
-    "message": "McFoxIM (Colmak Keyboard)"
+    "message": "McTabIM (Colmak Keyboard)"
   },
   "menuOptions": {
     "message": "Options"

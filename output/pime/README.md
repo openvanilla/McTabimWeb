@@ -1,4 +1,4 @@
-# Run McFoxIM JS on PIME
+# Run McTabIM JS on PIME
 
 ## Build and Run
 
@@ -8,7 +8,7 @@
 - Copy the folder to `C:\Program Files (x86)\PIME\node\input_methods\mctabim`
 - Open a command prompt or Windows terminal as administrator, and then run
   `regsvr32 "C:\Program Files (X86)\PIME\x86\PIMETextService.dll"`
-- Try to switch to McFoxIM input method
+- Try to switch to McTabIM input method
 
 ## Debug
 

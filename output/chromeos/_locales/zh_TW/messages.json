@@ -6,7 +6,7 @@
     "message": "小麥他命"
   },
   "manifestDesc": {
-    "message": "使用原住民族語言發展基金會的學習詞表製作的族語輸入法"
+    "message": "支援多種輸入法表格的中文輸入法"
   },
   "imeUS": {
     "message": "小麥他命 (美式鍵盤)"
@@ -39,7 +39,7 @@
     "message": "在輸入法選單中顯示的輸入法表格"
   },
   "main_title": {
-    "message": "McTabim 輸入法選項"
+    "message": "小麥他命輸入法選項"
   },
   "input_options_title": {
     "message": "輸入選項"

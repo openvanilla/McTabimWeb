@@ -12,7 +12,7 @@ REM - Must be run with appropriate permissions for intended operations
 REM - Echo is disabled for cleaner output display
 REM ============================================================================
 
-echo * Build McFoxIM for PIME
+echo * Build McTabIM for PIME
 call npm run build:pime
 echo * Delete old files
 rmdir /S /Q "C:\Program Files (x86)\PIME\node\input_methods\mctabim"
