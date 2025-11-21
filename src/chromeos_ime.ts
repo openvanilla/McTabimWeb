@@ -39,6 +39,8 @@ class ChromeMcTabim {
   // The current input context.
   context: chrome.input.ime.InputContext | undefined = undefined;
 
+  beep = () => {};
+
   // The default settings.
   readonly defaultSettings: ChromeMcTabimSettings = {
     selectedInputMethodId: 'checj',
@@ -46,7 +48,7 @@ class ChromeMcTabim {
     useNotification: true,
     inputSettings: {
       chineseConversionEnabled: false,
-      associatedPhrasesEnabled: true,
+      associatedPhrasesEnabled: false,
       shiftPunctuationForSymbolsEnabled: true,
       shiftLetterForSymbolsEnabled: true,
       wildcardMatchingEnabled: false,
@@ -56,12 +58,12 @@ class ChromeMcTabim {
     },
   };
   settings: ChromeMcTabimSettings = {
-    selectedInputMethodId: '',
+    selectedInputMethodId: 'checj',
     shiftKeyToToggleAlphabetMode: true,
     useNotification: true,
     inputSettings: {
       chineseConversionEnabled: false,
-      associatedPhrasesEnabled: true,
+      associatedPhrasesEnabled: false,
       shiftPunctuationForSymbolsEnabled: true,
       shiftLetterForSymbolsEnabled: true,
       wildcardMatchingEnabled: false,
@@ -74,9 +76,10 @@ class ChromeMcTabim {
   isShiftHold = false;
   isAlphabetMode = false;
   constructor() {
-    // chrome.i18n.getAcceptLanguages((langs) => {});
     this.inputController = new InputController(this.makeUI());
-    this.inputController.onError = () => {};
+    this.inputController.onError = () => {
+      this.beep();
+    };
     this.inputController.onSettingChanged = (settings) => {
       this.settings.inputSettings = settings;
       this.saveSettings();
@@ -161,7 +164,7 @@ class ChromeMcTabim {
       },
     ];
 
-    const selectedIndex = this.settings.selectedInputMethodId || 0;
+    const selectedId = this.settings.selectedInputMethodId || 0;
     const inputTables = InputTableManager.getInstance().getTables();
     let selectedTableSet = false;
 
@@ -169,7 +172,7 @@ class ChromeMcTabim {
 
     for (let i = 0; i < inputTables.length; i++) {
       const table = inputTables[i];
-      const checked = i === selectedIndex;
+      const checked = table[0] === selectedId;
       if (checked) {
         selectedTableSet = true;
       }
@@ -185,8 +188,8 @@ class ChromeMcTabim {
     if (!selectedTableSet) {
       let item = inputTableMenus[0];
       let id = item.id.split('-').pop();
-      InputTableManager.getInstance().setInputTableById(id || '');
-      this.settings.selectedInputMethodId = id || '';
+      InputTableManager.getInstance().setInputTableById(id || 'checj');
+      this.settings.selectedInputMethodId = id || 'checj';
     }
 
     menus = menus.concat(inputTableMenus);
@@ -275,25 +278,6 @@ class ChromeMcTabim {
         const buffer = state.composingBuffer;
         const candidates = state.candidates;
         const tooltip = state.tooltip;
-        if (tooltip && tooltip.length > 0) {
-          chrome.input.ime.setAssistiveWindowProperties({
-            contextID: this.context.contextID,
-            properties: {
-              visible: true,
-              type: 'undo' as const,
-              announceString: tooltip,
-            },
-          });
-        } else {
-          chrome.input.ime.setAssistiveWindowProperties({
-            contextID: this.context.contextID,
-            properties: {
-              visible: false,
-              type: 'undo' as const,
-              announceString: '',
-            },
-          });
-        }
 
         const segments = [];
         let text = '';
@@ -362,7 +346,12 @@ class ChromeMcTabim {
             candidateAnnotation = candidateAnnotation + ' ';
           }
 
-          const auxiliaryText = candidateAnnotation + candidatePageIndex + '/' + candidatePageCount;
+          let auxiliaryText = '';
+          if (tooltip && tooltip.length > 0) {
+            auxiliaryText += tooltip + '\n';
+          }
+
+          auxiliaryText += candidateAnnotation + candidatePageIndex + '/' + candidatePageCount;
 
           chrome.input.ime.setCandidateWindowProperties({
             engineID: this.engineID,
@@ -385,6 +374,31 @@ class ChromeMcTabim {
           chrome.input.ime.setCursorPosition({
             contextID: this.context.contextID,
             candidateID: selectedIndex,
+          });
+        } else if (tooltip && tooltip.length > 0) {
+          chrome.input.ime.setCandidates({
+            contextID: this.context.contextID,
+            candidates: [
+              {
+                candidate: tooltip,
+                annotation: '',
+                id: -1,
+                label: '-',
+              },
+            ],
+          });
+          chrome.input.ime.setCandidateWindowProperties({
+            engineID: this.engineID,
+            properties: {
+              auxiliaryText: '',
+              auxiliaryTextVisible: false,
+              visible: true,
+              cursorVisible: false,
+              vertical: true,
+              pageSize: 1,
+              totalCandidates: 1,
+              windowPosition: 'cursor' as const,
+            },
           });
         } else {
           chrome.input.ime.setCandidateWindowProperties({
@@ -442,6 +456,7 @@ chrome.input?.ime.onFocus.addListener((context) => {
 // The main keyboard event handler.
 chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
   chromeMcTabim.engineID = engineID;
+
   if (keyData.type === 'keyup') {
     // If we have a shift in a key down event, then a key up event with the
     // shift key, and there is no other key down event between them, it means it
@@ -486,6 +501,9 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
 });
 
 chrome.input.ime.onCandidateClicked.addListener((engineID, candidateID, button) => {
+  if (candidateID < 0) {
+    return;
+  }
   chromeMcTabim.inputController.selectCandidateAtIndex(candidateID);
 });
 

@@ -474,8 +474,16 @@ describe('InputtingState helper behavior', () => {
 
 describe('SymbolCategoryState deeper navigation', () => {
   it('creates MenuCandidates for nested SymbolCategory nodes', () => {
-    const inner = new SymbolCategory({ name: '子層', id: 'child', nodes: ['★'] });
-    const root = new SymbolCategory({ name: '主分類', id: 'root', nodes: [inner] });
+    const inner = new SymbolCategory({
+      name: '子層',
+      id: 'child',
+      nodes: ['★'],
+    });
+    const root = new SymbolCategory({
+      name: '主分類',
+      id: 'root',
+      nodes: [inner],
+    });
     const previousState = new EmptyState();
     const state = new SymbolCategoryState({
       title: 'Symbols',
@@ -499,7 +507,7 @@ describe('SymbolCategoryState deeper navigation', () => {
 describe('MenuState', () => {
   const baseSettings = () =>
     createSettings({
-      associatedPhrasesEnabled: true,
+      associatedPhrasesEnabled: false,
     });
 
   it('toggles Chinese conversion and calls the callback', () => {

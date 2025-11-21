@@ -1,4 +1,9 @@
-import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
+import {
+  Candidate,
+  InputTableManager,
+  InputTableWrapper,
+  MenuCandidate,
+} from "../data";
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
@@ -11,15 +16,15 @@ import {
   SymbolCategoryState,
   SymbolInputtingState,
   TooltipOnlyState,
-} from './InputState';
-import { Key, KeyName } from './Key';
-import { Settings } from './Settings';
+} from "./InputState";
+import { Key, KeyName } from "./Key";
+import { Settings } from "./Settings";
 
 export class KeyHandler {
-  static readonly COMMON_SELECTION_KEYS = '1234567890';
-  static readonly ASSOCIATED_PHRASES_SELECTION_KEYS = '!@#$%^&*()';
-  static readonly COMMON_SELECTION_KEYS2 = '123456789';
-  static readonly ASSOCIATED_PHRASES_SELECTION_KEYS2 = '!@#$%^&*(';
+  static readonly COMMON_SELECTION_KEYS = "1234567890";
+  static readonly ASSOCIATED_PHRASES_SELECTION_KEYS = "!@#$%^&*()";
+  static readonly COMMON_SELECTION_KEYS2 = "123456789";
+  static readonly ASSOCIATED_PHRASES_SELECTION_KEYS2 = "!@#$%^&*(";
 
   onRequestTable: () => InputTableWrapper;
   onRequestSettings: () => Settings;
@@ -28,7 +33,7 @@ export class KeyHandler {
   constructor(
     onRequestTable: () => InputTableWrapper,
     onRequestSettings: () => Settings,
-    onSettingChanged: (settings: Settings) => void,
+    onSettingChanged: (settings: Settings) => void
   ) {
     this.onRequestTable = onRequestTable;
     this.onRequestSettings = onRequestSettings;
@@ -39,7 +44,7 @@ export class KeyHandler {
     state: InputtingState,
     selectedCandidate: Candidate,
     stateCallback: (state: InputState) => void,
-    allowAssociatedPhrases: boolean = true,
+    allowAssociatedPhrases: boolean = true
   ): void {
     if (selectedCandidate instanceof MenuCandidate) {
       const newState = selectedCandidate.nextState();
@@ -52,8 +57,9 @@ export class KeyHandler {
 
     const tooltip = (() => {
       if (this.onRequestSettings().reverseRadicalLookupEnabled) {
-        const radicalsArray = this.onRequestTable().reverseLookupForRadicals(commitString);
-        const joined = radicalsArray.join(', ');
+        const radicalsArray =
+          this.onRequestTable().reverseLookupForRadicals(commitString);
+        const joined = radicalsArray.join(", ");
         if (joined.length > 0) {
           return `字根反查: ${joined}`;
         }
@@ -61,18 +67,24 @@ export class KeyHandler {
       return undefined;
     })();
 
-    if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
-      const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
+    if (
+      allowAssociatedPhrases &&
+      this.onRequestSettings().associatedPhrasesEnabled
+    ) {
+      const phrases =
+        InputTableManager.getInstance().lookUpForAssociatedPhrases(
+          commitString
+        );
       if (phrases && phrases.length > 0) {
         let selectionKeys = state.selectionKeys;
         let exactSelectionKeys = state.selectionKeys;
-        let annotation = '';
+        let annotation = "";
         if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
-          annotation = 'Shift +';
+          annotation = "(Shift + 數字按鍵)";
         } else if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS2) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS2;
-          annotation = 'Shift +';
+          annotation = "(Shift + 數字按鍵)";
         }
 
         const associatedPhrasesState = new AssociatedPhrasesState({
@@ -94,21 +106,27 @@ export class KeyHandler {
     key: Key,
     state: InputState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void,
+    errorCallback: () => void
   ): boolean {
     const settings = this.onRequestSettings();
     const table = this.onRequestTable();
     let inputKeys = Object.keys(table.table.keynames);
     if (settings.wildcardMatchingEnabled) {
-      inputKeys = inputKeys.concat(['*', '#']);
+      inputKeys = inputKeys.concat(["*", "#"]);
     }
 
-    const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
-    const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
+    const shiftLetterSymbols =
+      InputTableManager.getInstance().shiftLetterSymbols;
+    const shiftPunctuationsSymbols =
+      InputTableManager.getInstance().shiftPunctuationsSymbols;
 
     if (state instanceof AssociatedPhrasesState) {
       const selectionKeys = state.exactSelectionKeys;
-      if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
+      if (
+        selectionKeys !== undefined &&
+        key.ascii &&
+        selectionKeys.includes(key.ascii)
+      ) {
         const candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
@@ -132,11 +150,11 @@ export class KeyHandler {
       state instanceof AssociatedPhrasesState ||
       state instanceof TooltipOnlyState
     ) {
-      if (key.ascii === '`') {
+      if (key.ascii === "`") {
         /// Enter Symbol Inputting State
         const selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         const newState = new SymbolInputtingState({
-          radicals: '',
+          radicals: "",
           selectionKeys: selectionKeys,
           candidates: [],
         });
@@ -164,10 +182,10 @@ export class KeyHandler {
       if (settings.shiftPunctuationForSymbolsEnabled) {
         if (shiftPunctuationsSymbols.hasOwnProperty(key.ascii)) {
           const chr = shiftPunctuationsSymbols[key.ascii];
-          const components = chr.split('');
+          const components = chr.split("");
           if (components.length > 1) {
             const inputtingState = new SymbolCategoryState({
-              displayedRadicals: ['[符]' + key.ascii],
+              displayedRadicals: ["[符]" + key.ascii],
               nodes: components,
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
               previousState: state,
@@ -199,15 +217,26 @@ export class KeyHandler {
     ///  Inputting State
     if (state instanceof InputtingState) {
       if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
-        if (key.name === KeyName.RETURN && state instanceof AssociatedPhrasesState) {
+        if (
+          key.name === KeyName.RETURN &&
+          state instanceof AssociatedPhrasesState
+        ) {
           stateCallback(new EmptyState());
           return true;
         }
 
         if (state.candidates.length > 0) {
-          const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
-          const allowAssociatedPhrases = !(state instanceof AssociatedPhrasesState);
-          this.handleCandidate(state, selectedCandidate, stateCallback, allowAssociatedPhrases);
+          const selectedCandidate =
+            state.candidates[state.selectedCandidateIndex ?? 0];
+          const allowAssociatedPhrases = !(
+            state instanceof AssociatedPhrasesState
+          );
+          this.handleCandidate(
+            state,
+            selectedCandidate,
+            stateCallback,
+            allowAssociatedPhrases
+          );
         } else {
           errorCallback();
           if (settings.clearOnErrors) {
@@ -240,10 +269,10 @@ export class KeyHandler {
       /// Symbol Inputting State
       if (state instanceof SymbolInputtingState) {
         if (state.radicals.length === 0) {
-          if (key.ascii === 'e') {
+          if (key.ascii === "e") {
             const newState = new SymbolCategoryState({
-              title: '表情符號',
-              displayedRadicals: ['表情符號'],
+              title: "表情符號",
+              displayedRadicals: ["表情符號"],
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
               previousState: state,
               nodes: InputTableManager.getInstance().emojiTable.tables,
@@ -252,7 +281,7 @@ export class KeyHandler {
             return true;
           }
 
-          if (key.ascii === 's') {
+          if (key.ascii === "s") {
             const newState = new SettingsState({
               previousState: state,
               settings: this.onRequestSettings(),
@@ -263,7 +292,7 @@ export class KeyHandler {
             return true;
           }
 
-          if (key.ascii === 'm') {
+          if (key.ascii === "m") {
             const newState = new MenuState({
               settings: this.onRequestSettings(),
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
@@ -274,8 +303,8 @@ export class KeyHandler {
             stateCallback(newState);
             return true;
           }
-        } else if (state.radicals === '`') {
-          if (key.ascii === '`') {
+        } else if (state.radicals === "`") {
+          if (key.ascii === "`") {
             const newState = new MenuState({
               settings: this.onRequestSettings(),
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
@@ -297,7 +326,7 @@ export class KeyHandler {
           const candidates: Candidate[] = [];
           if (founds) {
             for (const found of founds) {
-              candidates.push(new Candidate(found, ''));
+              candidates.push(new Candidate(found, ""));
             }
           }
           const newState = new SymbolInputtingState({
@@ -308,7 +337,10 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-      } else if (state instanceof BasicInputtingState || state instanceof AssociatedPhrasesState) {
+      } else if (
+        state instanceof BasicInputtingState ||
+        state instanceof AssociatedPhrasesState
+      ) {
         if (inputKeys.includes(key.ascii)) {
           // associated phrase state also reach here, and start to input a new radical
           const chr = key.ascii;
@@ -327,7 +359,9 @@ export class KeyHandler {
             joined = chr;
           }
 
-          const displayedConcat = state.displayedRadicals.concat([displayedChr]);
+          const displayedConcat = state.displayedRadicals.concat([
+            displayedChr,
+          ]);
           const candidates = table.lookupForCandidate(joined) || [];
           const newState = new BasicInputtingState({
             radicals: joined,
@@ -371,7 +405,7 @@ export class KeyHandler {
         if (state instanceof SymbolInputtingState) {
           const symbolTable = InputTableManager.getInstance().symbolTable;
           const found = symbolTable.chardefs[newRadicals];
-          const candidates = found?.map((chr) => new Candidate(chr, '')) || [];
+          const candidates = found?.map((chr) => new Candidate(chr, "")) || [];
           const newState = new SymbolInputtingState({
             radicals: newRadicals,
             selectionKeys: state.selectionKeys,
@@ -396,7 +430,9 @@ export class KeyHandler {
       if (key.name === KeyName.UP) {
         if (state.candidates.length > 0) {
           const newIndex =
-            ((state.selectedCandidateIndex ?? 0) - 1 + state.candidates.length) %
+            ((state.selectedCandidateIndex ?? 0) -
+              1 +
+              state.candidates.length) %
             state.candidates.length;
           const newState = state.copyWithArgs({
             selectedCandidateIndex: newIndex,
@@ -412,7 +448,8 @@ export class KeyHandler {
 
       if (key.name === KeyName.DOWN) {
         if (state.candidates.length > 0) {
-          const newIndex = ((state.selectedCandidateIndex ?? 0) + 1) % state.candidates.length;
+          const newIndex =
+            ((state.selectedCandidateIndex ?? 0) + 1) % state.candidates.length;
           const newState = state.copyWithArgs({
             selectedCandidateIndex: newIndex,
           });
@@ -428,8 +465,9 @@ export class KeyHandler {
         if (state.candidates.length > 0) {
           const candidatesPerPage = state.selectionKeys.length;
           const newIndex = Math.min(
-            ((state.selectedCandidateIndex ?? 0) / candidatesPerPage + 1) * candidatesPerPage,
-            state.candidates.length - 1,
+            ((state.selectedCandidateIndex ?? 0) / candidatesPerPage + 1) *
+              candidatesPerPage,
+            state.candidates.length - 1
           );
           const newState = state.copyWithArgs({
             selectedCandidateIndex: newIndex,
@@ -446,9 +484,10 @@ export class KeyHandler {
         if (state.candidates.length > 0) {
           const candidatesPerPage = state.selectionKeys.length;
           const newIndex = Math.max(
-            Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1) *
-              candidatesPerPage,
-            0,
+            Math.floor(
+              (state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1
+            ) * candidatesPerPage,
+            0
           );
           const newState = state.copyWithArgs({
             selectedCandidateIndex: newIndex,
@@ -461,7 +500,7 @@ export class KeyHandler {
         }
       }
       if (state instanceof AssociatedPhrasesState) {
-        if (key.ascii === 'Shift') {
+        if (key.ascii === "Shift") {
           return true;
         }
         stateCallback(new EmptyState());

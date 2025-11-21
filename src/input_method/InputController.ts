@@ -28,7 +28,7 @@ export class InputController {
   private ui_: InputUI;
   private settings_: Settings = {
     chineseConversionEnabled: false,
-    associatedPhrasesEnabled: true,
+    associatedPhrasesEnabled: false,
     shiftPunctuationForSymbolsEnabled: true,
     shiftLetterForSymbolsEnabled: true,
     wildcardMatchingEnabled: false,
@@ -77,6 +77,9 @@ export class InputController {
         }
       },
     );
+    if (!handled) {
+      this.ui_.reset();
+    }
     return handled;
   }
 

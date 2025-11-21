@@ -1,15 +1,15 @@
 let example = (function () {
   function toggle_feature(id) {
-    let features = ['feature_input', 'feature_user_data'];
+    let features = ["feature_input", "feature_user_data"];
     for (let feature of features) {
-      document.getElementById(feature).style.display = 'none';
+      document.getElementById(feature).style.display = "none";
     }
-    document.getElementById(id).style.display = 'block';
-    if (id === 'feature_input') {
-      document.getElementById('text_area').focus();
-      document.title = '輸入功能';
-    } else if (id === 'feature_user_data') {
-      document.title = '自訂符號表管理';
+    document.getElementById(id).style.display = "block";
+    if (id === "feature_input") {
+      document.getElementById("text_area").focus();
+      document.title = "輸入功能";
+    } else if (id === "feature_user_data") {
+      document.title = "自訂符號表管理";
     }
   }
 
@@ -17,37 +17,37 @@ let example = (function () {
     let that = {};
     that.beep = () => {
       const snd = new Audio(
-        'data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=',
+        "data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU="
       );
       snd.play();
     };
 
     that.reset = () => {
-      document.getElementById('function').style.visibility = 'hidden';
-      document.getElementById('candidates').style.visibility = 'hidden';
-      let renderText = '';
+      document.getElementById("function").style.visibility = "hidden";
+      document.getElementById("candidates").style.visibility = "hidden";
+      let renderText = "";
       renderText += "<span class='cursor'>|</span>";
-      document.getElementById('composing_buffer').innerHTML = renderText;
-      document.getElementById('candidates').innerHTML = '';
-      composingBuffer = '';
-      document.getElementById('tooltip').innerText = '';
-      document.getElementById('tooltip').style.visibility = 'hidden';
+      document.getElementById("composing_buffer").innerHTML = renderText;
+      document.getElementById("candidates").innerHTML = "";
+      composingBuffer = "";
+      document.getElementById("tooltip").innerText = "";
+      document.getElementById("tooltip").style.visibility = "hidden";
     };
 
     that.commitString = (string) => {
-      var selectionStart = document.getElementById('text_area').selectionStart;
-      var selectionEnd = document.getElementById('text_area').selectionEnd;
-      var text = document.getElementById('text_area').value;
+      var selectionStart = document.getElementById("text_area").selectionStart;
+      var selectionEnd = document.getElementById("text_area").selectionEnd;
+      var text = document.getElementById("text_area").value;
       var head = text.substring(0, selectionStart);
       var tail = text.substring(selectionEnd);
-      document.getElementById('text_area').value = head + string + tail;
+      document.getElementById("text_area").value = head + string + tail;
       let start = selectionStart + string.length;
-      document.getElementById('text_area').setSelectionRange(start, start);
-      composingBuffer = '';
+      document.getElementById("text_area").setSelectionRange(start, start);
+      composingBuffer = "";
     };
 
     that.updateByAlphabetMode = () => {
-      document.getElementById('status').innerHTML = globalUi.alphabetMode
+      document.getElementById("status").innerHTML = globalUi.alphabetMode
         ? '<a href="" onclick="example.globalUi.enterChineseMode(); return false;">【英文】</a>'
         : '<a href="" onclick="example.globalUi.enterAlphabetMode(); return false;">【中文】</a>';
     };
@@ -58,14 +58,15 @@ let example = (function () {
       {
         let buffer = state.composingBuffer;
         if (buffer.length === 0) {
-          document.getElementById('composing_buffer').innerHTML = '';
-          document.getElementById('composing_buffer').style.visibility = 'hidden';
+          document.getElementById("composing_buffer").innerHTML = "";
+          document.getElementById("composing_buffer").style.visibility =
+            "hidden";
         } else {
-          let renderText = '<p>';
-          let plainText = '';
+          let renderText = "<p>";
+          let plainText = "";
           let i = 0;
           for (let item of buffer) {
-            if (item.style === 'highlighted') {
+            if (item.style === "highlighted") {
               renderText += '<span class="marking">';
             }
             let text = item.text;
@@ -77,101 +78,107 @@ let example = (function () {
               renderText += c;
               i++;
             }
-            if (item.style === 'highlighted') {
-              renderText += '</span>';
+            if (item.style === "highlighted") {
+              renderText += "</span>";
             }
           }
           if (i === state.cursorIndex) {
             renderText += "<span class='cursor'>|</span>";
           }
-          renderText += '</p>';
-          document.getElementById('composing_buffer').innerHTML = renderText;
+          renderText += "</p>";
+          document.getElementById("composing_buffer").innerHTML = renderText;
           composingBuffer = plainText;
-          document.getElementById('composing_buffer').style.visibility = 'visible';
+          document.getElementById("composing_buffer").style.visibility =
+            "visible";
         }
       }
 
       if (state.candidates.length) {
-        let s = '<table>';
+        let s = "<table>";
         for (let candidate of state.candidates) {
           if (candidate.selected) {
             s += '<tr class="highlighted_candidate"> ';
           } else {
-            s += '<tr>';
+            s += "<tr>";
           }
           s += '<td class="keycap">';
           s += candidate.keyCap;
-          s += '</td>';
+          s += "</td>";
           s += '<td class="candidate">';
           s += candidate.candidate.displayText;
-          s += '</td>';
+          s += "</td>";
           s += '<td class="description">';
           s += candidate.candidate.description;
-          s += '</td>';
-          s += '</tr>';
+          s += "</td>";
+          s += "</tr>";
         }
-        const annotation = state.candidateAnnotation ?? '';
+        const annotation = state.candidateAnnotation ?? "";
         s += '<tr class="page_info"> ';
         s += '<td colspan="2">';
         s += annotation;
-        s += '</td>';
+        s += "</td>";
         s += '<td colspan="1">';
-        s += '' + (state.candidatePageIndex + 1) + ' / ' + state.candidatePageCount;
-        s += '</td>';
-        s += '</tr>';
-        s += '</table>';
+        s +=
+          "" +
+          (state.candidatePageIndex + 1) +
+          " / " +
+          state.candidatePageCount;
+        s += "</td>";
+        s += "</tr>";
+        s += "</table>";
 
-        document.getElementById('candidates').innerHTML = s;
+        document.getElementById("candidates").innerHTML = s;
       }
 
-      document.getElementById('candidates').style.visibility = state.candidates.length
-        ? 'visible'
-        : 'hidden';
+      document.getElementById("candidates").style.visibility = state.candidates
+        .length
+        ? "visible"
+        : "hidden";
 
       if (state.tooltip && state.tooltip.length > 0) {
-        document.getElementById('tooltip').innerText = state.tooltip;
-        document.getElementById('tooltip').style.visibility = 'visible';
+        document.getElementById("tooltip").innerText = state.tooltip;
+        document.getElementById("tooltip").style.visibility = "visible";
       } else {
-        document.getElementById('tooltip').innerText = '';
-        document.getElementById('tooltip').style.visibility = 'hidden';
+        document.getElementById("tooltip").innerText = "";
+        document.getElementById("tooltip").style.visibility = "hidden";
       }
 
-      document.getElementById('function').style.visibility = 'visible';
-      const textArea = document.getElementById('text_area');
-      const functionDiv = document.getElementById('function');
+      document.getElementById("function").style.visibility = "visible";
+      const textArea = document.getElementById("text_area");
+      const functionDiv = document.getElementById("function");
       const rect = textArea.getBoundingClientRect();
       const textAreaStyle = window.getComputedStyle(textArea);
       const lineHeight = parseInt(textAreaStyle.lineHeight) || 20;
 
       // Create a temporary mirror div to measure actual caret position
-      const mirror = document.createElement('div');
+      const mirror = document.createElement("div");
       const styles = [
-        'fontFamily',
-        'fontSize',
-        'fontWeight',
-        'letterSpacing',
-        'overflowWrap',
-        'whiteSpace',
-        'lineHeight',
-        'padding',
-        'border',
-        'boxSizing',
-        'width',
+        "fontFamily",
+        "fontSize",
+        "fontWeight",
+        "letterSpacing",
+        "overflowWrap",
+        "whiteSpace",
+        "lineHeight",
+        "padding",
+        "border",
+        "boxSizing",
+        "width",
       ];
       styles.forEach((style) => {
         mirror.style[style] = textAreaStyle[style];
       });
-      mirror.style.position = 'absolute';
-      mirror.style.visibility = 'hidden';
-      mirror.style.whiteSpace = 'pre-wrap';
-      mirror.style.overflowWrap = 'break-word';
+      mirror.style.position = "absolute";
+      mirror.style.visibility = "hidden";
+      mirror.style.whiteSpace = "pre-wrap";
+      mirror.style.overflowWrap = "break-word";
 
       const caretPos = textArea.selectionStart;
       const textBeforeCaret = textArea.value.substring(0, caretPos);
       mirror.textContent = textBeforeCaret;
 
-      const caretSpan = document.createElement('span');
-      caretSpan.textContent = '|';
+      const caretSpan = document.createElement("span");
+      caretSpan.textContent = "|";
       mirror.appendChild(caretSpan);
 
       document.body.appendChild(mirror);
@@ -188,9 +195,10 @@ let example = (function () {
       const scrollTop = textArea.scrollTop;
       const scrollLeft = textArea.scrollLeft;
 
-      functionDiv.style.position = 'absolute';
-      functionDiv.style.top = rect.top + relativeTop + lineHeight - scrollTop + 'px';
-      functionDiv.style.left = rect.left + relativeLeft - scrollLeft + 'px';
+      functionDiv.style.position = "absolute";
+      functionDiv.style.top =
+        rect.top + relativeTop + lineHeight - scrollTop + "px";
+      functionDiv.style.left = rect.left + relativeLeft - scrollLeft + "px";
     };
 
     return that;
@@ -204,14 +212,14 @@ let example = (function () {
       that.alphabetMode = true;
       ui.updateByAlphabetMode();
       inputMethod.controller.reset();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
     that.enterChineseMode = () => {
       that.alphabetMode = false;
       ui.updateByAlphabetMode();
       inputMethod.controller.reset();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
     return that;
@@ -219,9 +227,9 @@ let example = (function () {
 
   let symbolTableUserData = (() => {
     let that = {};
-    that.data = '';
+    that.data = "";
     that.load = () => {
-      var saved = window.localStorage.getItem('symbolTableUserData');
+      var saved = window.localStorage.getItem("symbolTableUserData");
       if (saved) {
         that.data = saved;
       } else {
@@ -229,10 +237,10 @@ let example = (function () {
       }
     };
     that.save = () => {
-      window.localStorage.setItem('symbolTableUserData', that.data);
+      window.localStorage.setItem("symbolTableUserData", that.data);
     };
     that.applyToUi = () => {
-      document.getElementById('user_data_symbol_area').value = that.data;
+      document.getElementById("user_data_symbol_area").value = that.data;
     };
     that.applyToInputMethod = () => {
       inputMethod.tableManager.customSymbolTable.sourceData = that.data;
@@ -242,9 +250,9 @@ let example = (function () {
 
   let foreignLanguageUserData = (() => {
     let that = {};
-    that.data = '';
+    that.data = "";
     that.load = () => {
-      var saved = window.localStorage.getItem('foreignLanguageUserData');
+      var saved = window.localStorage.getItem("foreignLanguageUserData");
       if (saved) {
         that.data = saved;
       } else {
@@ -252,10 +260,11 @@ let example = (function () {
       }
     };
     that.save = () => {
-      window.localStorage.setItem('foreignLanguageUserData', that.data);
+      window.localStorage.setItem("foreignLanguageUserData", that.data);
     };
     that.applyToUi = () => {
-      document.getElementById('user_data_foreign_language_area').value = that.data;
+      document.getElementById("user_data_foreign_language_area").value =
+        that.data;
     };
     that.applyToInputMethod = () => {
       inputMethod.tableManager.foreignLanguage.sourceData = that.data;
@@ -266,10 +275,10 @@ let example = (function () {
   let settings = (() => {
     let that = {};
     that.defaultSettings = {
-      selectedInputMethodId: '',
+      selectedInputMethodId: "checj",
       inputSettings: {
         chineseConversionEnabled: false,
-        associatedPhrasesEnabled: true,
+        associatedPhrasesEnabled: false,
         shiftPunctuationForSymbolsEnabled: true,
         shiftLetterForSymbolsEnabled: true,
         wildcardMatchingEnabled: false,
@@ -279,10 +288,10 @@ let example = (function () {
       },
     };
     that.settings = {
-      selectedInputMethodId: '',
+      selectedInputMethodId: "checj",
       inputSettings: {
         chineseConversionEnabled: false,
-        associatedPhrasesEnabled: true,
+        associatedPhrasesEnabled: false,
         shiftPunctuationForSymbolsEnabled: true,
         shiftLetterForSymbolsEnabled: true,
         wildcardMatchingEnabled: false,
@@ -292,7 +301,7 @@ let example = (function () {
       },
     };
     that.load = () => {
-      var saved = window.localStorage.getItem('settings');
+      var saved = window.localStorage.getItem("settings");
       if (saved) {
         that.settings = JSON.parse(saved);
       } else {
@@ -300,7 +309,7 @@ let example = (function () {
       }
     };
     that.save = () => {
-      window.localStorage.setItem('settings', JSON.stringify(that.settings));
+      window.localStorage.setItem("settings", JSON.stringify(that.settings));
     };
     that.applyToInputMethod = () => {
       const selectedId = that.settings.selectedId;
@@ -313,30 +322,33 @@ let example = (function () {
     };
     that.applyToUi = () => {
       const selectedId = that.settings.selectedId;
-      const select = document.getElementById('input-table-select');
+      const select = document.getElementById("input-table-select");
       if (selectedId) {
         select.value = selectedId;
       }
       const inputSettings = that.settings.inputSettings;
-      document.getElementById('associated_phrases_enabled').checked =
+      document.getElementById("associated_phrases_enabled").checked =
         inputSettings.associatedPhrasesEnabled;
 
-      const chineseConversionEnabled = that.settings.inputSettings.chineseConversionEnabled;
+      const chineseConversionEnabled =
+        that.settings.inputSettings.chineseConversionEnabled;
       if (chineseConversionEnabled) {
-        document.getElementById('chinese_convert_simp').checked = true;
+        document.getElementById("chinese_convert_simp").checked = true;
       } else {
-        document.getElementById('chinese_convert_trad').checked = true;
+        document.getElementById("chinese_convert_trad").checked = true;
       }
 
-      document.getElementById('shift_punctuation_for_symbols_enabled').checked =
+      document.getElementById("shift_punctuation_for_symbols_enabled").checked =
         inputSettings.shiftPunctuationForSymbolsEnabled;
-      document.getElementById('shift_letter_for_symbols_enabled').checked =
+      document.getElementById("shift_letter_for_symbols_enabled").checked =
         inputSettings.shiftLetterForSymbolsEnabled;
-      document.getElementById('clean_on_error').checked = inputSettings.clearOnErrors;
-      document.getElementById('beep_on_error').checked = inputSettings.beepOnErrors;
-      document.getElementById('wildcard_matching_enabled').checked =
+      document.getElementById("clean_on_error").checked =
+        inputSettings.clearOnErrors;
+      document.getElementById("beep_on_error").checked =
+        inputSettings.beepOnErrors;
+      document.getElementById("wildcard_matching_enabled").checked =
         inputSettings.wildcardMatchingEnabled;
-      document.getElementById('reverse_radical_lookup_enabled').checked =
+      document.getElementById("reverse_radical_lookup_enabled").checked =
         inputSettings.reverseRadicalLookupEnabled;
     };
     return that;
@@ -348,7 +360,7 @@ let example = (function () {
     that.controller = (() => {
       let controller = new InputController(ui);
       controller.onSettingChanged = (newSettings) => {
-        console.log('onSettingChanged');
+        console.log("onSettingChanged");
         settings.settings.inputSettings = newSettings;
         settings.save();
         settings.applyToUi();
@@ -362,10 +374,10 @@ let example = (function () {
     that.populateInputMethodTableSelect = () => {
       const tables = that.tableManager.getTables();
       const selectedIndexValue = that.tableManager.selectedIndexValue;
-      const select = document.getElementById('input-table-select');
-      select.innerHTML = '';
+      const select = document.getElementById("input-table-select");
+      select.innerHTML = "";
       for (const table of tables) {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
         option.value = table[0];
         option.textContent = table[1];
         if (tables.indexOf(table) === selectedIndexValue) {
@@ -375,12 +387,12 @@ let example = (function () {
       }
       // console.log('Selected table id:', manager.currentTable);
       select.value = that.tableManager.currentTable.id;
-      select.addEventListener('change', (event) => {
+      select.addEventListener("change", (event) => {
         let value = event.target.value;
         settings.settings.selectedId = value;
         settings.save();
         settings.applyToInputMethod();
-        document.getElementById('text_area').focus();
+        document.getElementById("text_area").focus();
       });
     };
     that.populateInputMethodTableSelect();
@@ -389,10 +401,10 @@ let example = (function () {
 
   (() => {
     ui.updateByAlphabetMode();
-    const textarea = document.getElementById('text_area');
+    const textarea = document.getElementById("text_area");
     let shiftKeyIsPressed = false;
-    textarea.addEventListener('keyup', (event) => {
-      if (event.key === 'Shift' && shiftKeyIsPressed) {
+    textarea.addEventListener("keyup", (event) => {
+      if (event.key === "Shift" && shiftKeyIsPressed) {
         globalUi.alphabetMode = !globalUi.alphabetMode;
         ui.updateByAlphabetMode();
         inputMethod.controller.reset();
@@ -400,13 +412,13 @@ let example = (function () {
       }
     });
 
-    textarea.addEventListener('keydown', (event) => {
+    textarea.addEventListener("keydown", (event) => {
       if (event.metaKey || event.altKey || event.ctrlKey) {
         inputMethod.controller.reset();
         return;
       }
 
-      shiftKeyIsPressed = event.key === 'Shift';
+      shiftKeyIsPressed = event.key === "Shift";
       if (globalUi.alphabetMode) {
         return;
       }
@@ -417,72 +429,88 @@ let example = (function () {
       }
     });
 
-    textarea.addEventListener('blur', () => {
+    textarea.addEventListener("blur", () => {
       inputMethod.controller.reset();
       ui.reset();
     });
 
-    document.getElementById('chinese_convert_trad').onchange = function (event) {
+    document.getElementById("chinese_convert_trad").onchange = function (
+      event
+    ) {
       settings.settings.inputSettings.chineseConversionEnabled = false;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
-    document.getElementById('chinese_convert_simp').onchange = function (event) {
+    document.getElementById("chinese_convert_simp").onchange = function (
+      event
+    ) {
       settings.settings.inputSettings.chineseConversionEnabled = true;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
-    document.getElementById('associated_phrases_enabled').onchange = (event) => {
-      settings.settings.inputSettings.associatedPhrasesEnabled = event.target.checked;
+    document.getElementById("associated_phrases_enabled").onchange = (
+      event
+    ) => {
+      settings.settings.inputSettings.associatedPhrasesEnabled =
+        event.target.checked;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
-    document.getElementById('shift_punctuation_for_symbols_enabled').onchange = (event) => {
-      settings.settings.inputSettings.shiftPunctuationForSymbolsEnabled = event.target.checked;
+    document.getElementById("shift_punctuation_for_symbols_enabled").onchange =
+      (event) => {
+        settings.settings.inputSettings.shiftPunctuationForSymbolsEnabled =
+          event.target.checked;
+        settings.save();
+        settings.applyToInputMethod();
+        document.getElementById("text_area").focus();
+      };
+
+    document.getElementById("shift_letter_for_symbols_enabled").onchange = (
+      event
+    ) => {
+      settings.settings.inputSettings.shiftLetterForSymbolsEnabled =
+        event.target.checked;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
-    document.getElementById('shift_letter_for_symbols_enabled').onchange = (event) => {
-      settings.settings.inputSettings.shiftLetterForSymbolsEnabled = event.target.checked;
+    document.getElementById("wildcard_matching_enabled").onchange = (event) => {
+      settings.settings.inputSettings.wildcardMatchingEnabled =
+        event.target.checked;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
-
-    document.getElementById('wildcard_matching_enabled').onchange = (event) => {
-      settings.settings.inputSettings.wildcardMatchingEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('clean_on_error').onchange = (event) => {
+    document.getElementById("clean_on_error").onchange = (event) => {
       settings.settings.inputSettings.clearOnErrors = event.target.checked;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
-    document.getElementById('beep_on_error').onchange = (event) => {
+    document.getElementById("beep_on_error").onchange = (event) => {
       settings.settings.inputSettings.beepOnErrors = event.target.checked;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
-    document.getElementById('reverse_radical_lookup_enabled').onchange = (event) => {
-      settings.settings.inputSettings.reverseRadicalLookupEnabled = event.target.checked;
+    document.getElementById("reverse_radical_lookup_enabled").onchange = (
+      event
+    ) => {
+      settings.settings.inputSettings.reverseRadicalLookupEnabled =
+        event.target.checked;
       settings.save();
       settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
     };
 
-    window.addEventListener('hashchange', () => {
+    window.addEventListener("hashchange", () => {
       let hash = window.location.hash;
       toggle_feature(hash.substring(1));
     });
@@ -491,7 +519,7 @@ let example = (function () {
     if (hash.length > 1) {
       toggle_feature(hash.substring(1));
     } else {
-      toggle_feature('feature_input');
+      toggle_feature("feature_input");
     }
 
     settings.load();
@@ -504,45 +532,51 @@ let example = (function () {
     foreignLanguageUserData.applyToUi();
     foreignLanguageUserData.applyToInputMethod();
 
-    document.getElementById('loading').innerText = '載入完畢！';
+    document.getElementById("loading").innerText = "載入完畢！";
     setTimeout(function () {
-      document.getElementById('loading').style.display = 'none';
+      document.getElementById("loading").style.display = "none";
     }, 2000);
 
-    document.getElementById('load_user_data_button').onclick = () => {
-      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+    document.getElementById("load_user_data_button").onclick = () => {
+      symbolTableUserData.data = document.getElementById(
+        "user_data_symbol_area"
+      ).value;
       symbolTableUserData.applyToInputMethod();
       symbolTableUserData.save();
-      document.getElementById('user_data_symbol_area').focus();
+      document.getElementById("user_data_symbol_area").focus();
     };
 
-    document.getElementById('save_user_data_button').onclick = () => {
-      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+    document.getElementById("save_user_data_button").onclick = () => {
+      symbolTableUserData.data = document.getElementById(
+        "user_data_symbol_area"
+      ).value;
       symbolTableUserData.applyToInputMethod();
       symbolTableUserData.save();
-      document.getElementById('user_data_symbol_area').focus();
+      document.getElementById("user_data_symbol_area").focus();
     };
 
-    document.getElementById('load_user_data_foreign_language_button').onclick = () => {
-      foreignLanguageUserData.data = document.getElementById(
-        'user_data_foreign_language_area',
-      ).value;
-      foreignLanguageUserData.applyToInputMethod();
-      foreignLanguageUserData.save();
-      document.getElementById('user_data_foreign_language_area').focus();
-    };
+    document.getElementById("load_user_data_foreign_language_button").onclick =
+      () => {
+        foreignLanguageUserData.data = document.getElementById(
+          "user_data_foreign_language_area"
+        ).value;
+        foreignLanguageUserData.applyToInputMethod();
+        foreignLanguageUserData.save();
+        document.getElementById("user_data_foreign_language_area").focus();
+      };
 
-    document.getElementById('save_user_data_foreign_language_button').onclick = () => {
-      foreignLanguageUserData.data = document.getElementById(
-        'user_data_foreign_language_area',
-      ).value;
-      foreignLanguageUserData.applyToInputMethod();
-      foreignLanguageUserData.save();
-      document.getElementById('user_data_foreign_language_area').focus();
-    };
+    document.getElementById("save_user_data_foreign_language_button").onclick =
+      () => {
+        foreignLanguageUserData.data = document.getElementById(
+          "user_data_foreign_language_area"
+        ).value;
+        foreignLanguageUserData.applyToInputMethod();
+        foreignLanguageUserData.save();
+        document.getElementById("user_data_foreign_language_area").focus();
+      };
 
-    document.getElementById('fullscreen').onclick = (event) => {
-      const elem = document.getElementById('edit_area');
+    document.getElementById("fullscreen").onclick = (event) => {
+      const elem = document.getElementById("edit_area");
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
       } else if (elem.msRequestFullscreen) {
@@ -552,11 +586,11 @@ let example = (function () {
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
       }
-      document.getElementById('text_area').focus();
+      document.getElementById("text_area").focus();
       return false;
     };
 
-    document.getElementById('text_area').focus();
+    document.getElementById("text_area").focus();
   })();
 
   let example = {};
