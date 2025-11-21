@@ -126,5 +126,11 @@
   },
   "foreignLanguagesSymbolsTableTitle": {
     "message": "外語符號表"
+  },
+  "lookup": {
+    "message": "查詢字根"
+  },
+  "beep": {
+    "message": "提示音"
   }
 }

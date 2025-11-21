@@ -31,6 +31,10 @@ export interface SymbolTable {
   keynames: string[];
 }
 
+export class RadicalLookupEntry {
+  constructor(public inputTableName: string, public radicals: string[]) {}
+}
+
 export class InputTableManager {
   private static instance: InputTableManager;
   private internalIndex_: number = 0;
@@ -123,6 +127,18 @@ export class InputTableManager {
     new InputTableWrapper('array30', array30, { maxRadicals: 4 }),
     new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
   ];
+
+  reverseLookupForRadicals(character: string): RadicalLookupEntry[] {
+    let result = [];
+    for (const tableWrapper of this.tables) {
+      const radicals = tableWrapper.reverseLookupForRadicals(character);
+      if (radicals.length > 0) {
+        result.push(new RadicalLookupEntry(tableWrapper.table.cname, radicals));
+      }
+    }
+    console.log('Reverse lookup result:', result);
+    return result;
+  }
 
   lookUpForAssociatedPhrases(prefix: string): Candidate[] | [] {
     const founds = associatedPhrases.chardefs[prefix];

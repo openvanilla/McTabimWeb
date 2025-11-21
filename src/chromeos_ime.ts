@@ -39,7 +39,13 @@ class ChromeMcTabim {
   // The current input context.
   context: chrome.input.ime.InputContext | undefined = undefined;
 
-  beep = () => {};
+  beep = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0 && tabs[0].id !== undefined) {
+        chrome.tabs.sendMessage(tabs[0].id, { command: 'beep' });
+      }
+    });
+  };
 
   // The default settings.
   readonly defaultSettings: ChromeMcTabimSettings = {
@@ -193,7 +199,7 @@ class ChromeMcTabim {
     }
 
     menus = menus.concat(inputTableMenus);
-    chrome.input.ime.setMenuItems({ engineID: this.engineID, items: menus });
+    chrome.input?.ime.setMenuItems({ engineID: this.engineID, items: menus });
   }
 
   tryOpen(url: string) {
@@ -248,10 +254,10 @@ class ChromeMcTabim {
         try {
           // The context might be destroyed by the time we reset it, so we use a
           // try/catch block here.
-          chrome.input.ime.clearComposition({
+          chrome.input?.ime.clearComposition({
             contextID: this.context.contextID,
           });
-          chrome.input.ime.setCandidateWindowProperties({
+          chrome.input?.ime.setCandidateWindowProperties({
             engineID: this.engineID,
             properties: {
               auxiliaryText: '',
@@ -264,7 +270,7 @@ class ChromeMcTabim {
 
       commitString: (text: string) => {
         if (this.context === undefined) return;
-        chrome.input.ime.commitText({
+        chrome.input?.ime.commitText({
           contextID: this.context.contextID,
           text: text,
         });
@@ -313,7 +319,7 @@ class ChromeMcTabim {
           localCursorIndex = text.length;
         }
 
-        chrome.input.ime.setComposition({
+        chrome.input?.ime.setComposition({
           contextID: this.context.contextID,
           cursor: localCursorIndex,
           segments: segments,
@@ -353,7 +359,7 @@ class ChromeMcTabim {
 
           auxiliaryText += candidateAnnotation + candidatePageIndex + '/' + candidatePageCount;
 
-          chrome.input.ime.setCandidateWindowProperties({
+          chrome.input?.ime.setCandidateWindowProperties({
             engineID: this.engineID,
             properties: {
               auxiliaryText: auxiliaryText,
@@ -366,17 +372,17 @@ class ChromeMcTabim {
             },
           });
 
-          chrome.input.ime.setCandidates({
+          chrome.input?.ime.setCandidates({
             contextID: this.context.contextID,
             candidates: chromeCandidates,
           });
 
-          chrome.input.ime.setCursorPosition({
+          chrome.input?.ime.setCursorPosition({
             contextID: this.context.contextID,
             candidateID: selectedIndex,
           });
         } else if (tooltip && tooltip.length > 0) {
-          chrome.input.ime.setCandidates({
+          chrome.input?.ime.setCandidates({
             contextID: this.context.contextID,
             candidates: [
               {
@@ -387,7 +393,7 @@ class ChromeMcTabim {
               },
             ],
           });
-          chrome.input.ime.setCandidateWindowProperties({
+          chrome.input?.ime.setCandidateWindowProperties({
             engineID: this.engineID,
             properties: {
               auxiliaryText: '',
@@ -401,7 +407,7 @@ class ChromeMcTabim {
             },
           });
         } else {
-          chrome.input.ime.setCandidateWindowProperties({
+          chrome.input?.ime.setCandidateWindowProperties({
             engineID: this.engineID,
             properties: {
               auxiliaryText: '',
@@ -500,7 +506,7 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
   return chromeMcTabim.inputController.handle(keyEvent);
 });
 
-chrome.input.ime.onCandidateClicked.addListener((engineID, candidateID, button) => {
+chrome.input?.ime.onCandidateClicked.addListener((engineID, candidateID, button) => {
   if (candidateID < 0) {
     return;
   }
@@ -583,7 +589,53 @@ async function retryOnTabUpdate(
 }
 
 chromeMcTabim.loadSettings();
+
 keepAlive();
+
+chrome.contextMenus.onClicked.addListener((event, tab) => {
+  const menuItemId = event.menuItemId;
+  const tabId = (tab as chrome.tabs.Tab).id;
+  if (tabId === undefined) {
+    return;
+  }
+  if (menuItemId === 'beep') {
+    chrome.tabs.sendMessage(tabId, {
+      command: 'beep',
+    });
+    return;
+  }
+
+  let selected = event.selectionText;
+  if (selected === undefined) {
+    return;
+  }
+
+  if (menuItemId === 'lookup') {
+    selected = selected.trim();
+    if (selected.length === 0) {
+      return;
+    }
+    if (selected.length > 1) {
+      selected = selected.charAt(0);
+    }
+
+    const result = InputTableManager.getInstance().reverseLookupForRadicals(selected);
+    chrome.tabs.sendMessage(tabId, {
+      command: 'send_lookup_result',
+      text: JSON.stringify(result),
+      char: selected,
+    });
+  }
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('Creating context menus');
+  chrome.contextMenus.create({
+    id: 'lookup',
+    title: chrome.i18n.getMessage('lookup'),
+    contexts: ['selection', 'editable'],
+  });
+});
 
 /**
  * Converts a keyboard event to a Key object.

@@ -41,6 +41,7 @@ export class InputTableWrapper {
       }
       remapped.push(displayedRadicals.join(''));
     }
+    remapped.sort((a, b) => a.length - b.length);
     return remapped;
   }
 

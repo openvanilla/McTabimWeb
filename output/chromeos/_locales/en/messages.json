@@ -126,5 +126,11 @@
   },
   "foreignLanguagesSymbolsTableTitle": {
     "message": "Foreign Languages Symbols Table"
+  },
+  "lookup": {
+    "message": "Lookup Radicals"
+  },
+  "beep": {
+    "message": "Beep"
   }
 }
