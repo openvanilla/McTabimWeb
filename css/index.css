@@ -12,7 +12,25 @@ body {
   overflow: hidden;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 14pt;
-  line-height: 1.5;
+}
+
+.navi {
+  font-size: 11pt;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.navi a {
+  color: #999;
+  text-decoration: none;
+}
+
+.navi a:hover {
+  color: #900;
+  text-decoration: none;
 }
 
 a {
@@ -237,8 +255,11 @@ details td input[type='radio'] {
 }
 
 #edit_area {
-  width: 100%;
-  height: 80%;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #000;
+  height: 100%;
+  overflow: auto !important;
 }
 
 div#feature_input {
@@ -271,6 +292,38 @@ td {
   border: 0;
 }
 
+.status_area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+#status {
+  width: 100px;
+  font-size: 12pt;
+}
+
+#status a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#menu_visible {
+  flex-grow: 1;
+  font-size: 10pt;
+  cursor: pointer;
+  color: #666;
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 10px;
+}
+
+#menu_visible a {
+  text-decoration: none;
+  color: #666;
+}
+
 /* Media Queries */
 @media (min-width: 768px) {
   .main {
@@ -289,6 +342,7 @@ td {
   .left {
     width: 70%;
     float: left;
+    height: 100%;
     min-height: 100%;
     display: flex;
     flex-direction: column;
