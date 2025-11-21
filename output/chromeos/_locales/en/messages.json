@@ -37,91 +37,94 @@
   "name": {
     "message": "Name"
   },
-  "input_tables_description": {
+  "inputTablesDescription": {
     "message": "Input tables displayed in the input menu."
   },
-  "main_title": {
+  "mainTitle": {
     "message": "McTabim Input Method Options"
   },
-  "input_options_title": {
+  "inputOptionsTitle": {
     "message": "Input Options"
   },
-  "label_shift_punctuation": {
+  "labelShiftPunctuation": {
     "message": "Shift + Punctuation for Symbols:"
   },
-  "shift_punctuation_description": {
+  "shiftPunctuationDescription": {
     "message": "Enable you to enter symbols with Shift + Punctuation keys."
   },
-  "label_shift_letter": {
+  "labelShiftLetter": {
     "message": "Shift Letter for Symbols:"
   },
-  "shift_letter_description": {
+  "shiftLetterDescription": {
     "message": "Enable you to enter symbols with Shift + Letter keys."
   },
-  "label_associated_phrases": {
+  "labelAssociatedPhrases": {
     "message": "Associated Phrases:"
   },
-  "associated_phrases_description": {
+  "associatedPhrasesDescription": {
     "message": "A list of associated phrases will appear when a character is entered."
   },
-  "label_wildcard_matching": {
+  "labelWildcardMatching": {
     "message": "Wildcard Matching:"
   },
-  "wildcard_matching_description": {
+  "wildcardMatchingDescription": {
     "message": "Enable you to use the wildcard character (*) when you are not sure about the exact radical."
   },
-  "label_clear_on_errors": {
+  "labelClearOnErrors": {
     "message": "Clear Radicals on Errors:"
   },
-  "clear_on_errors_description": {
+  "clearOnErrorsDescription": {
     "message": "Clear all entered radicals when an error occurs."
   },
-  "label_beep_on_errors": {
+  "labelBeepOnErrors": {
     "message": "Beep on Errors:"
   },
-  "beep_on_errors_description": {
+  "beepOnErrorsDescription": {
     "message": "Beep when an error occurs."
   },
-  "label_reverse_radical_lookup": {
+  "labelReverseRadicalLookup": {
     "message": "Reverse Radical Lookup:"
   },
-  "reverse_radical_lookup_description": {
+  "reverseRadicalLookupDescription": {
     "message": "It is useful when you enter a character with the wildcard character (*)."
   },
-  "symbols_table_title": {
+  "symbolsTableTitle": {
     "message": "Symbols Table"
   },
-  "load_symbols_table": {
+  "loadSymbolsTable": {
     "message": "Load"
   },
-  "save_symbols_table": {
+  "saveSymbolsTable": {
     "message": "Save"
   },
-  "foreign_languages_symbols_table": {
+  "foreignLanguagesSymbolsTable": {
     "message": "Foreign Languages Symbols Table"
   },
-  "load_foreign_languages_symbols_table": {
+  "loadForeignLanguagesSymbolsTable": {
     "message": "Load"
   },
-  "save_foreign_languages_symbols_table": {
+  "saveForeignLanguagesSymbolsTable": {
     "message": "Save"
   },
-  "alphabet_mode": {
+  "alphabetMode": {
     "message": "Alphabet Mode Enabled"
   },
-  "chinese_mode": {
+  "chineseMode": {
     "message": "Chinese Mode Enabled"
   },
-  "shift_toggle_alphabet_mode": {
+  "shiftToggleAlphabetMode": {
     "message": "Use Shift Key to Toggle Alphabet Mode:"
   },
-  "shift_toggle_alphabet_mode_description": {
+  "shiftToggleAlphabetModeDescription": {
     "message": "Pressing the Shift key will switch between Alphabet Mode and Chinese Input Mode."
   },
-  "use_notification": {
+  "useNotification": {
     "message": "Use Notifications for Mode Switching:"
   },
-  "use_notification_description": {
+  "useNotificationDescription": {
     "message": "Show a notification when switching between Alphabet Mode and Chinese Input Mode."
+  },
+  "foreignLanguagesSymbolsTableTitle": {
+    "message": "Foreign Languages Symbols Table"
   }
 }
