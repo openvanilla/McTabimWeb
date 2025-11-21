@@ -1,4 +1,4 @@
-(function () {
+let example = (function () {
   function toggle_feature(id) {
     let features = ['feature_input', 'feature_user_data'];
     for (let feature of features) {
@@ -46,7 +46,14 @@
       composingBuffer = '';
     };
 
+    that.updateByAlphabetMode = () => {
+      document.getElementById('status').innerHTML = globalUi.alphabetMode
+        ? '<a href="" onclick="example.globalUi.enterChineseMode(); return false;">【英文】</a>'
+        : '<a href="" onclick="example.globalUi.enterAlphabetMode(); return false;">【中文】</a>';
+    };
+
     that.update = (string) => {
+      that.updateByAlphabetMode();
       let state = JSON.parse(string);
       {
         let buffer = state.composingBuffer;
@@ -184,6 +191,27 @@
       functionDiv.style.position = 'absolute';
       functionDiv.style.top = rect.top + relativeTop + lineHeight - scrollTop + 'px';
       functionDiv.style.left = rect.left + relativeLeft - scrollLeft + 'px';
+    };
+
+    return that;
+  })();
+
+  const globalUi = (() => {
+    let that = {};
+    that.alphabetMode = false;
+
+    that.enterAlphabetMode = () => {
+      that.alphabetMode = true;
+      ui.updateByAlphabetMode();
+      inputMethod.controller.reset();
+      document.getElementById('text_area').focus();
+    };
+
+    that.enterChineseMode = () => {
+      that.alphabetMode = false;
+      ui.updateByAlphabetMode();
+      inputMethod.controller.reset();
+      document.getElementById('text_area').focus();
     };
 
     return that;
@@ -360,10 +388,26 @@
   })();
 
   (() => {
+    ui.updateByAlphabetMode();
     const textarea = document.getElementById('text_area');
+    let shiftKeyIsPressed = false;
+    textarea.addEventListener('keyup', (event) => {
+      if (event.key === 'Shift' && shiftKeyIsPressed) {
+        globalUi.alphabetMode = !globalUi.alphabetMode;
+        ui.updateByAlphabetMode();
+        inputMethod.controller.reset();
+        return;
+      }
+    });
+
     textarea.addEventListener('keydown', (event) => {
       if (event.metaKey || event.altKey || event.ctrlKey) {
         inputMethod.controller.reset();
+        return;
+      }
+
+      shiftKeyIsPressed = event.key === 'Shift';
+      if (globalUi.alphabetMode) {
         return;
       }
 
@@ -497,6 +541,31 @@
       document.getElementById('user_data_foreign_language_area').focus();
     };
 
+    document.getElementById('fullscreen').onclick = (event) => {
+      const elem = document.getElementById('edit_area');
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      }
+      document.getElementById('text_area').focus();
+      return false;
+    };
+
     document.getElementById('text_area').focus();
   })();
+
+  let example = {};
+  example.ui = ui;
+  example.globalUi = globalUi;
+  example.inputMethod = inputMethod;
+  example.settings = settings;
+  example.symbolTableUserData = symbolTableUserData;
+  example.foreignLanguageUserData = foreignLanguageUserData;
+  window.example = example;
+  return example;
 })();
