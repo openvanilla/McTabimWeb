@@ -47,43 +47,43 @@
     "message": "輸入選項"
   },
   "labelShiftPunctuation": {
-    "message": "Shift + 標點符號輸入符號："
+    "message": "Shift + 標點符號輸入符號"
   },
   "shiftPunctuationDescription": {
     "message": "按下 Shift + 標點符號按鍵之後，會輸入全形標點符號。"
   },
   "labelShiftLetter": {
-    "message": "Shift 字母輸入符號："
+    "message": "Shift 字母輸入符號"
   },
   "shiftLetterDescription": {
     "message": "按下 Shift + 字母鍵之後，會輸入特殊符號。"
   },
   "labelAssociatedPhrases": {
-    "message": "使用聯想詞："
+    "message": "使用聯想詞"
   },
   "associatedPhrasesDescription": {
     "message": "輸入字元之後，會顯示相關詞語列表。"
   },
   "labelWildcardMatching": {
-    "message": "萬用字元比對："
+    "message": "萬用字元比對"
   },
   "wildcardMatchingDescription": {
     "message": "當您不確定確切字根時，可使用萬用字元（*）。"
   },
   "labelClearOnErrors": {
-    "message": "錯誤時清除字根："
+    "message": "錯誤時清除字根"
   },
   "clearOnErrorsDescription": {
     "message": "發生錯誤時清除所有已輸入的字根。"
   },
   "labelBeepOnErrors": {
-    "message": "錯誤時發出提示音："
+    "message": "錯誤時發出提示音"
   },
   "beepOnErrorsDescription": {
     "message": "發生錯誤時發出提示音。"
   },
   "labelReverseRadicalLookup": {
-    "message": "反向字根查詢："
+    "message": "反向字根查詢"
   },
   "reverseRadicalLookupDescription": {
     "message": "當您使用萬用字元（*）輸入字元時，可以幫您查詢字根。"
@@ -113,13 +113,13 @@
     "message": "已切換到中文模式"
   },
   "shiftToggleAlphabetMode": {
-    "message": "使用 Shift 鍵切換英文模式："
+    "message": "使用 Shift 鍵切換英文模式"
   },
   "shiftToggleAlphabetModeDescription": {
     "message": "按下或放開 Shift 鍵時，切換英文模式和中文模式。"
   },
   "useNotification": {
-    "message": "使用通知："
+    "message": "使用通知"
   },
   "useNotificationDescription": {
     "message": "切換英文模式和中文模式時顯示通知。"

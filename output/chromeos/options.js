@@ -17,21 +17,24 @@ window.onload = () => {
       },
     };
     that.settings = that.defaults;
-    that.load = () => {
+    that.load = (callback) => {
       chrome.storage.sync.get('settings', (value) => {
         if (value.settings) {
           that.settings = value.settings;
         } else {
           that.settings = that.defaults;
         }
+        callback();
       });
     };
     that.save = () => {
+      console.log('Saving settings:', that.settings);
       chrome.storage.sync.set({ settings: that.settings }, () => {
         // debug(JSON.stringify(settings));
       });
     };
     that.applyToUI = () => {
+      console.log('Applying settings to UI:', that.settings);
       document.getElementById('associated-phrases').checked =
         that.settings.inputSettings.associatedPhrasesEnabled;
       document.getElementById('wildcard-matching').checked =
@@ -69,7 +72,7 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
         if (value.symbolsTable) {
           document.getElementById('symbols-table').value = value.symbolsTable;
         } else {
-          document.getElementById('symbols-table').value = '';
+          document.getElementById('symbols-table').value = that.defaults;
         }
       });
     };
@@ -221,19 +224,23 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
     document.getElementById('save-symbols-table').innerText =
       chrome.i18n.getMessage('saveSymbolsTable');
 
-    document.getElementById('foreign-languages-symbols-table').innerText = chrome.i18n.getMessage(
-      'foreignLanguagesSymbolsTableTitle',
-    );
+    document.getElementById('foreign-languages-symbols-table-title').innerText =
+      chrome.i18n.getMessage('foreignLanguagesSymbolsTableTitle');
     document.getElementById('load-foreign-languages-symbols-table').innerText =
       chrome.i18n.getMessage('loadForeignLanguagesSymbolsTable');
     document.getElementById('save-foreign-languages-symbols-table').innerText =
       chrome.i18n.getMessage('saveForeignLanguagesSymbolsTable');
   };
 
-  settings.load();
-  settings.applyToUI();
-  symbolsTableSettings.load();
-  foreignLanguagesSymbolsTableSettings.load();
+  settings.load(() => {
+    settings.applyToUI();
+  });
+  symbolsTableSettings.load(() => {
+    symbolsTableSettings.applyToUI();
+  });
+  foreignLanguagesSymbolsTableSettings.load(() => {
+    foreignLanguagesSymbolsTableSettings.applyToUI();
+  });
   setupBinding();
   setUpLocalization();
 };
