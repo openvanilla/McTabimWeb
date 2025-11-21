@@ -27,8 +27,8 @@ describe('InputTableManager', () => {
 
   it('should throw or handle invalid table id gracefully', () => {
     const manager = InputTableManager.getInstance();
-    expect(() => manager.setInputTableById('invalid_id')).toThrow();
-    // Optionally, check fallback or error state
+    manager.setInputTableById('invalid_id');
+    expect(manager.currentTable.id).toBe('checj');
   });
 
   it('should have keynames property in current table', () => {
