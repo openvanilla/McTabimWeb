@@ -171,8 +171,8 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
   };
 
   const setUpLocalization = () => {
-    document.getElementById("title").innerText =
-      chrome.i18n.getMessage("optionsTitle");
+//    document.getElementById("title").innerText =
+ //     chrome.i18n.getMessage("optionsTitle");
     document.getElementById("main-title").innerText =
       chrome.i18n.getMessage("mainTitle");
     document.getElementById("input-options-title").innerText =
