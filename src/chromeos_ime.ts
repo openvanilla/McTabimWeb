@@ -135,6 +135,24 @@ class ChromeMcTabim {
     chrome.storage.sync.set({ settings: this.settings });
   }
 
+  loadSymbolsTable() {
+    chrome.storage.sync.get('symbolsTable', (value) => {
+      const table = value.symbolsTable;
+      if (table !== undefined) {
+        InputTableManager.getInstance().customSymbolTable.sourceData = table;
+      }
+    });
+  }
+
+  loadForeignLanguagesSymbolsTable() {
+    chrome.storage.sync.get('foreignLanguagesSymbolsTable', (value) => {
+      const table = value.foreignLanguagesSymbolsTable;
+      if (table !== undefined) {
+        InputTableManager.getInstance().foreignLanguage.sourceData = table;
+      }
+    });
+  }
+
   /**
    * Updates the menu items.
    */
@@ -426,6 +444,8 @@ const chromeMcTabim = new ChromeMcTabim();
 chrome.input?.ime.onActivate.addListener((engineID) => {
   chromeMcTabim.engineID = engineID;
   chromeMcTabim.loadSettings();
+  chromeMcTabim.loadForeignLanguagesSymbolsTable();
+  chromeMcTabim.loadSymbolsTable();
   chromeMcTabim.updateMenu();
 });
 

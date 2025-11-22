@@ -17,8 +17,20 @@ import { InputUI } from './input_method/InputUI';
 import { KeyFromKeyboardEvent, VK_Keys } from './pime_keys';
 
 interface Settings {
-  selected_input_table_index: number;
-  candidate_font_size: number;
+  candidateFontSize: number;
+  selectedInputMethodId: string;
+  shiftKeyToToggleAlphabetMode: boolean;
+  useNotification: boolean;
+  inputSettings: {
+    chineseConversionEnabled: boolean;
+    associatedPhrasesEnabled: boolean;
+    shiftPunctuationForSymbolsEnabled: boolean;
+    shiftLetterForSymbolsEnabled: boolean;
+    wildcardMatchingEnabled: boolean;
+    clearOnErrors: boolean;
+    beepOnErrors: boolean;
+    reverseRadicalLookupEnabled: boolean;
+  };
 }
 
 /**
@@ -46,8 +58,20 @@ interface UiState {
 
 /**  The default settings. */
 const defaultSettings: Settings = {
-  selected_input_table_index: 0,
-  candidate_font_size: 16,
+  candidateFontSize: 16,
+  selectedInputMethodId: 'checj',
+  shiftKeyToToggleAlphabetMode: true,
+  useNotification: false,
+  inputSettings: {
+    chineseConversionEnabled: false,
+    associatedPhrasesEnabled: false,
+    shiftPunctuationForSymbolsEnabled: true,
+    shiftLetterForSymbolsEnabled: true,
+    wildcardMatchingEnabled: false,
+    clearOnErrors: false,
+    beepOnErrors: true,
+    reverseRadicalLookupEnabled: false,
+  },
 };
 
 /**
@@ -55,12 +79,14 @@ const defaultSettings: Settings = {
  * @enum
  */
 enum PimeMcTabimCommand {
-  ModeIcon = 0,
-  SwitchLanguage = 1,
-  OpenHomepage = 2,
-  OpenBugReport = 3,
-  OpenOptions = 4,
-  Help = 10,
+  Separator = 0,
+  ModeIcon = 1,
+  SwitchLanguage = 2,
+  OpenHomepage = 3,
+  OpenBugReport = 4,
+  OpenOptions = 5,
+  Help = 5,
+  InputTable = 10000,
 }
 
 /** Wraps InputController and required states.  */
@@ -82,6 +108,10 @@ class PimeMcTabim {
   constructor() {
     this.inputController = new InputController(this.makeUI(this));
     this.inputController.onError = () => {};
+    this.inputController.onSettingChanged = (newSettings) => {
+      this.settings.inputSettings = newSettings;
+      this.writeSettings();
+    };
     this.loadSettings(() => {});
   }
 
@@ -106,13 +136,22 @@ class PimeMcTabim {
 
   /** Applies the settings to the input controller. */
   public applySettings(): void {
-    const selectedTableIndex = this.settings.selected_input_table_index;
-    InputTableManager.getInstance().selectedIndexValue = selectedTableIndex;
+    const selectedTableIndex = this.settings.selectedInputMethodId;
+    InputTableManager.getInstance().setInputTableById(selectedTableIndex);
+    const inputSettings = this.settings.inputSettings;
+    if (inputSettings !== undefined) {
+      this.inputController.settings = inputSettings;
+    }
   }
 
   readonly pimeUserDataPath: string = path.join(process.env.APPDATA || '', 'PIME');
   readonly mctabimUserDataPath: string = path.join(this.pimeUserDataPath, 'mctabim');
   readonly userSettingsPath: string = path.join(this.mctabimUserDataPath, 'config.json');
+  readonly symbolTablePath: string = path.join(this.mctabimUserDataPath, 'symbols.txt');
+  readonly foreignLanguagesSymbolsTablePath: string = path.join(
+    this.mctabimUserDataPath,
+    'foreign_languages_symbols.txt',
+  );
 
   isOpened: boolean = true;
   lastRequest: any = {};
@@ -167,6 +206,38 @@ class PimeMcTabim {
     });
   }
 
+  public loadSymbolsTable(): void {
+    fs.readFile(this.symbolTablePath, (err, data) => {
+      if (err) {
+        console.log('Unable to read user settings from ' + this.symbolTablePath);
+        this.createDefaultSymbolTable();
+        return;
+      }
+      console.log(data);
+      try {
+        const text = data.toString();
+        InputTableManager.getInstance().customSymbolTable.sourceData = text;
+      } catch {}
+    });
+  }
+
+  public createDefaultSymbolTable() {
+    if (!fs.existsSync(this.mctabimUserDataPath)) {
+      console.log('User data folder not found, creating ' + this.mctabimUserDataPath);
+      console.log('Creating one');
+      fs.mkdirSync(this.mctabimUserDataPath);
+    }
+
+    const defaultSymbolTable = InputTableManager.getInstance().customSymbolTable.sourceData;
+
+    fs.writeFile(this.symbolTablePath, defaultSymbolTable, (err) => {
+      if (err) {
+        console.error('Failed to write settings');
+        console.error(err);
+      }
+    });
+  }
+
   /**
    * Creates an InputUI object.
    * @param instance The PimeMcTabim instance.
@@ -213,7 +284,7 @@ class PimeMcTabim {
           if (candidate.selected) {
             selectedIndex = index;
           }
-          const joined = candidate.candidate.displayText + ' - ' + candidate.candidate.description;
+          const joined = candidate.candidate.displayText;
           candidateList.push(joined);
           index++;
         }
@@ -298,7 +369,7 @@ class PimeMcTabim {
    * @returns The custom UI response.
    */
   public customUiResponse(): any {
-    let fontSize = this.settings.candidate_font_size;
+    let fontSize = this.settings.candidateFontSize;
     if (fontSize === undefined) {
       fontSize = 16;
     } else if (fontSize < 10) {
@@ -325,6 +396,16 @@ class PimeMcTabim {
    * @param id The command ID.
    */
   public handleCommand(id: PimeMcTabimCommand): void {
+    if (id > PimeMcTabimCommand.InputTable) {
+      const inputMethodIndex = id - PimeMcTabimCommand.InputTable;
+      const tables = InputTableManager.getInstance().getTables();
+      const tableId = tables[inputMethodIndex][0]; // 0 - id, 1 - name
+      InputTableManager.getInstance().setInputTableById(tableId);
+      this.settings.selectedInputMethodId = tableId;
+      this.writeSettings();
+      return;
+    }
+
     switch (id) {
       case PimeMcTabimCommand.ModeIcon:
         break;
@@ -580,7 +661,7 @@ module.exports = {
     }
 
     if (request.method === 'onMenu') {
-      const menu = [
+      let menu: any[] = [
         {
           text: '小麥注音輸入法網站',
           id: PimeMcTabimCommand.OpenHomepage,
@@ -593,13 +674,31 @@ module.exports = {
           text: '輔助說明',
           id: PimeMcTabimCommand.Help,
         },
-
-        {},
-        {
-          text: '偏好設定 (&O)',
-          id: PimeMcTabimCommand.OpenOptions,
-        },
       ];
+      menu.push({
+        text: '',
+        id: PimeMcTabimCommand.Separator,
+      });
+
+      const tables = InputTableManager.getInstance().getTables();
+      for (let i = 0; i < tables.length; i++) {
+        const table = tables[i];
+        const tableId = table[0];
+        const text = table[1];
+        menu.push({
+          text: text,
+          checked: tableId === pimeMcTabim.settings.selectedInputMethodId,
+          id: PimeMcTabimCommand.InputTable + i,
+        });
+      }
+      menu.push({
+        text: '',
+        id: PimeMcTabimCommand.Separator,
+      });
+      menu.push({
+        text: '偏好設定 (&O)',
+        id: PimeMcTabimCommand.OpenOptions,
+      });
       const response = Object.assign({}, responseTemplate, { return: menu });
       return response;
     }
