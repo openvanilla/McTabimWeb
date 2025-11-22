@@ -21,6 +21,8 @@ export class KeyHandler {
   static readonly COMMON_SELECTION_KEYS2 = '123456789';
   static readonly ASSOCIATED_PHRASES_SELECTION_KEYS2 = '!@#$%^&*(';
 
+  isPime: boolean = false;
+
   constructor(
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
@@ -310,7 +312,7 @@ export class KeyHandler {
           return true;
         }
       } else if (state instanceof BasicInputtingState || state instanceof AssociatedPhrasesState) {
-        if (inputKeys.includes(key.ascii)) {
+        if (key.ascii && inputKeys.includes(key.ascii)) {
           // associated phrase state also reach here, and start to input a new radical
           const chr = key.ascii;
           const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
@@ -466,6 +468,12 @@ export class KeyHandler {
 
       if (state instanceof AssociatedPhrasesState) {
         if (key.ascii === 'Shift') {
+          return true;
+        }
+        // If it is PIME, we may input undesired characters, so we just ignore
+        // it.
+        if (this.isPime) {
+          errorCallback();
           return true;
         }
         stateCallback(new EmptyState('reset after pressing enter in associated phrases state'));

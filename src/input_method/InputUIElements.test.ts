@@ -19,7 +19,7 @@ describe('InputUIStateBuilder', () => {
   } as unknown as InputtingState;
 
   it('builds InputUIState with correct composing buffer and candidates', () => {
-    const builder = new InputUIStateBuilder(baseState);
+    const builder = new InputUIStateBuilder(baseState, false);
     const uiState = builder.build();
 
     expect(uiState.composingBuffer).toHaveLength(2);
@@ -39,7 +39,7 @@ describe('InputUIStateBuilder', () => {
   });
 
   it('returns correct JSON string', () => {
-    const builder = new InputUIStateBuilder(baseState);
+    const builder = new InputUIStateBuilder(baseState, false);
     const json = builder.buildJsonString();
     expect(typeof json).toBe('string');
     const parsed = JSON.parse(json);
@@ -57,7 +57,7 @@ describe('InputUIStateBuilder', () => {
       candidatePageIndex: 0,
     } as unknown as InputtingState;
 
-    const builder = new InputUIStateBuilder(emptyState);
+    const builder = new InputUIStateBuilder(emptyState, false);
     const uiState = builder.build();
     expect(uiState.composingBuffer).toHaveLength(0);
     expect(uiState.candidates).toHaveLength(0);
@@ -71,7 +71,7 @@ describe('InputUIStateBuilder', () => {
       ...baseState,
       selectedCandidateIndexInCurrentPage: undefined,
     } as unknown as InputtingState;
-    const builder = new InputUIStateBuilder(state);
+    const builder = new InputUIStateBuilder(state, false);
     const uiState = builder.build();
     expect(uiState.candidates.every((c) => !c.selected)).toBe(true);
   });
@@ -83,7 +83,7 @@ describe('InputUIStateBuilder', () => {
       selectionKeys: ['a', 'b', 'c'],
       selectedCandidateIndexInCurrentPage: 0,
     } as unknown as InputtingState;
-    const builder = new InputUIStateBuilder(state);
+    const builder = new InputUIStateBuilder(state, false);
     const uiState = builder.build();
     expect(uiState.candidates).toHaveLength(1);
     expect(uiState.candidates[0].keyCap).toBe('a');

@@ -1,5 +1,10 @@
 import { Candidate } from '../data';
-import { BasicInputtingState, InputtingState, TooltipOnlyState } from './InputState';
+import {
+  AssociatedPhrasesState,
+  BasicInputtingState,
+  InputtingState,
+  TooltipOnlyState,
+} from './InputState';
 
 class CandidateWrapper {
   constructor(readonly keyCap: string, readonly candidate: Candidate, readonly selected: boolean) {
@@ -84,7 +89,7 @@ export class TooltipOnlyStateBuilder {
 }
 
 export class InputUIStateBuilder {
-  constructor(private state: InputtingState) {}
+  constructor(private state: InputtingState, private isPime: boolean) {}
 
   buildJsonString(): string {
     return JSON.stringify(this.build());
@@ -92,7 +97,12 @@ export class InputUIStateBuilder {
 
   build(): InputUIState {
     const composingBufferTexts: ComposingBufferText[] = [];
-    const displayedRadicals = this.state.displayedRadicals;
+    let displayedRadicals = this.state.displayedRadicals;
+    if (this.state instanceof AssociatedPhrasesState && this.isPime) {
+      // In PIME mode, we do not show the composing buffer in associated phrases state.
+      displayedRadicals = [];
+    }
+
     let cursorIndex = 0;
     for (const text of displayedRadicals) {
       composingBufferTexts.push(new ComposingBufferText(text));

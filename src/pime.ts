@@ -113,7 +113,7 @@ class PimeMcTabim {
       this.settings.inputSettings = newSettings;
       this.writeSettings();
     };
-    // this.inputController.isPime = true;
+    this.inputController.isPime = true;
     this.loadSettings(() => {});
   }
 
