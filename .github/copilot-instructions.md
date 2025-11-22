@@ -2,7 +2,9 @@
 
 ## Project context
 
-- This repository hosts the TypeScript engine that powers the McTabim input method (Table based IME). Distribution bundles live in `dist/`, while TypeScript sources are under `src/`.
+- This repository hosts McTabimWeb (小麥他命輸入法), a TypeScript engine for table-based Chinese input methods like Changjie (倉頡), Sucheng (速成), Dayi (大易), and Array (行列).
+- It is designed to be embedded in web pages and also runs on Chrome OS and Windows (via the PIME framework).
+- Distribution bundles live in `dist/`, while TypeScript sources are under `src/`.
 - The public entry points are exported from `src/index.ts`. Treat this package like a reusable library—avoid leaking experimental APIs.
 
 ## Architecture hints for Copilot
@@ -11,6 +13,7 @@
 - **Input pipeline (`src/input_method/`)**: `InputController` orchestrates state transitions (`EmptyState`, `InputtingState`, `CommittingState`) and keeps UI + KeyHandler in sync. Any change to state creation usually needs companion updates in `InputUIStateBuilder` and the associated Jest specs in the same folder.
 - **Key handling**: `Key`, `KeyHandler`, and `KeyMapping` work together; favor pure functions that accept the current `Settings` and `InputTableWrapper` so behavior stays testable. Never reference DOM APIs from these modules.
 - **Platform-specific shims**: ChromeOS and PIME entrypoints (`src/chromeos_ime.ts`, `src/pime.ts`, `src/pime_keys.ts`) should stay thin and call into the shared `InputController`.
+  - The ChromeOS extension (`src/chromeos_ime.ts`) also implements a context menu feature. When text is selected or an editable area is focused, a 'lookup' option appears. Activating this option performs a reverse radical lookup using the `InputTableManager` and sends the result to the content script.
 
 ## Coding conventions
 
