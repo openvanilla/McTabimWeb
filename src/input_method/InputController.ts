@@ -68,7 +68,6 @@ export class InputController {
   }
 
   handle(key: Key): boolean {
-    console.log('InputController.handle: original state=' + this.state_.toString());
     const handled = this.keyHandler_.handle(
       key,
       this.state_,
@@ -79,8 +78,6 @@ export class InputController {
         }
       },
     );
-    // console.log('InputController.handle: handled=' + handled);
-    // console.log('InputController.handle: state=' + this.state_.toString());
     if (!handled) {
       this.ui_.reset();
     }
@@ -138,7 +135,7 @@ export class InputController {
     this.state_ = newState;
   }
 
-  handleTooltipOnlyState(oldState: InputState, newState: TooltipOnlyState) {
+  private handleTooltipOnlyState(oldState: InputState, newState: TooltipOnlyState) {
     const builder = new TooltipOnlyStateBuilder(newState);
     const uiState = builder.buildJsonString();
     this.ui_.reset();

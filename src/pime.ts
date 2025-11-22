@@ -575,6 +575,8 @@ module.exports = {
       return response;
     }
 
+    // In most cases, we just return false in key up event. However, we still
+    // need it to detect the single shift press to toggle alphabet mode.
     if (request.method === 'onKeyUp') {
       if (pimeMcTabim.isScheduledToUpdateUi) {
         pimeMcTabim.isScheduledToUpdateUi = false;
@@ -733,6 +735,9 @@ module.exports = {
       return response;
     }
 
+    // Please note that the message maybe sent to use when we commit a string.
+    // We ddo not reset our internal state, since it may effect the associate
+    // phrases feature.
     if (request.method === 'onCompositionTerminated') {
       // pimeMcTabim.resetController('composition terminated');
       // pimeMcTabim.resetBeforeHandlingKey();

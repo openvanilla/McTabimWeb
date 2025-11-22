@@ -285,7 +285,7 @@ describe('Test KeyHandler', () => {
 
   it('should cycle candidates with UP and DOWN keys', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    let state: InputState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
