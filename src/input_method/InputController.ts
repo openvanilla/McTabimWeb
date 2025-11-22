@@ -53,6 +53,14 @@ export class InputController {
     return this.state_;
   }
 
+  set isPime(value: boolean) {
+    this.keyHandler_.isPime = value;
+  }
+
+  get isPime(): boolean {
+    return this.keyHandler_.isPime;
+  }
+
   constructor(ui: InputUI) {
     this.ui_ = ui;
   }

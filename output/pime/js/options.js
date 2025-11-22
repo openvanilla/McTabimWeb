@@ -66,22 +66,6 @@ window.onload = () => {
         document.getElementById('shift-toggle-alphabet-mode').checked =
           that.settings.shiftKeyToToggleAlphabetMode;
         document.getElementById('use-notification').checked = that.settings.useNotification;
-        document.getElementById('save-symbols-table').onclick = () => {
-          symbolsTableSettings.save();
-        };
-        document.getElementById('load-symbols-table').onclick = () => {
-          symbolsTableSettings.load();
-        };
-        document.getElementById('save-foreign-languages-symbols-table').onclick = () => {
-          foreignLanguagesSymbolsTableSettings.save();
-        };
-        document.getElementById('load-foreign-languages-symbols-table').onclick = () => {
-          foreignLanguagesSymbolsTableSettings.load();
-        };
-        document.getElementById('use-notification').onchange = (e) => {
-          settings.settings.useNotification = e.target.checked;
-          settings.save();
-        };
 
         const fontSizeInput = document.getElementById('font_size');
         let options = fontSizeInput.getElementsByTagName('option');
@@ -215,6 +199,27 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
       document.getElementById('use-notification').onchange = (e) => {
         settings.settings.useNotification = e.target.checked;
         settings.save();
+      };
+      document.getElementById('save-symbols-table').onclick = () => {
+        symbolsTableSettings.save();
+      };
+      document.getElementById('load-symbols-table').onclick = () => {
+        symbolsTableSettings.load();
+      };
+      document.getElementById('save-foreign-languages-symbols-table').onclick = () => {
+        foreignLanguagesSymbolsTableSettings.save();
+      };
+      document.getElementById('load-foreign-languages-symbols-table').onclick = () => {
+        foreignLanguagesSymbolsTableSettings.load();
+      };
+      document.getElementById('use-notification').onchange = (e) => {
+        settings.settings.useNotification = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('font_size').onchange = (event) => {
+        let value = document.getElementById('font_size').value;
+        settings.candidate_font_size = +value;
+        saveSettings(settings);
       };
     };
     return {

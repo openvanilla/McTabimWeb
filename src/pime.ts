@@ -13,6 +13,7 @@ import process from 'process';
 
 import { InputTableManager } from './data';
 import { InputController } from './input_method';
+import { EmptyState } from './input_method/InputState';
 import { InputUI } from './input_method/InputUI';
 import { KeyFromKeyboardEvent, VK_Keys } from './pime_keys';
 
@@ -112,6 +113,7 @@ class PimeMcTabim {
       this.settings.inputSettings = newSettings;
       this.writeSettings();
     };
+    this.inputController.isPime = true;
     this.loadSettings(() => {});
   }
 
@@ -134,6 +136,12 @@ class PimeMcTabim {
     this.inputController.reset();
   }
 
+  public toggleAlphabetMode(): void {
+    // Changes the alphabet mode, also commits current composing buffer.
+    this.isAlphabetMode = !this.isAlphabetMode;
+    this.resetController();
+  }
+
   /** Applies the settings to the input controller. */
   public applySettings(): void {
     const selectedTableIndex = this.settings.selectedInputMethodId;
@@ -153,11 +161,13 @@ class PimeMcTabim {
     'foreign_languages_symbols.txt',
   );
 
+  isAlphabetMode: boolean = false;
   isOpened: boolean = true;
   lastRequest: any = {};
   isLastFilterKeyDownHandled: boolean = false;
   isCapsLockHold: boolean = false;
-
+  isShiftHold: boolean = false;
+  isScheduledToUpdateUi = false;
   /** Whether the button has been added to the UI. */
   alreadyAddButton: boolean = false;
   /** Whether the OS is Windows 8 or above. */
@@ -174,12 +184,9 @@ class PimeMcTabim {
         this.writeSettings();
         return;
       }
-      console.log(data);
       try {
-        console.log('Try to load settings');
         const newSettings = JSON.parse(data.toString());
         this.settings = Object.assign({}, defaultSettings, newSettings);
-        console.log('Loaded settings: ' + JSON.stringify(this.settings, null, 2));
         this.applySettings();
       } catch {
         console.error('Failed to parse settings');
@@ -274,6 +281,8 @@ class PimeMcTabim {
         };
       },
       update(stateString: string) {
+        console.log('update stateString: ' + stateString);
+
         const state = JSON.parse(stateString);
         const composingBuffer = state.composingBuffer;
         const candidates = state.candidates;
@@ -324,7 +333,18 @@ class PimeMcTabim {
    * @returns The button UI response.
    */
   public buttonUiResponse(): any {
-    const windowsModeIcon = this.isOpened ? 'eng.ico' : 'close.ico';
+    let windowsModeIcon = 'close.ico';
+    if (this.isOpened) {
+      if (this.isAlphabetMode) {
+        windowsModeIcon = 'eng.ico';
+      } else {
+        if (this.settings.inputSettings.chineseConversionEnabled) {
+          windowsModeIcon = 'simC.ico';
+        } else {
+          windowsModeIcon = 'traC.ico';
+        }
+      }
+    }
     const windowsModeIconPath = path.join(__dirname, 'icons', windowsModeIcon);
     const settingsIconPath = path.join(__dirname, 'icons', 'config.ico');
     const object: any = {};
@@ -408,12 +428,17 @@ class PimeMcTabim {
 
     switch (id) {
       case PimeMcTabimCommand.ModeIcon:
-        break;
       case PimeMcTabimCommand.SwitchLanguage:
+        {
+          if (this.isOpened === false) {
+            return;
+          }
+          this.toggleAlphabetMode();
+        }
         break;
       case PimeMcTabimCommand.OpenHomepage:
         {
-          const url = 'https://mctabim.openvanilla.org/';
+          const url = 'https://openvanilla.org/';
           const command = `start ${url}`;
           console.log('Run ' + command);
           child_process.exec(command);
@@ -503,6 +528,7 @@ module.exports = {
     }
 
     if (request.method === 'onActivate') {
+      pimeMcTabim.resetController();
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, customUi, buttonUi);
@@ -510,6 +536,7 @@ module.exports = {
     }
 
     if (request.method === 'onDeactivate') {
+      pimeMcTabim.resetController();
       const response = Object.assign({}, responseTemplate, {
         removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
       });
@@ -524,7 +551,8 @@ module.exports = {
     }
 
     if (request.method === 'filterKeyUp') {
-      const handled = pimeMcTabim.isLastFilterKeyDownHandled;
+      const state = pimeMcTabim.inputController.state;
+      let handled = pimeMcTabim.isLastFilterKeyDownHandled || state instanceof EmptyState === false;
       if (
         lastRequest &&
         lastRequest.method === 'filterKeyUp' &&
@@ -538,8 +566,35 @@ module.exports = {
         return response;
       }
       // Single Shift to toggle alphabet mode.
+      if (pimeMcTabim.isShiftHold) {
+        pimeMcTabim.isScheduledToUpdateUi = true;
+        pimeMcTabim.toggleAlphabetMode();
+        handled = true;
+      }
       const response = Object.assign({}, responseTemplate, { return: handled });
       return response;
+    }
+
+    if (request.method === 'onKeyUp') {
+      const state = pimeMcTabim.inputController.state;
+      const handled =
+        pimeMcTabim.isLastFilterKeyDownHandled || state instanceof EmptyState === false;
+
+      if (pimeMcTabim.isScheduledToUpdateUi) {
+        pimeMcTabim.isScheduledToUpdateUi = false;
+
+        const uiState = pimeMcTabim.uiState;
+        const customUi = pimeMcTabim.customUiResponse();
+        const buttonUi = pimeMcTabim.buttonUiResponse();
+        const response = Object.assign(responseTemplate, uiState, customUi, buttonUi, {
+          return: handled,
+        });
+        return response;
+      } else {
+        const response = Object.assign({}, responseTemplate, { return: handled });
+
+        return response;
+      }
     }
 
     if (request.method === 'filterKeyDown') {
@@ -582,22 +637,72 @@ module.exports = {
       }
 
       const key = KeyFromKeyboardEvent(keyCode, keyStates, String.fromCharCode(charCode), charCode);
+
+      const shouldHandleShift = pimeMcTabim.settings.shiftKeyToToggleAlphabetMode === true;
+
+      const isPressingShiftOnly = key.ascii === 'Shift';
+
+      // Note: The way we detect if a user is trying to press a single Shift key
+      // to toggle Alphabet/Chinese mode, is to check if there is any key other
+      // than the Shift key is received before the key up event.
+      //
+      // We set isShiftHold to true here. It means the user is pressing Shift
+      // key only. Then, if there is any other key coming, we will reset
+      // isShiftHold. Finally, if isShiftHold is still true in the key up event,
+      // we will toggle Alphabet/Chinese.
+      if (shouldHandleShift) {
+        pimeMcTabim.isShiftHold = isPressingShiftOnly;
+      }
+      if (isPressingShiftOnly) {
+        const state = pimeMcTabim.inputController.state;
+        const handled = state instanceof EmptyState === false;
+        pimeMcTabim.isLastFilterKeyDownHandled = handled;
+        const response = Object.assign({}, responseTemplate, {
+          return: handled,
+        });
+        console.log(response);
+        return response;
+      } else {
+        pimeMcTabim.isShiftHold = false;
+      }
+
       pimeMcTabim.resetBeforeHandlingKey();
 
-      if (key.ctrlPressed) {
+      if ((keyStates[VK_Keys.VK_CAPITAL] & 1) !== 0) {
+        // Ignores caps lock.
         pimeMcTabim.resetController();
+        pimeMcTabim.isCapsLockHold = true;
+        pimeMcTabim.isLastFilterKeyDownHandled = false;
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
         return response;
+      } else {
+        pimeMcTabim.isCapsLockHold = false;
+      }
+
+      if (pimeMcTabim.isAlphabetMode) {
+        const response = Object.assign({}, responseTemplate, { return: false });
+        return response;
       }
 
       const handled = pimeMcTabim.inputController.handle(key);
+      console.log('###############################');
+      console.log('###############################');
+      console.log('###############################');
+      console.log('###############################');
+      console.log('###############################');
+      console.log('###############################');
+      console.log('###############################');
+      console.log('###############################');
+      console.log('filterKeyDown handled: ' + handled);
+      console.log('###############################');
       pimeMcTabim.isLastFilterKeyDownHandled = handled;
-      const response = Object.assign({}, responseTemplate, {
-        return: handled,
+      let uiState = pimeMcTabim.uiState;
+      const response = Object.assign({}, responseTemplate, uiState, {
+        return: true,
       });
-      this.isKeyDownHandled = handled;
+      console.log('filterKeyDown response: ' + response);
       return response;
     }
 
@@ -624,9 +729,15 @@ module.exports = {
         return response;
       }
       const uiState: any = pimeMcTabim.uiState;
-      const response = Object.assign({}, responseTemplate, uiState, {
+      let response = Object.assign({}, responseTemplate, uiState, {
         return: pimeMcTabim.isLastFilterKeyDownHandled,
       });
+      if (pimeMcTabim.isScheduledToUpdateUi) {
+        pimeMcTabim.isScheduledToUpdateUi = false;
+        const customUi = pimeMcTabim.customUiResponse();
+        const buttonUi = pimeMcTabim.buttonUiResponse();
+        response = Object.assign({}, response, customUi, buttonUi);
+      }
       return response;
     }
 
@@ -642,10 +753,9 @@ module.exports = {
 
     if (request.method === 'onCompositionTerminated') {
       pimeMcTabim.resetController();
-      const uiState = pimeMcTabim.uiState;
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
-      const response = Object.assign({}, responseTemplate, uiState, customUi, buttonUi);
+      const response = Object.assign({}, responseTemplate, customUi, buttonUi);
       pimeMcTabim.resetBeforeHandlingKey();
       return response;
     }

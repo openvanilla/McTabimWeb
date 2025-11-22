@@ -192,7 +192,7 @@ class ForeignLanguagesSymbolTableHandler(BaseHandler):
             f.write(json_data)
 
     def load_config(self):
-        config = DEFAULT_SYMBOL_TABLE  # the default settings
+        config = DEFAULT_FOREIGN_LANGUAGES_SYMBOL_TABLE  # the default settings
         try:
             with open(
                 os.path.join(config_dir, "foreign_languages_symbols.txt"),
