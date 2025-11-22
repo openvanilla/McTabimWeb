@@ -675,10 +675,7 @@ module.exports = {
           id: PimeMcTabimCommand.Help,
         },
       ];
-      menu.push({
-        text: '',
-        id: PimeMcTabimCommand.Separator,
-      });
+      menu.push({});
 
       const tables = InputTableManager.getInstance().getTables();
       for (let i = 0; i < tables.length; i++) {
@@ -691,10 +688,7 @@ module.exports = {
           id: PimeMcTabimCommand.InputTable + i,
         });
       }
-      menu.push({
-        text: '',
-        id: PimeMcTabimCommand.Separator,
-      });
+      menu.push({});
       menu.push({
         text: '偏好設定 (&O)',
         id: PimeMcTabimCommand.OpenOptions,

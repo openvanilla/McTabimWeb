@@ -1,129 +1,103 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-Hant">
 
 <head>
-        <meta charset="utf-8">
-        <title>小麥他命偏好設定</title>
-        <link rel="icon" type="image/x-icon" href="images/icon16.png">
-        <link rel="stylesheet" href="css/options.css">
-        <style>
-                body {
-                        max-width: 700px;
-                }
-        </style>
-        <script src="js/options.js"></script>
+  <meta charset="UTF-8">
+  <title>小麥他命輸入法選項</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/options.css">
+  <script src="js/options.js"></script>
+  <style>
+    body {
+      max-width: 900px;
+    }
+  </style>
 </head>
 
 <body>
-        <h1 id="options_title">
-                <img src="images/icon48.png" alt="小麥他命輸入法" style="float: right" />
-                小麥他命偏好設定
-        </h1>
+  <h1 id="main-title">小麥他命輸入法選項</h1>
+  <h2 id="input-options-title">輸入選項</h2>
+  <table>
+    <tr>
+      <td><input type="checkbox" id="shift-punctuation"></td>
+      <th><label id="label-shift-punctuation" for="shift-punctuation">Shift + 標點符號輸入符號：</label>
+      </th>
+      <td id="shift-punctuation-description">可使用 Shift + 標點符號鍵輸入符號。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="shift-letter"></td>
+      <th><label id="label-shift-letter" for="shift-letter">Shift 英文字母輸入符號：</label></th>
+      <td id="shift-letter-description">可使用 Shift + 英文字母鍵輸入符號。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="associated-phrases"></td>
+      <th><label id="label-associated-phrases" for="associated-phrases">關聯詞語：</label>
+      </th>
+      <td id="associated-phrases-description">輸入字元後會顯示關聯詞語列表。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="wildcard-matching"></td>
+      <th><label id="label-wildcard-matching" for="wildcard-matching">萬用字元查詢：</label></th>
+      <td id="wildcard-matching-description">可使用萬用字元（*）查詢不確定的部首。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="clear-on-errors"></td>
+      <th><label id="label-clear-on-errors" for="clear-on-errors">錯誤時清除部首：</label>
+      </th>
+      <td id="clear-on-errors-description">發生錯誤時清除所有已輸入的部首。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="beep-on-errors"></td>
+      <th><label id="label-beep-on-errors" for="beep-on-errors">錯誤時發出提示音：</label></th>
+      <td id="beep-on-errors-description">發生錯誤時發出提示音。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="reverse-radical-lookup"></td>
+      <th><label id="label-reverse-radical-lookup" for="reverse-radical-lookup">反查部首：</label>
+      </th>
+      <td id="reverse-radical-lookup-description">當使用萬用字元（*）輸入字元時，可以方便地反查字根。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="shift-toggle-alphabet-mode"></td>
+      <th><label id="label-shift-toggle-alphabet-mode" for="shift-toggle-alphabet-mode">Shift
+          鍵切換英文模式：</label></th>
+      <td id="shift-toggle-alphabet-mode-description">按住 Shift 鍵可暫時切換至英文模式。</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" id="use-notification"></td>
+      <th><label id="label-use-notification" for="use-notification">模式切換顯示通知：</label>
+      </th>
+      <td id="use-notification-description">切換中英文模式時顯示通知。</td>
+    </tr>
+  </table>
 
-        <h2>輸入表格</h2>
-        <p>請選擇您想要使用的語言</p>
-        <div id="input_tables">
-                <div class="table-item"><input type="radio" name="input_table" id="table_0" value="0"><label
-                                for="table_0">南勢阿美語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_1" value="1"><label
-                                for="table_1">秀姑巒阿美語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_2" value="2"><label
-                                for="table_2">海岸阿美語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_3" value="3"><label
-                                for="table_3">馬蘭阿美語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_4" value="4"><label
-                                for="table_4">恆春阿美語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_5" value="5"><label
-                                for="table_5">賽考利克泰雅語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_6" value="6"><label
-                                for="table_6">澤敖利泰雅語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_7" value="7"><label
-                                for="table_7">汶水泰雅語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_8" value="8"><label
-                                for="table_8">萬大泰雅語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_9" value="9"><label
-                                for="table_9">四季泰雅語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_10" value="10"><label
-                                for="table_10">宜蘭澤敖利泰雅語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_11" value="11"><label
-                                for="table_11">賽夏語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_12" value="12"><label
-                                for="table_12">邵語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_13" value="13"><label
-                                for="table_13">都達賽德克語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_14" value="14"><label
-                                for="table_14">德固達雅賽德克語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_15" value="15"><label
-                                for="table_15">德鹿谷賽德克語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_16" value="16"><label
-                                for="table_16">卓群布農語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_17" value="17"><label
-                                for="table_17">卡群布農語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_18" value="18"><label
-                                for="table_18">丹群布農語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_19" value="19"><label
-                                for="table_19">巒群布農語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_20" value="20"><label
-                                for="table_20">郡群布農語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_21" value="21"><label
-                                for="table_21">東排灣語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_22" value="22"><label
-                                for="table_22">北排灣語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_23" value="23"><label
-                                for="table_23">中排灣語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_24" value="24"><label
-                                for="table_24">南排灣語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_25" value="25"><label
-                                for="table_25">東魯凱語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_26" value="26"><label
-                                for="table_26">霧台魯凱語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_27" value="27"><label
-                                for="table_27">大武魯凱語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_28" value="28"><label
-                                for="table_28">多納魯凱語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_29" value="29"><label
-                                for="table_29">茂林魯凱語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_30" value="30"><label
-                                for="table_30">萬山魯凱語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_31" value="31"><label
-                                for="table_31">太魯閣語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_32" value="32"><label
-                                for="table_32">噶瑪蘭語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_33" value="33"><label
-                                for="table_33">鄒語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_34" value="34"><label
-                                for="table_34">卡那卡那富語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_35" value="35"><label
-                                for="table_35">拉阿魯哇語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_36" value="36"><label
-                                for="table_36">南王卑南語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_37" value="37"><label
-                                for="table_37">知本卑南語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_38" value="38"><label
-                                for="table_38">西群卑南語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_39" value="39"><label
-                                for="table_39">建和卑南語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_40" value="40"><label
-                                for="table_40">雅美語</label></div>
-                <div class="table-item"><input type="radio" name="input_table" id="table_41" value="41"><label
-                                for="table_41">撒奇萊雅語</label></div>
-        </div>
-        <table>
-                <tr>
-                        <td class="option_title" id="candidate_font_size">選字窗字體大小：</td>
-                        <td>
-                                <select id="font_size" title="選字窗字體大小">
-                                        <option id="font_size_10" value="10">10</option>
-                                        <option id="font_size_12" value="12">12</option>
-                                        <option id="font_size_14" value="14">14</option>
-                                        <option id="font_size_16" value="16">16</option>
-                                        <option id="font_size_18" value="18">18</option>
-                                        <option id="font_size_20" value="20">20</option>
-                                        <option id="font_size_22" value="22">22</option>
-                                        <option id="font_size_24" value="24">24</option>
-                                </select>
-                        </td>
-                </tr>
-        </table>
+  <h2>其他設定</h2>
+  <table>
+    <tr>
+      <td class="option_title" id="candidate_font_size">選字窗字體大小：</td>
+      <td>
+        <select id="font_size" title="選字窗字體大小">
+          <option id="font_size_10" value="10">10</option>
+          <option id="font_size_12" value="12">12</option>
+          <option id="font_size_14" value="14">14</option>
+          <option id="font_size_16" value="16">16</option>
+          <option id="font_size_18" value="18">18</option>
+          <option id="font_size_20" value="20">20</option>
+          <option id="font_size_22" value="22">22</option>
+          <option id="font_size_24" value="24">24</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+
+  <h2 id="symbols-table-title">符號表</h2>
+  <p><button id="load-symbols-table">載入</button> <button id="save-symbols-table">儲存</button></p>
+  <textarea id="symbols-table" rows="10" cols="80"></textarea>
+
+  <h2 id="foreign-languages-symbols-table-title">外語符號表</h2>
+  <p><button id="load-foreign-languages-symbols-table">載入</button> <button
+      id="save-foreign-languages-symbols-table">儲存</button></p>
+  <textarea id="foreign-languages-symbols-table" rows="10" cols="80"></textarea>
 </body>
 
 </html>

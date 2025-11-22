@@ -35,6 +35,10 @@ window.onload = () => {
     };
     that.applyToUI = () => {
       console.log('Applying settings to UI:', that.settings);
+      document.getElementById('shift-punctuation').checked =
+        that.settings.inputSettings.shiftPunctuationForSymbolsEnabled;
+      document.getElementById('shift-letter').checked =
+        that.settings.inputSettings.shiftLetterForSymbolsEnabled;
       document.getElementById('associated-phrases').checked =
         that.settings.inputSettings.associatedPhrasesEnabled;
       document.getElementById('wildcard-matching').checked =
@@ -122,6 +126,14 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
   })();
 
   const setupBinding = () => {
+    document.getElementById('shift-punctuation').onchange = (e) => {
+      settings.settings.inputSettings.shiftPunctuationForSymbolsEnabled = e.target.checked;
+      settings.save();
+    };
+    document.getElementById('shift-letter').onchange = (e) => {
+      settings.settings.inputSettings.shiftLetterForSymbolsEnabled = e.target.checked;
+      settings.save();
+    };
     document.getElementById('associated-phrases').onchange = (e) => {
       settings.settings.inputSettings.associatedPhrasesEnabled = e.target.checked;
       settings.save();

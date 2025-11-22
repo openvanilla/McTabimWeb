@@ -14,9 +14,43 @@ localdata_dir = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "PIME", "mcta
 COOKIE_ID = "mctabim_config_token"
 SERVER_TIMEOUT = 120
 DEFAULT_CONFIG = {
-    "selected_input_table_index": 0,
-    "candidate_font_size": 16,
+    "candidateFontSize": 16,
+    "selectedInputMethodId": "checj",
+    "shiftKeyToToggleAlphabetMode": True,
+    "useNotification": False,
+    "inputSettings": {
+        "chineseConversionEnabled": False,
+        "associatedPhrasesEnabled": False,
+        "shiftPunctuationForSymbolsEnabled": True,
+        "shiftLetterForSymbolsEnabled": True,
+        "wildcardMatchingEnabled": False,
+        "clearOnErrors": False,
+        "beepOnErrors": True,
+        "reverseRadicalLookupEnabled": False,
+    },
 }
+
+DEFAULT_SYMBOL_TABLE = """…
+※
+常用符號=，、。．？！；︰‧‥﹐﹒˙·“”〝〞‵′〃～＄％＠＆＃＊
+左右括號=（）「」〔〕｛｝〈〉『』《》【】﹙﹚﹝﹞﹛﹜
+上下括號=︵︶﹁﹂︹︺︷︸︿﹀﹃﹄︽︾︻︼
+希臘字母=αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ
+數學符號=＋－＝≠≒√＜＞﹤﹥≦≧∩∪ˇ⊥∠∟⊿㏒㏑∫∮∵∴╳﹢
+特殊圖形=↑↓←→↖↗↙↘㊣◎○●⊕⊙○●△▲☆★◇◆□■▽▼§￥〒￠￡※♀♂
+Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
+單線框=├─┼┴┬┤┌┐╞═╪╡│▕└┘╭╮╰╯
+雙線框=╔╦╗╠═╬╣╓╥╖╒╤╕║╚╩╝╟╫╢╙╨╜╞╪╡╘╧╛
+填色方塊=＿ˍ▁▂▃▄▅▆▇█▏▎▍▌▋▊▉◢◣◥◤
+線段=﹣﹦≡｜∣∥–︱—︳╴¯￣﹉﹊﹍﹎﹋﹌﹏︴∕﹨╱╲／＼"""
+
+DEFAULT_FOREIGN_LANGUAGES_SYMBOL_TABLE = """日語(平假名)=あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわゐゑをん
+日語(平濁音)=がぎぐげござじずぜぞだぢづでどばぱびぴぶぷべぺぼぽ
+日語(平小字)=ぁぃぅぇぉっゃゅょゎ
+日語(片假名)=アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン
+日語(片濁音)=ガギグゲゴザジズゼゾダヂヅデドバパビピブプベペボポヴ
+日語(片小字)=ァィゥェォヵヶッャュョヮ
+日語(片半角)=ｧｨｩｪｫｯｬｭｮｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦ`"""
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -81,6 +115,96 @@ class ConfigHandler(BaseHandler):
         return config
 
 
+class SymbolTableHandler(BaseHandler):
+
+    def get_current_user(self):  # override the login check
+        return self.get_cookie(COOKIE_ID)
+
+    @tornado.web.authenticated
+    def get(self):  # get config
+        data = ""
+        try:
+            data = self.load_config()
+        except:
+            pass
+        self.write(data)
+
+    @tornado.web.authenticated
+    def post(self):  # save config
+        data = self.request.body.decode("utf-8")
+        try:
+            # print(data)
+            os.makedirs(config_dir, exist_ok=True)
+            self.save_file("symbol_table.txt", data)
+            self.write('{"return":true}')
+        except Exception as e:
+            print(e)
+            self.write('{"return":false, "error":"%s"}' % str(e))
+
+    def save_file(self, filename, json_data):
+        filepath = os.path.join(config_dir, filename)
+        print(filepath)
+        with open(filepath, "w") as f:
+            f.write(json_data)
+
+    def load_config(self):
+        config = DEFAULT_SYMBOL_TABLE  # the default settings
+        try:
+            with open(
+                os.path.join(config_dir, "symbol_table.txt"), "r", encoding="UTF-8"
+            ) as f:
+                config = f.read().decode("utf-8")
+        except Exception as e:
+            print(e)
+        return config
+
+
+class ForeignLanguagesSymbolTableHandler(BaseHandler):
+
+    def get_current_user(self):  # override the login check
+        return self.get_cookie(COOKIE_ID)
+
+    @tornado.web.authenticated
+    def get(self):  # get config
+        data = ""
+        try:
+            data = self.load_config()
+        except:
+            pass
+        self.write(data)
+
+    @tornado.web.authenticated
+    def post(self):  # save config
+        data = self.request.body.decode("utf-8")
+        try:
+            # print(data)
+            os.makedirs(config_dir, exist_ok=True)
+            self.save_file("foreign_languages_symbols.txt", data)
+            self.write('{"return":true}')
+        except Exception as e:
+            print(e)
+            self.write('{"return":false, "error":"%s"}' % str(e))
+
+    def save_file(self, filename, json_data):
+        filepath = os.path.join(config_dir, filename)
+        print(filepath)
+        with open(filepath, "w") as f:
+            f.write(json_data)
+
+    def load_config(self):
+        config = DEFAULT_SYMBOL_TABLE  # the default settings
+        try:
+            with open(
+                os.path.join(config_dir, "foreign_languages_symbols.txt"),
+                "r",
+                encoding="UTF-8",
+            ) as f:
+                config = f.read().decode("utf-8")
+        except Exception as e:
+            print(e)
+        return config
+
+
 class LoginHandler(BaseHandler):
     def post(self, page_name):
         token = self.get_argument("token", "")
@@ -113,6 +237,11 @@ class ConfigApp(tornado.web.Application):
                 {"path": os.path.join(current_dir, "../../../")},
             ),
             (r"/config", ConfigHandler),  # main configuration handler
+            (r"/symbol_table", SymbolTableHandler),  # symbol table handler
+            (
+                r"/foreign_languages_symbols_table",
+                ForeignLanguagesSymbolTableHandler,
+            ),  # foreign languages symbols table handler
             (r"/keep_alive", KeepAliveHandler),  # keep the api server alive
             (r"/login/(.*)", LoginHandler),  # authentication
         ]

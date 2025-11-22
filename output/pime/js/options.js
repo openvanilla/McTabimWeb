@@ -1,69 +1,234 @@
 window.onload = () => {
-  let settings = {};
-  const defaultSettings = {
-    selected_input_table_index: 0,
-    candidate_font_size: 16,
-  };
+  const app = (() => {
+    const settings = (() => {
+      let that = {};
 
-  function applySettings(settings) {
-    console.log('applying settings: ' + settings);
-    const tableIndex = settings.selected_input_table_index;
-    const radioButton = document.getElementById(`table_${tableIndex}`);
-    if (radioButton) {
-      radioButton.checked = true;
-    }
-    const fontSizeInput = document.getElementById('font_size');
-    let options = fontSizeInput.getElementsByTagName('option');
-    if (fontSizeInput) {
-      for (let option of options) {
-        if (+option.value === settings.candidate_font_size) {
-          option.selected = 'selected';
-          break;
-        }
-      }
-    }
-  }
+      that.defaults = {
+        candidateFontSize: 16,
+        selectedInputMethodId: 'checj',
+        shiftKeyToToggleAlphabetMode: true,
+        useNotification: false,
+        inputSettings: {
+          chineseConversionEnabled: false,
+          associatedPhrasesEnabled: false,
+          shiftPunctuationForSymbolsEnabled: true,
+          shiftLetterForSymbolsEnabled: true,
+          wildcardMatchingEnabled: false,
+          clearOnErrors: false,
+          beepOnErrors: true,
+          reverseRadicalLookupEnabled: false,
+        },
+      };
 
-  function loadSettings() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onload = function () {
-      try {
-        settings = JSON.parse(this.responseText);
-        if (settings == undefined) {
-          settings = defaultSettings;
+      that.settings = that.defaults;
+      that.load = (callback) => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+          try {
+            that.settings = JSON.parse(this.responseText);
+            if (that.settings === undefined) {
+              that.settings = that.defaults;
+              that.save();
+            }
+            console.log('settings loaded: ' + settings);
+            callback();
+          } catch {
+            that.settings = that.defaults;
+            callback();
+          }
+        };
+        xhttp.open('GET', '/config');
+        xhttp.send('');
+      };
+      that.save = () => {
+        console.log('saving settings: ' + settings);
+        const xhttp = new XMLHttpRequest();
+        xhttp.open('POST', '/config');
+        let string = JSON.stringify(settings);
+        xhttp.send(string); // debug(JSON.stringify(settings));
+      };
+      that.applyToUI = () => {
+        console.log('Applying settings to UI:', that.settings);
+        document.getElementById('shift-punctuation').checked =
+          that.settings.inputSettings.shiftPunctuationForSymbolsEnabled;
+        document.getElementById('shift-letter').checked =
+          that.settings.inputSettings.shiftLetterForSymbolsEnabled;
+        document.getElementById('associated-phrases').checked =
+          that.settings.inputSettings.associatedPhrasesEnabled;
+        document.getElementById('wildcard-matching').checked =
+          that.settings.inputSettings.wildcardMatchingEnabled;
+        document.getElementById('clear-on-errors').checked =
+          that.settings.inputSettings.clearOnErrors;
+        document.getElementById('beep-on-errors').checked =
+          that.settings.inputSettings.beepOnErrors;
+        document.getElementById('reverse-radical-lookup').checked =
+          that.settings.inputSettings.reverseRadicalLookupEnabled;
+        document.getElementById('shift-toggle-alphabet-mode').checked =
+          that.settings.shiftKeyToToggleAlphabetMode;
+        document.getElementById('use-notification').checked = that.settings.useNotification;
+        document.getElementById('save-symbols-table').onclick = () => {
+          symbolsTableSettings.save();
+        };
+        document.getElementById('load-symbols-table').onclick = () => {
+          symbolsTableSettings.load();
+        };
+        document.getElementById('save-foreign-languages-symbols-table').onclick = () => {
+          foreignLanguagesSymbolsTableSettings.save();
+        };
+        document.getElementById('load-foreign-languages-symbols-table').onclick = () => {
+          foreignLanguagesSymbolsTableSettings.load();
+        };
+        document.getElementById('use-notification').onchange = (e) => {
+          settings.settings.useNotification = e.target.checked;
+          settings.save();
+        };
+
+        const fontSizeInput = document.getElementById('font_size');
+        let options = fontSizeInput.getElementsByTagName('option');
+        if (fontSizeInput) {
+          for (let option of options) {
+            if (+option.value === settings.candidateFontSize) {
+              option.selected = 'selected';
+              break;
+            }
+          }
         }
-        console.log('settings loaded: ' + settings);
-        applySettings(settings);
-      } catch {
-        settings = defaultSettings;
-        applySettings(settings);
-      }
+      };
+      return that;
+    })();
+
+    const symbolsTableSettings = (() => {
+      let that = {};
+      that.defaults = `
+…
+※
+常用符號=，、。．？！；︰‧‥﹐﹒˙·“”〝〞‵′〃～＄％＠＆＃＊
+左右括號=（）「」〔〕｛｝〈〉『』《》【】﹙﹚﹝﹞﹛﹜
+上下括號=︵︶﹁﹂︹︺︷︸︿﹀﹃﹄︽︾︻︼
+希臘字母=αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ
+數學符號=＋－＝≠≒√＜＞﹤﹥≦≧∩∪ˇ⊥∠∟⊿㏒㏑∫∮∵∴╳﹢
+特殊圖形=↑↓←→↖↗↙↘㊣◎○●⊕⊙○●△▲☆★◇◆□■▽▼§￥〒￠￡※♀♂
+Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
+單線框=├─┼┴┬┤┌┐╞═╪╡│▕└┘╭╮╰╯
+雙線框=╔╦╗╠═╬╣╓╥╖╒╤╕║╚╩╝╟╫╢╙╨╜╞╪╡╘╧╛
+填色方塊=＿ˍ▁▂▃▄▅▆▇█▏▎▍▌▋▊▉◢◣◥◤
+線段=﹣﹦≡｜∣∥–︱—︳╴¯￣﹉﹊﹍﹎﹋﹌﹏︴∕﹨╱╲／＼`;
+      that.load = () => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+          try {
+            const text = this.responseText;
+            document.getElementById('symbols-table').value = text;
+          } catch {
+            document.getElementById('symbols-table').value = that.defaults;
+          }
+        };
+        xhttp.open('GET', '/symbol_table');
+        xhttp.send('');
+      };
+      that.save = () => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.open('POST', '/symbol_table');
+        let string = document.getElementById('symbols-table').value;
+        xhttp.send(string);
+      };
+      return that;
+    })();
+
+    const foreignLanguagesSymbolsTableSettings = (() => {
+      let that = {};
+      that.defaults = `
+日語(平假名)=あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわゐゑをん
+日語(平濁音)=がぎぐげござじずぜぞだぢづでどばぱびぴぶぷべぺぼぽ
+日語(平小字)=ぁぃぅぇぉっゃゅょゎ
+日語(片假名)=アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン
+日語(片濁音)=ガギグゲゴザジズゼゾダヂヅデドバパビピブプベペボポヴ
+日語(片小字)=ァィゥェォヵヶッャュョヮ
+日語(片半角)=ｧｨｩｪｫｯｬｭｮｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦ`.trim();
+      that.load = () => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+          try {
+            const text = this.responseText;
+            document.getElementById('foreign-languages-symbols-table').value = text;
+          } catch {
+            document.getElementById('foreign-languages-symbols-table').value = that.defaults;
+          }
+        };
+        xhttp.open('GET', '/foreign_languages_symbols_table');
+        xhttp.send('');
+      };
+      that.save = () => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.open('POST', '/foreign_languages_symbols_table');
+        let string = document.getElementById('foreign-languages-symbols-table').value;
+        xhttp.send(string);
+      };
+      return that;
+    })();
+
+    const setupBinding = () => {
+      document.getElementById('shift-punctuation').onchange = (e) => {
+        settings.settings.inputSettings.shiftPunctuationForSymbolsEnabled = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('shift-letter').onchange = (e) => {
+        settings.settings.inputSettings.shiftLetterForSymbolsEnabled = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('associated-phrases').onchange = (e) => {
+        settings.settings.inputSettings.associatedPhrasesEnabled = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('wildcard-matching').onchange = (e) => {
+        settings.settings.inputSettings.wildcardMatchingEnabled = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('clear-on-errors').onchange = (e) => {
+        settings.settings.inputSettings.clearOnErrors = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('beep-on-errors').onchange = (e) => {
+        settings.settings.inputSettings.beepOnErrors = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('reverse-radical-lookup').onchange = (e) => {
+        settings.settings.inputSettings.reverseRadicalLookupEnabled = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('save-symbols-table').onclick = () => {
+        symbolsTableSettings.save();
+      };
+      document.getElementById('load-symbols-table').onclick = () => {
+        symbolsTableSettings.load();
+      };
+      document.getElementById('save-foreign-languages-symbols-table').onclick = () => {
+        foreignLanguagesSymbolsTableSettings.save();
+      };
+      document.getElementById('load-foreign-languages-symbols-table').onclick = () => {
+        foreignLanguagesSymbolsTableSettings.load();
+      };
+      document.getElementById('shift-toggle-alphabet-mode').onchange = (e) => {
+        settings.settings.shiftKeyToToggleAlphabetMode = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('use-notification').onchange = (e) => {
+        settings.settings.useNotification = e.target.checked;
+        settings.save();
+      };
     };
-    xhttp.open('GET', '/config');
-    xhttp.send('');
-  }
+    return {
+      settings,
+      symbolsTableSettings,
+      foreignLanguagesSymbolsTableSettings,
+      setupBinding,
+    };
+  })();
 
-  function saveSettings(settings) {
-    console.log('saving settings: ' + settings);
-    const xhttp = new XMLHttpRequest();
-    xhttp.open('POST', '/config');
-    let string = JSON.stringify(settings);
-    xhttp.send(string);
-  }
-
-  for (let i = 0; i < 42; i++) {
-    let radioButton = document.getElementById(`table_${i}`);
-    radioButton.addEventListener('change', () => {
-      settings.selected_input_table_index = i;
-      saveSettings(settings);
-    });
-  }
-
-  document.getElementById('font_size').onchange = (event) => {
-    let value = document.getElementById('font_size').value;
-    settings.candidate_font_size = +value;
-    saveSettings(settings);
-  };
-
-  loadSettings();
+  app.settings.load(() => {
+    app.settings.applyToUI();
+  });
+  app.symbolsTableSettings.load();
+  app.foreignLanguagesSymbolsTableSettings.load();
+  app.setupBinding();
 };

@@ -80,6 +80,11 @@ a {
   width: 10em;
 }
 
+table th {
+  text-align: left;
+  padding-right: 10px;
+}
+
 .table-item input[type='checkbox'] {
   margin-right: 5px;
 }
