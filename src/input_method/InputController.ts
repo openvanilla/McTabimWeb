@@ -45,28 +45,21 @@ export class InputController {
   }
 
   set settings(value: Settings) {
-    this.settings_ = value;
-    this.reset();
+    if (this.settings_ !== value) {
+      this.settings_ = value;
+    }
   }
 
   get state(): InputState {
     return this.state_;
   }
 
-  set isPime(value: boolean) {
-    this.keyHandler_.isPime = value;
-  }
-
-  get isPime(): boolean {
-    return this.keyHandler_.isPime;
-  }
-
   constructor(ui: InputUI) {
     this.ui_ = ui;
   }
 
-  reset(): void {
-    this.enterState(this.state_, new EmptyState());
+  reset(reason: string): void {
+    this.enterState(this.state_, new EmptyState(reason));
   }
 
   handleKeyboardEvent(event: KeyboardEvent): boolean {
@@ -75,6 +68,7 @@ export class InputController {
   }
 
   handle(key: Key): boolean {
+    console.log('InputController.handle: original state=' + this.state_.toString());
     const handled = this.keyHandler_.handle(
       key,
       this.state_,
@@ -85,6 +79,8 @@ export class InputController {
         }
       },
     );
+    // console.log('InputController.handle: handled=' + handled);
+    // console.log('InputController.handle: state=' + this.state_.toString());
     if (!handled) {
       this.ui_.reset();
     }
@@ -99,7 +95,7 @@ export class InputController {
         const candidate = candidates[index];
         this.ui_.commitString(candidate.displayText);
         this.ui_.reset();
-        const newState = new EmptyState();
+        const newState = new EmptyState('reset after candidate selection');
         this.enterState(oldState, newState);
       }
     }

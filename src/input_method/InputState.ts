@@ -3,22 +3,33 @@ import { Settings } from './Settings';
 
 export abstract class InputState {}
 
-export class EmptyState extends InputState {}
+export class EmptyState extends InputState {
+  constructor(public reason: string = 'Initial State') {
+    super();
+  }
+
+  toString(): string {
+    return 'EmptyState (reason=' + this.reason + ')';
+  }
+}
 
 export class CommittingState extends InputState {
-  readonly commitString: string;
-  constructor(commitString: string) {
+  constructor(readonly commitString: string) {
     super();
     this.commitString = commitString;
+  }
+  toString(): string {
+    return `CommittingState(commitString='${this.commitString}')`;
   }
 }
 
 export class TooltipOnlyState extends InputState {
-  readonly tooltip: string;
-
-  constructor(tooltip: string) {
+  constructor(readonly tooltip: string) {
     super();
     this.tooltip = tooltip;
+  }
+  toString(): string {
+    return `TooltipOnlyState(tooltip='${this.tooltip}')`;
   }
 }
 
@@ -81,6 +92,9 @@ export class InputtingState extends InputState {
       // tooltip: this.tooltip,
     });
   }
+  toString(): string {
+    return `InputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
+  }
 }
 
 export class BasicInputtingState extends InputtingState {
@@ -94,6 +108,9 @@ export class BasicInputtingState extends InputtingState {
       // tooltip: this.tooltip,
       candidateAnnotation: this.candidateAnnotation,
     });
+  }
+  toString(): string {
+    return `BasicInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
 
@@ -128,6 +145,9 @@ export class AssociatedPhrasesState extends InputtingState {
       // tooltip: this.tooltip,
     });
   }
+  toString(): string {
+    return `AssociatedPhrasesState(candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
+  }
 }
 
 export class SymbolInputtingState extends InputtingState {
@@ -153,6 +173,9 @@ export class SymbolInputtingState extends InputtingState {
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
+  }
+  toString(): string {
+    return `SymbolInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
 
@@ -206,6 +229,9 @@ export class SymbolCategoryState extends InputtingState {
       nodes: this.nodes,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
+  }
+  toString(): string {
+    return `SymbolCategoryState(nodes=${this.nodes.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
 
@@ -311,6 +337,9 @@ export class SettingsState extends InputtingState {
       onSettingsChanged: this.onSettingsChanged,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
+  }
+  toString(): string {
+    return `SettingsState(selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
 
@@ -424,5 +453,8 @@ export class MenuState extends InputtingState {
       onSettingsChanged: this.onSettingsChanged,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
+  }
+  toString(): string {
+    return `MenuState(selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }

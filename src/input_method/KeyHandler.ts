@@ -27,8 +27,6 @@ export class KeyHandler {
     readonly onSettingChanged: (settings: Settings) => void,
   ) {}
 
-  isPime: boolean = false;
-
   handleCandidate(
     state: InputtingState,
     selectedCandidate: Candidate,
@@ -94,7 +92,7 @@ export class KeyHandler {
     const table = this.onRequestTable();
     let inputKeys = Object.keys(table.table.keynames);
     if (settings.wildcardMatchingEnabled) {
-      inputKeys = inputKeys.concat(['*', '#']);
+      inputKeys = inputKeys.concat(['*']);
     }
 
     const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
@@ -103,6 +101,7 @@ export class KeyHandler {
     if (state instanceof AssociatedPhrasesState) {
       const selectionKeys = state.exactSelectionKeys;
       if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
+        console.log('key.ascii:' + key.ascii);
         const candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
@@ -117,16 +116,16 @@ export class KeyHandler {
         const selectedCandidate = candidates[index];
         this.handleCandidate(state, selectedCandidate, stateCallback, false);
         return true;
-      } else {
-        throw new Error('Unreachable code reached in AssociatedPhrasesState handling.');
       }
+      // Note: so we can try to see if it is page up/down and so on for associated phrase state
     }
 
     /// Empty State
     if (
       state instanceof EmptyState ||
       state instanceof AssociatedPhrasesState ||
-      state instanceof TooltipOnlyState
+      state instanceof TooltipOnlyState ||
+      state instanceof CommittingState
     ) {
       if (key.ascii === '`') {
         /// Enter Symbol Inputting State
@@ -187,16 +186,22 @@ export class KeyHandler {
         }
       }
 
-      if (!(state instanceof AssociatedPhrasesState)) {
+      if (state instanceof EmptyState) {
         return false;
       }
+
+      if (state instanceof TooltipOnlyState) {
+        stateCallback(new EmptyState('reset from tooltip only state'));
+        return false;
+      }
+      // Note: so we can try to see if it is page up/down and so on for associated phrase state
     }
 
     ///  Inputting State
     if (state instanceof InputtingState) {
       if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
         if (key.name === KeyName.RETURN && state instanceof AssociatedPhrasesState) {
-          stateCallback(new EmptyState());
+          stateCallback(new EmptyState('reset after pressing enter in associated phrases state'));
           return true;
         }
 
@@ -207,7 +212,7 @@ export class KeyHandler {
         } else {
           errorCallback();
           if (settings.clearOnErrors) {
-            stateCallback(new EmptyState());
+            stateCallback(new EmptyState('reset after error'));
           }
         }
         return true;
@@ -338,13 +343,15 @@ export class KeyHandler {
 
       // Ignore ESC key in inputting state
       if (key.name === KeyName.ESC) {
-        stateCallback(new EmptyState());
+        stateCallback(new EmptyState('reset from ESC key'));
         return true;
       }
 
       if (key.name === KeyName.BACKSPACE) {
         if (state instanceof AssociatedPhrasesState) {
-          stateCallback(new EmptyState());
+          stateCallback(
+            new EmptyState('reset after pressing backspace in associated phrases state'),
+          );
           return true;
         } else if (state instanceof SymbolCategoryState) {
           stateCallback(state.previousState);
@@ -355,12 +362,12 @@ export class KeyHandler {
         }
 
         if (state.radicals.length === 0) {
-          stateCallback(new EmptyState());
+          stateCallback(new EmptyState('reset after pressing backspace with no radicals'));
           return true;
         }
         const newRadicals = state.radicals.slice(0, -1);
         if (newRadicals.length === 0) {
-          stateCallback(new EmptyState());
+          stateCallback(new EmptyState('reset after pressing backspace to remove all radicals'));
           return true;
         }
 
@@ -458,13 +465,10 @@ export class KeyHandler {
       }
 
       if (state instanceof AssociatedPhrasesState) {
-        if (this.isPime) {
-          return true;
-        }
         if (key.ascii === 'Shift') {
           return true;
         }
-        stateCallback(new EmptyState());
+        stateCallback(new EmptyState('reset after pressing enter in associated phrases state'));
         return false;
       }
 

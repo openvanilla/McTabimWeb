@@ -446,7 +446,7 @@ describe('InputtingState helper behavior', () => {
   it('copyWithArgs clones state with updated index', () => {
     const state = new InputtingState({
       radicals: 'ab',
-      displayedRadicals: ['A', 'B'],
+      displayedRadicals: ['A'],
       selectionKeys: '12',
       candidates,
       selectedCandidateIndex: 0,
@@ -552,3 +552,98 @@ describe('MenuState', () => {
     expect(copied.selectedCandidateIndex).toBe(2);
   });
 });
+
+describe('State toString()', () => {
+  it('EmptyState toString returns class name', () => {
+    const state = new EmptyState();
+    expect(state.toString()).toBe('EmptyState');
+  });
+
+  it('CommittingState toString returns details', () => {
+    const state = new CommittingState('hello');
+    expect(state.toString()).toBe("CommittingState(commitString='hello')");
+  });
+
+  it('TooltipOnlyState toString returns details', () => {
+    const state = new TooltipOnlyState('tip');
+    expect(state.toString()).toBe("TooltipOnlyState(tooltip='tip')");
+  });
+
+  it('InputtingState toString returns details', () => {
+    const state = new InputtingState({
+      radicals: 'xyz',
+      displayedRadicals: ['X', 'Y', 'Z'],
+      selectionKeys: '123',
+      candidates: [makeCandidate('A'), makeCandidate('B')],
+    });
+    expect(state.toString()).toBe(
+      "InputtingState(radicals='xyz', candidates=2, selectedCandidateIndex=undefined)",
+    );
+  });
+
+  it('BasicInputtingState toString returns details', () => {
+    const state = new BasicInputtingState({
+      radicals: 'abc',
+      displayedRadicals: ['A', 'B', 'C'],
+      selectionKeys: '12',
+      candidates: [makeCandidate('A')],
+    });
+    expect(state.toString()).toBe(
+      "BasicInputtingState(radicals='abc', candidates=1, selectedCandidateIndex=undefined)",
+    );
+  });
+
+  it('AssociatedPhrasesState toString returns details', () => {
+    const state = new AssociatedPhrasesState({
+      selectionKeys: '12',
+      exactSelectionKeys: '12',
+      candidates: [makeCandidate('A'), makeCandidate('B')],
+    });
+    expect(state.toString()).toBe(
+      'AssociatedPhrasesState(candidates=2, selectedCandidateIndex=undefined)',
+    );
+  });
+
+  it('SymbolInputtingState toString returns details', () => {
+    const state = new SymbolInputtingState({
+      radicals: 'sym',
+      selectionKeys: '1',
+      candidates: [makeCandidate('A')],
+    });
+    expect(state.toString()).toBe(
+      "SymbolInputtingState(radicals='sym', candidates=1, selectedCandidateIndex=undefined)",
+    );
+  });
+
+  it('SymbolCategoryState toString returns details', () => {
+    const state = new SymbolCategoryState({
+      title: 'cat',
+      displayedRadicals: ['cat'],
+      previousState: new EmptyState(),
+      nodes: ['A', 'B'],
+      selectionKeys: '1',
+    });
+    expect(state.toString()).toBe('SymbolCategoryState(nodes=2, selectedCandidateIndex=undefined)');
+  });
+
+  it('SettingsState toString returns details', () => {
+    const state = new SettingsState({
+      previousState: new EmptyState(),
+      settings: createSettings(),
+      selectionKeys: '1',
+    });
+    expect(state.toString()).toBe('SettingsState(selectedCandidateIndex=undefined)');
+  });
+
+  it('MenuState toString returns details', () => {
+    const state = new MenuState({
+      settings: createSettings(),
+      selectionKeys: '1',
+      onSettingsChanged: undefined,
+    });
+    expect(state.toString()).toBe('MenuState(selectedCandidateIndex=undefined)');
+  });
+});
+
+// Helper for test candidates
+const makeCandidate = (text: string) => new Candidate(text, '');

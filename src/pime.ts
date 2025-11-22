@@ -113,33 +113,34 @@ class PimeMcTabim {
       this.settings.inputSettings = newSettings;
       this.writeSettings();
     };
-    this.inputController.isPime = true;
+    // this.inputController.isPime = true;
     this.loadSettings(() => {});
   }
 
   /** Resets the UI state before handling a key. */
   public resetBeforeHandlingKey(): void {
+    let copy = this.uiState;
     this.uiState = {
       commitString: '',
-      compositionString: '',
-      compositionCursor: 0,
-      showCandidates: false,
-      candidateList: [],
-      candidateCursor: 0,
-      showMessage: {},
-      hideMessage: true,
+      compositionString: copy.compositionString,
+      compositionCursor: copy.compositionCursor,
+      showCandidates: copy.showCandidates,
+      candidateList: copy.candidateList,
+      candidateCursor: copy.candidateCursor,
+      showMessage: copy.showMessage,
+      hideMessage: copy.hideMessage,
     };
   }
 
   /** Resets the input controller. */
-  public resetController(): void {
-    this.inputController.reset();
+  public resetController(reason: string): void {
+    this.inputController.reset(reason);
   }
 
   public toggleAlphabetMode(): void {
     // Changes the alphabet mode, also commits current composing buffer.
     this.isAlphabetMode = !this.isAlphabetMode;
-    this.resetController();
+    this.resetController('toggle alphabet mode');
   }
 
   /** Applies the settings to the input controller. */
@@ -267,10 +268,8 @@ class PimeMcTabim {
       },
       commitString(text: string) {
         console.log('commitString: ' + text);
-        const joinedCommitString = instance.uiState.compositionString + text;
-        console.log('joinedCommitString: ' + joinedCommitString);
         instance.uiState = {
-          commitString: joinedCommitString,
+          commitString: text,
           compositionString: '',
           compositionCursor: 0,
           showCandidates: false,
@@ -528,7 +527,7 @@ module.exports = {
     }
 
     if (request.method === 'onActivate') {
-      pimeMcTabim.resetController();
+      pimeMcTabim.resetController('onActivate');
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, customUi, buttonUi);
@@ -536,7 +535,7 @@ module.exports = {
     }
 
     if (request.method === 'onDeactivate') {
-      pimeMcTabim.resetController();
+      pimeMcTabim.resetController('onDeactivate');
       const response = Object.assign({}, responseTemplate, {
         removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
       });
@@ -551,8 +550,6 @@ module.exports = {
     }
 
     if (request.method === 'filterKeyUp') {
-      const state = pimeMcTabim.inputController.state;
-      let handled = pimeMcTabim.isLastFilterKeyDownHandled || state instanceof EmptyState === false;
       if (
         lastRequest &&
         lastRequest.method === 'filterKeyUp' &&
@@ -560,39 +557,38 @@ module.exports = {
       ) {
         // NOTE: Some app, like MS Word, may send repeated key up event.
         // We should ignore such events.
-        const response = Object.assign({}, responseTemplate, {
-          return: handled,
+        const uiState = pimeMcTabim.uiState;
+        const response = Object.assign({}, uiState, responseTemplate, {
+          return: false,
         });
         return response;
       }
+
+      let isEmpty = pimeMcTabim.inputController.state instanceof EmptyState;
+      let handled = !isEmpty;
+      let rtn = false;
       // Single Shift to toggle alphabet mode.
-      if (pimeMcTabim.isShiftHold) {
+      if (isEmpty && pimeMcTabim.isShiftHold) {
         pimeMcTabim.isScheduledToUpdateUi = true;
         pimeMcTabim.toggleAlphabetMode();
-        handled = true;
+        rtn = true;
       }
-      const response = Object.assign({}, responseTemplate, { return: handled });
+      const response = Object.assign({}, responseTemplate, { return: rtn });
       return response;
     }
 
     if (request.method === 'onKeyUp') {
-      const state = pimeMcTabim.inputController.state;
-      const handled =
-        pimeMcTabim.isLastFilterKeyDownHandled || state instanceof EmptyState === false;
-
       if (pimeMcTabim.isScheduledToUpdateUi) {
         pimeMcTabim.isScheduledToUpdateUi = false;
-
         const uiState = pimeMcTabim.uiState;
         const customUi = pimeMcTabim.customUiResponse();
         const buttonUi = pimeMcTabim.buttonUiResponse();
         const response = Object.assign(responseTemplate, uiState, customUi, buttonUi, {
-          return: handled,
+          return: true,
         });
         return response;
       } else {
-        const response = Object.assign({}, responseTemplate, { return: handled });
-
+        const response = Object.assign({}, responseTemplate, { return: false });
         return response;
       }
     }
@@ -615,7 +611,7 @@ module.exports = {
 
       if ((keyStates[VK_Keys.VK_CONTROL] & 1) !== 0 || (keyStates[VK_Keys.VK_MENU] & 1) !== 0) {
         pimeMcTabim.resetBeforeHandlingKey();
-        pimeMcTabim.resetController();
+        pimeMcTabim.resetController('control or menu key pressed');
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
@@ -625,7 +621,7 @@ module.exports = {
       if ((keyStates[VK_Keys.VK_CAPITAL] & 1) !== 0) {
         // Ignores caps lock.
         pimeMcTabim.resetBeforeHandlingKey();
-        pimeMcTabim.resetController();
+        pimeMcTabim.resetController('caps lock pressed');
         pimeMcTabim.isCapsLockHold = true;
         pimeMcTabim.isLastFilterKeyDownHandled = false;
         const response = Object.assign({}, responseTemplate, {
@@ -637,6 +633,7 @@ module.exports = {
       }
 
       const key = KeyFromKeyboardEvent(keyCode, keyStates, String.fromCharCode(charCode), charCode);
+      // console.log('filterKeyDown key: ' + ey.ascii);
 
       const shouldHandleShift = pimeMcTabim.settings.shiftKeyToToggleAlphabetMode === true;
 
@@ -650,16 +647,14 @@ module.exports = {
       // key only. Then, if there is any other key coming, we will reset
       // isShiftHold. Finally, if isShiftHold is still true in the key up event,
       // we will toggle Alphabet/Chinese.
-      if (shouldHandleShift) {
-        pimeMcTabim.isShiftHold = isPressingShiftOnly;
-      }
-      if (isPressingShiftOnly) {
-        const state = pimeMcTabim.inputController.state;
-        const handled = state instanceof EmptyState === false;
-        pimeMcTabim.isLastFilterKeyDownHandled = handled;
+      const state = pimeMcTabim.inputController.state;
+      if (shouldHandleShift && isPressingShiftOnly && state instanceof EmptyState) {
+        pimeMcTabim.isShiftHold = true;
+        pimeMcTabim.isLastFilterKeyDownHandled = true;
         const response = Object.assign({}, responseTemplate, {
-          return: handled,
+          return: true,
         });
+        console.log('filterKeyDown response with shift: ' + response);
         console.log(response);
         return response;
       } else {
@@ -670,7 +665,7 @@ module.exports = {
 
       if ((keyStates[VK_Keys.VK_CAPITAL] & 1) !== 0) {
         // Ignores caps lock.
-        pimeMcTabim.resetController();
+        pimeMcTabim.resetController('caps lock pressed');
         pimeMcTabim.isCapsLockHold = true;
         pimeMcTabim.isLastFilterKeyDownHandled = false;
         const response = Object.assign({}, responseTemplate, {
@@ -687,20 +682,10 @@ module.exports = {
       }
 
       const handled = pimeMcTabim.inputController.handle(key);
-      console.log('###############################');
-      console.log('###############################');
-      console.log('###############################');
-      console.log('###############################');
-      console.log('###############################');
-      console.log('###############################');
-      console.log('###############################');
-      console.log('###############################');
-      console.log('filterKeyDown handled: ' + handled);
-      console.log('###############################');
       pimeMcTabim.isLastFilterKeyDownHandled = handled;
       let uiState = pimeMcTabim.uiState;
       const response = Object.assign({}, responseTemplate, uiState, {
-        return: true,
+        return: handled,
       });
       console.log('filterKeyDown response: ' + response);
       return response;
@@ -709,7 +694,7 @@ module.exports = {
     if (request.method === 'onKeyDown') {
       // Ignore caps lock.
       if (pimeMcTabim.isCapsLockHold) {
-        pimeMcTabim.resetController();
+        pimeMcTabim.resetController('caps lock pressed');
         const response = Object.assign({}, responseTemplate, {
           return: false,
         });
@@ -744,7 +729,7 @@ module.exports = {
     if (request.method === 'onKeyboardStatusChanged') {
       const { opened } = request;
       pimeMcTabim.isOpened = opened;
-      pimeMcTabim.resetController();
+      pimeMcTabim.resetController('keyboard status changed');
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
       const response = Object.assign({}, responseTemplate, customUi, buttonUi);
@@ -752,11 +737,14 @@ module.exports = {
     }
 
     if (request.method === 'onCompositionTerminated') {
-      pimeMcTabim.resetController();
+      // pimeMcTabim.resetController('composition terminated');
+      // pimeMcTabim.resetBeforeHandlingKey();
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
-      const response = Object.assign({}, responseTemplate, customUi, buttonUi);
-      pimeMcTabim.resetBeforeHandlingKey();
+      const response = Object.assign({}, responseTemplate, customUi, buttonUi, {
+        compositionString: '',
+        compositionCursor: 0,
+      });
       return response;
     }
 
@@ -773,7 +761,7 @@ module.exports = {
     if (request.method === 'onMenu') {
       let menu: any[] = [
         {
-          text: '小麥注音輸入法網站',
+          text: '小麥他命輸入法網站',
           id: PimeMcTabimCommand.OpenHomepage,
         },
         {
