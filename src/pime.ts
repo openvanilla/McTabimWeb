@@ -280,7 +280,7 @@ class PimeMcTabim {
         };
       },
       update(stateString: string) {
-        console.log('update stateString: ' + stateString);
+        // console.log('update stateString: ' + stateString);
 
         const state = JSON.parse(stateString);
         const composingBuffer = state.composingBuffer;
@@ -307,7 +307,7 @@ class PimeMcTabim {
         const tooltip = state.tooltip;
         let showMessage = {};
         let hideMessage = true;
-        if (tooltip) {
+        if (tooltip && tooltip.length > 0) {
           showMessage = { message: tooltip, duration: 3 };
           hideMessage = false;
         }
@@ -557,15 +557,13 @@ module.exports = {
       ) {
         // NOTE: Some app, like MS Word, may send repeated key up event.
         // We should ignore such events.
-        const uiState = pimeMcTabim.uiState;
-        const response = Object.assign({}, uiState, responseTemplate, {
+        const response = Object.assign({}, responseTemplate, {
           return: false,
         });
         return response;
       }
 
       let isEmpty = pimeMcTabim.inputController.state instanceof EmptyState;
-      let handled = !isEmpty;
       let rtn = false;
       // Single Shift to toggle alphabet mode.
       if (isEmpty && pimeMcTabim.isShiftHold) {
@@ -683,8 +681,7 @@ module.exports = {
 
       const handled = pimeMcTabim.inputController.handle(key);
       pimeMcTabim.isLastFilterKeyDownHandled = handled;
-      let uiState = pimeMcTabim.uiState;
-      const response = Object.assign({}, responseTemplate, uiState, {
+      const response = Object.assign({}, responseTemplate, {
         return: handled,
       });
       console.log('filterKeyDown response: ' + response);
