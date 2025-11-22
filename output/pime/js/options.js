@@ -7,7 +7,6 @@ window.onload = () => {
         candidateFontSize: 16,
         selectedInputMethodId: 'checj',
         shiftKeyToToggleAlphabetMode: true,
-        useNotification: false,
         inputSettings: {
           chineseConversionEnabled: false,
           associatedPhrasesEnabled: false,
@@ -65,10 +64,11 @@ window.onload = () => {
           that.settings.inputSettings.reverseRadicalLookupEnabled;
         document.getElementById('shift-toggle-alphabet-mode').checked =
           that.settings.shiftKeyToToggleAlphabetMode;
-        document.getElementById('use-notification').checked = that.settings.useNotification;
 
         const fontSizeInput = document.getElementById('font_size');
         let options = fontSizeInput.getElementsByTagName('option');
+        console.log('Setting font size to:', that.settings.candidateFontSize);
+        console.log('Options available:', options);
         if (fontSizeInput) {
           for (let option of options) {
             if (+option.value === settings.candidateFontSize) {
@@ -77,6 +77,7 @@ window.onload = () => {
             }
           }
         }
+        fontSizeInput.value = that.settings.candidateFontSize + '';
       };
       return that;
     })();
@@ -196,10 +197,6 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
         settings.settings.shiftKeyToToggleAlphabetMode = e.target.checked;
         settings.save();
       };
-      document.getElementById('use-notification').onchange = (e) => {
-        settings.settings.useNotification = e.target.checked;
-        settings.save();
-      };
       document.getElementById('save-symbols-table').onclick = () => {
         symbolsTableSettings.save();
       };
@@ -212,14 +209,10 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
       document.getElementById('load-foreign-languages-symbols-table').onclick = () => {
         foreignLanguagesSymbolsTableSettings.load();
       };
-      document.getElementById('use-notification').onchange = (e) => {
-        settings.settings.useNotification = e.target.checked;
-        settings.save();
-      };
       document.getElementById('font_size').onchange = (event) => {
         let value = document.getElementById('font_size').value;
-        settings.candidate_font_size = +value;
-        saveSettings(settings);
+        settings.candidateFontSize = +value;
+        settings.save();
       };
     };
     return {

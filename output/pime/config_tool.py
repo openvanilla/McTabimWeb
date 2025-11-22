@@ -16,7 +16,7 @@ SERVER_TIMEOUT = 120
 DEFAULT_CONFIG = {
     "candidateFontSize": 16,
     "selectedInputMethodId": "checj",
-    "shiftKeyToToggleAlphabetMode": True,
+    "shiftKeyToToggleAlpdhabetMode": True,
     "useNotification": False,
     "inputSettings": {
         "chineseConversionEnabled": False,
