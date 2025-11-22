@@ -607,15 +607,6 @@ module.exports = {
 
       const { keyCode, charCode, keyStates } = request;
 
-      if ((keyStates[VK_Keys.VK_CONTROL] & 1) !== 0 || (keyStates[VK_Keys.VK_MENU] & 1) !== 0) {
-        pimeMcTabim.resetBeforeHandlingKey();
-        pimeMcTabim.resetController('control or menu key pressed');
-        const response = Object.assign({}, responseTemplate, {
-          return: false,
-        });
-        return response;
-      }
-
       if ((keyStates[VK_Keys.VK_CAPITAL] & 1) !== 0) {
         // Ignores caps lock.
         pimeMcTabim.resetBeforeHandlingKey();
@@ -672,6 +663,15 @@ module.exports = {
         return response;
       } else {
         pimeMcTabim.isCapsLockHold = false;
+      }
+
+      if (key.ctrlPressed) {
+        pimeMcTabim.resetController('control key pressed');
+        pimeMcTabim.isLastFilterKeyDownHandled = false;
+        const response = Object.assign({}, responseTemplate, {
+          return: false,
+        });
+        return response;
       }
 
       if (pimeMcTabim.isAlphabetMode) {
