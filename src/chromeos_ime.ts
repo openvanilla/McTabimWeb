@@ -255,7 +255,7 @@ class ChromeMcTabim {
     }
 
     this.deferredResetTimeout = setTimeout(() => {
-      this.inputController.reset();
+      this.inputController.reset('Deferred reset on blur/reset event');
       this.deferredResetTimeout = null;
     }, 5000);
   }
@@ -464,7 +464,7 @@ chrome.input?.ime.onDeactivated.addListener((context) => {
     clearTimeout(chromeMcTabim.deferredResetTimeout);
   }
   chromeMcTabim.context = undefined;
-  chromeMcTabim.inputController.reset();
+  chromeMcTabim.inputController.reset('Deferred reset on deactivation');
   chromeMcTabim.deferredResetTimeout = null;
 });
 
@@ -490,7 +490,7 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
     // toggle between Bopomofo mode and alphabet mode.
     if (keyData.key === 'Shift' && chromeMcTabim.isShiftHold) {
       chromeMcTabim.isShiftHold = false;
-      chromeMcTabim.inputController.reset();
+      chromeMcTabim.inputController.reset('Deferred reset on shift key up');
       chromeMcTabim.toggleAlphabetMode();
       return true;
     }
@@ -503,7 +503,7 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
 
   // We always prevent handling Ctrl + Space so we can switch input methods.
   if (keyData.ctrlKey) {
-    chromeMcTabim.inputController.reset();
+    chromeMcTabim.inputController.reset('Deferred reset on Ctrl key');
     return false;
   }
 
@@ -514,7 +514,7 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
   }
 
   if (keyData.altKey || keyData.altgrKey || keyData.capsLock) {
-    chromeMcTabim.inputController.reset();
+    chromeMcTabim.inputController.reset('Deferred reset on Alt/AltGr/CapsLock key');
     return false;
   }
 
