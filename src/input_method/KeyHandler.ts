@@ -426,16 +426,18 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-
-        const newDisplayedRadicals = state.displayedRadicals.slice(0, -1);
-        const candidates = table.lookupForCandidate(newRadicals) || [];
-        const newState = new InputtingState({
-          radicals: newRadicals,
-          displayedRadicals: newDisplayedRadicals,
-          selectionKeys: state.selectionKeys,
-          candidates: candidates,
-        });
-        stateCallback(newState);
+        if (state instanceof BasicInputtingState) {
+          const newDisplayedRadicals = state.displayedRadicals.slice(0, -1);
+          const candidates = table.lookupForCandidate(newRadicals) || [];
+          const newState = new BasicInputtingState({
+            radicals: newRadicals,
+            displayedRadicals: newDisplayedRadicals,
+            selectionKeys: state.selectionKeys,
+            candidates: candidates,
+          });
+          stateCallback(newState);
+          return true;
+        }
         return true;
       }
 
