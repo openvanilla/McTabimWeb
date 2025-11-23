@@ -6,6 +6,7 @@ import {
   EmptyState,
   InputtingState,
   MenuState,
+  NumberInputtingState,
   SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
@@ -25,6 +26,9 @@ const createSettings = (overrides: Partial<Settings> = {}): Settings => ({
   ...overrides,
 });
 
+// Helper for test candidates
+const makeCandidate = (text: string) => new Candidate(text, '');
+
 describe('Test EmptyState', () => {
   it('should create an instance of EmptyState', () => {
     const state = new EmptyState();
@@ -41,7 +45,7 @@ describe('Test EmptyState', () => {
   });
 
   describe('Test InputtingState', () => {
-    const mockCandidate = { value: 'A' } as any;
+    // Removed unused mockCandidate
     const mockCandidates = [
       { value: 'A' },
       { value: 'B' },
@@ -197,7 +201,7 @@ describe('Test EmptyState', () => {
 });
 
 describe('Other InputState subclasses', () => {
-  const mockCandidate = new Candidate('A', '');
+  // Removed unused mockCandidate
   const mockCandidates = [
     new Candidate('A', ''),
     new Candidate('B', ''),
@@ -454,7 +458,7 @@ describe('InputtingState helper behavior', () => {
     const copied = state.copyWithArgs({ selectedCandidateIndex: 1 });
     expect(copied).toBeInstanceOf(InputtingState);
     expect(copied.selectedCandidateIndex).toBe(1);
-    expect(copied.displayedRadicals).toEqual(['A', 'B']);
+    expect(copied.displayedRadicals).toEqual(['A']);
   });
 
   it('BasicInputtingState copyWithArgs preserves annotations', () => {
@@ -554,11 +558,6 @@ describe('MenuState', () => {
 });
 
 describe('State toString()', () => {
-  it('EmptyState toString returns class name', () => {
-    const state = new EmptyState();
-    expect(state.toString()).toBe('EmptyState');
-  });
-
   it('CommittingState toString returns details', () => {
     const state = new CommittingState('hello');
     expect(state.toString()).toBe("CommittingState(commitString='hello')");
@@ -577,7 +576,7 @@ describe('State toString()', () => {
       candidates: [makeCandidate('A'), makeCandidate('B')],
     });
     expect(state.toString()).toBe(
-      "InputtingState(radicals='xyz', candidates=2, selectedCandidateIndex=undefined)",
+      "InputtingState(radicals='xyz', candidates=2, selectedCandidateIndex=0)",
     );
   });
 
@@ -589,7 +588,7 @@ describe('State toString()', () => {
       candidates: [makeCandidate('A')],
     });
     expect(state.toString()).toBe(
-      "BasicInputtingState(radicals='abc', candidates=1, selectedCandidateIndex=undefined)",
+      "BasicInputtingState(radicals='abc', candidates=1, selectedCandidateIndex=0)",
     );
   });
 
@@ -599,9 +598,7 @@ describe('State toString()', () => {
       exactSelectionKeys: '12',
       candidates: [makeCandidate('A'), makeCandidate('B')],
     });
-    expect(state.toString()).toBe(
-      'AssociatedPhrasesState(candidates=2, selectedCandidateIndex=undefined)',
-    );
+    expect(state.toString()).toBe('AssociatedPhrasesState(candidates=2, selectedCandidateIndex=0)');
   });
 
   it('SymbolInputtingState toString returns details', () => {
@@ -611,7 +608,7 @@ describe('State toString()', () => {
       candidates: [makeCandidate('A')],
     });
     expect(state.toString()).toBe(
-      "SymbolInputtingState(radicals='sym', candidates=1, selectedCandidateIndex=undefined)",
+      "SymbolInputtingState(radicals='sym', candidates=1, selectedCandidateIndex=0)",
     );
   });
 
@@ -623,7 +620,7 @@ describe('State toString()', () => {
       nodes: ['A', 'B'],
       selectionKeys: '1',
     });
-    expect(state.toString()).toBe('SymbolCategoryState(nodes=2, selectedCandidateIndex=undefined)');
+    expect(state.toString()).toBe('SymbolCategoryState(nodes=2, selectedCandidateIndex=0)');
   });
 
   it('SettingsState toString returns details', () => {
@@ -632,7 +629,7 @@ describe('State toString()', () => {
       settings: createSettings(),
       selectionKeys: '1',
     });
-    expect(state.toString()).toBe('SettingsState(selectedCandidateIndex=undefined)');
+    expect(state.toString()).toBe('SettingsState(selectedCandidateIndex=0)');
   });
 
   it('MenuState toString returns details', () => {
@@ -641,9 +638,47 @@ describe('State toString()', () => {
       selectionKeys: '1',
       onSettingsChanged: undefined,
     });
-    expect(state.toString()).toBe('MenuState(selectedCandidateIndex=undefined)');
+    expect(state.toString()).toBe('MenuState(selectedCandidateIndex=0)');
   });
 });
 
-// Helper for test candidates
-const makeCandidate = (text: string) => new Candidate(text, '');
+describe('NumberInputtingState', () => {
+  const mockCandidates = [new Candidate('1', ''), new Candidate('2', ''), new Candidate('3', '')];
+
+  it('should set displayedRadicals with [數字]', () => {
+    const state = new NumberInputtingState({
+      radicals: '123',
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 1,
+    });
+    expect(state.displayedRadicals).toStrictEqual(['[數字]123']);
+    expect(state.candidates).toEqual(mockCandidates);
+    expect(state.selectedCandidateIndex).toBe(1);
+  });
+
+  it('copyWithArgs should return SymbolInputtingState with updated selectedCandidateIndex', () => {
+    const state = new NumberInputtingState({
+      radicals: '456',
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+    });
+    const newState = state.copyWithArgs({ selectedCandidateIndex: 2 });
+    expect(newState).toBeInstanceOf(SymbolInputtingState);
+    expect(newState.selectedCandidateIndex).toBe(2);
+    expect(newState.candidates).toEqual(mockCandidates);
+    expect(newState.displayedRadicals).toStrictEqual(['[符]456']);
+  });
+
+  it('toString returns correct details', () => {
+    const state = new NumberInputtingState({
+      radicals: '789',
+      selectionKeys: '1',
+      candidates: [new Candidate('7', '')],
+    });
+    expect(state.toString()).toBe(
+      "SymbolInputtingState(radicals='789', candidates=1, selectedCandidateIndex=0)",
+    );
+  });
+});

@@ -150,6 +150,41 @@ export class AssociatedPhrasesState extends InputtingState {
   }
 }
 
+export class NumberInputtingState extends InputtingState {
+  constructor(args: {
+    radicals: string;
+    selectionKeys: string;
+    exactSelectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+    candidateAnnotation?: string | undefined;
+  }) {
+    super({
+      radicals: args.radicals,
+      displayedRadicals: [`[數字]${args.radicals}`],
+      selectionKeys: args.selectionKeys,
+      exactSelectionKeys: args.exactSelectionKeys,
+      candidates: args.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex,
+      candidateAnnotation: args.candidateAnnotation,
+    });
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+    return new NumberInputtingState({
+      radicals: this.radicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+      exactSelectionKeys: this.exactSelectionKeys!,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      candidateAnnotation: this.candidateAnnotation,
+    });
+  }
+  toString(): string {
+    return `NumberInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
+  }
+}
+
 export class SymbolInputtingState extends InputtingState {
   constructor(args: {
     radicals: string;
@@ -431,6 +466,18 @@ export class MenuState extends InputtingState {
           selectionKeys: args.selectionKeys,
           previousState: this,
           nodes: InputTableManager.getInstance().emojiTable.tables,
+        });
+      }),
+    );
+
+    candidates.push(
+      new MenuCandidate('數字輸入', '', () => {
+        return new NumberInputtingState({
+          radicals: '',
+          selectionKeys: '123456789',
+          exactSelectionKeys: '!@#$%^&*(',
+          candidates: [],
+          candidateAnnotation: '(Shift + 數字按鍵)',
         });
       }),
     );

@@ -7,12 +7,14 @@ import {
   InputState,
   InputtingState,
   MenuState,
+  NumberInputtingState,
   SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
   TooltipOnlyState,
 } from './InputState';
 import { Key, KeyName } from './Key';
+import NumberInputHelper from './NumberInputHelper';
 import { Settings } from './Settings';
 
 export class KeyHandler {
@@ -20,6 +22,7 @@ export class KeyHandler {
   static readonly ASSOCIATED_PHRASES_SELECTION_KEYS = '!@#$%^&*()';
   static readonly COMMON_SELECTION_KEYS2 = '123456789';
   static readonly ASSOCIATED_PHRASES_SELECTION_KEYS2 = '!@#$%^&*(';
+  static readonly NUMBER_INPUT_KEYS = '0123456789.';
 
   isPime: boolean = false;
 
@@ -221,7 +224,13 @@ export class KeyHandler {
       }
 
       if (!(state instanceof AssociatedPhrasesState)) {
-        const selectionKeys = state.selectionKeys;
+        let selectionKeys = state.selectionKeys;
+        if (state instanceof NumberInputtingState) {
+          if (state.exactSelectionKeys) {
+            selectionKeys = state.exactSelectionKeys;
+          }
+        }
+
         if (key.ascii && selectionKeys.includes(key.ascii)) {
           const candidates = state.candidatesInCurrentPage;
           if (candidates === undefined || candidates.length === 0) {
@@ -277,17 +286,18 @@ export class KeyHandler {
             stateCallback(newState);
             return true;
           }
-        } else if (state.radicals === '`') {
-          if (key.ascii === '`') {
-            const newState = new MenuState({
-              settings: this.onRequestSettings(),
-              selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
-              onSettingsChanged: this.onSettingChanged,
-            });
-            stateCallback(newState);
-            return true;
-          }
         }
+
+        if (state.radicals === '`' && key.ascii === '`') {
+          const newState = new MenuState({
+            settings: this.onRequestSettings(),
+            selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+            onSettingsChanged: this.onSettingChanged,
+          });
+          stateCallback(newState);
+          return true;
+        }
+
         const symbolTable = InputTableManager.getInstance().symbolTable;
         if (symbolTable.keynames.includes(state.radicals + key.ascii)) {
           const chr = key.ascii;
@@ -307,6 +317,25 @@ export class KeyHandler {
             radicals: joined,
             selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
             candidates: candidates,
+          });
+          stateCallback(newState);
+          return true;
+        }
+      } else if (state instanceof NumberInputtingState) {
+        if (key.ascii && KeyHandler.NUMBER_INPUT_KEYS.includes(key.ascii)) {
+          const chr = key.ascii;
+          if (state.radicals.length >= 20) {
+            errorCallback();
+            return true;
+          }
+          const candidates = NumberInputHelper.fillCandidates(state.radicals + chr);
+          const joined = state.radicals + chr;
+          const newState = new NumberInputtingState({
+            radicals: joined,
+            selectionKeys: state.selectionKeys,
+            exactSelectionKeys: state.exactSelectionKeys!,
+            candidates: candidates,
+            candidateAnnotation: state.candidateAnnotation,
           });
           stateCallback(newState);
           return true;
@@ -381,6 +410,18 @@ export class KeyHandler {
             radicals: newRadicals,
             selectionKeys: state.selectionKeys,
             candidates: candidates,
+          });
+          stateCallback(newState);
+          return true;
+        }
+        if (state instanceof NumberInputtingState) {
+          const candidates = NumberInputHelper.fillCandidates(newRadicals);
+          const newState = new NumberInputtingState({
+            radicals: newRadicals,
+            selectionKeys: state.selectionKeys,
+            exactSelectionKeys: state.exactSelectionKeys!,
+            candidates: candidates,
+            candidateAnnotation: state.candidateAnnotation,
           });
           stateCallback(newState);
           return true;
