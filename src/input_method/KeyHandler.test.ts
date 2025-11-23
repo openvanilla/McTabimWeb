@@ -81,9 +81,11 @@ describe('Test KeyHandler', () => {
     }
   });
 
-  it('should not handle non-input key in EmptyState', () => {
-    InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new EmptyState();
+    it('should not handle non-input key in EmptyState', () =>{
+
+      InputTableManager.getInstance().setInputTableById('cj5');
+
+      const state: InputtingState | EmptyState = new EmptyState();
     const keyQ = new Key('?', KeyName.UNKNOWN);
     const handled = keyHandler.handle(
       keyQ,
@@ -117,7 +119,7 @@ describe('Test KeyHandler', () => {
 
   it('should commit candidate on RETURN in InputtingState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -145,7 +147,7 @@ describe('Test KeyHandler', () => {
 
   it('should select candidate by selection key', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -173,7 +175,7 @@ describe('Test KeyHandler', () => {
 
   it('should handle BACKSPACE in InputtingState to EmptyState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -198,7 +200,7 @@ describe('Test KeyHandler', () => {
 
   it('should handle ESC in InputtingState to EmptyState', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -328,7 +330,7 @@ describe('Test KeyHandler', () => {
   it('should call errorCallback if radicals exceed maxRadicals', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     const table = InputTableManager.getInstance().currentTable;
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a'.repeat(table.settings.maxRadicals),
       displayedRadicals: Array(table.settings.maxRadicals).fill('a'),
       selectionKeys: '1234567890',
@@ -374,7 +376,7 @@ describe('Test Associated Phrases', () => {
     const spy = jest
       .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
       .mockReturnValue([new Candidate('聯想1', ''), new Candidate('聯想2', '')]);
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -408,7 +410,7 @@ describe('Test Associated Phrases', () => {
     const spy = jest
       .spyOn(InputTableManager.getInstance(), 'lookUpForAssociatedPhrases')
       .mockReturnValue([]);
-    let state: InputtingState | EmptyState = new BasicInputtingState({
+    const state: InputtingState | EmptyState = new BasicInputtingState({
       radicals: 'a',
       displayedRadicals: ['a'],
       selectionKeys: '1234567890',
@@ -435,7 +437,7 @@ describe('Test Associated Phrases', () => {
 
   it('should exit AssociatedPhrasesState on RETURN', () => {
     // Simulate entering AssociatedPhrasesState
-    let state = new AssociatedPhrasesState({
+    const state = new AssociatedPhrasesState({
       selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
       exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
       candidates: [new Candidate('聯想1', ''), new Candidate('聯想2', '')],
@@ -458,7 +460,7 @@ describe('Test Associated Phrases', () => {
   });
 
   it('should exit AssociatedPhrasesState on BACKSPACE', () => {
-    let state = new AssociatedPhrasesState({
+    const state = new AssociatedPhrasesState({
       selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
       exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
       candidates: [new Candidate('聯想1', ''), new Candidate('聯想2', '')],
@@ -482,7 +484,7 @@ describe('Test Associated Phrases', () => {
 
   it('should select associated phrase by selection key', () => {
     const phrases = [new Candidate('聯想1', ''), new Candidate('聯想2', '')];
-    let state = new AssociatedPhrasesState({
+    const state = new AssociatedPhrasesState({
       selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
       exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
       candidates: phrases,

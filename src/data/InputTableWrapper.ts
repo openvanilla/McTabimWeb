@@ -28,7 +28,7 @@ export class InputTableWrapper {
       this.buildReverseLookUpTable__();
     }
     const founds = this.reverseLookUpTable_![character] || [];
-    let remapped: string[] = [];
+    const remapped: string[] = [];
     for (const found of founds) {
       var displayedRadicals = [];
       for (const char of found) {

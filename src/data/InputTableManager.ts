@@ -129,7 +129,7 @@ export class InputTableManager {
   ];
 
   reverseLookupForRadicals(character: string): RadicalLookupEntry[] {
-    let result = [];
+    const result = [];
     for (const tableWrapper of this.tables) {
       const radicals = tableWrapper.reverseLookupForRadicals(character);
       if (radicals.length > 0) {

@@ -68,12 +68,12 @@ export default class NumberInputHelper {
   }
 
   static fillCandidatesStrings(inputString: string): string[] {
-    let input = inputString.trim();
+    const input = inputString.trim();
     if (input.length === 0) {
       return [];
     }
 
-    let result: string[] = [];
+    const result: string[] = [];
 
     let intPart = '';
     let decPart = '';
@@ -92,7 +92,7 @@ export default class NumberInputHelper {
     if (line.length > 0) {
       result.push(line);
     }
-    let intNumber = parseInt(intPart, 10);
+    const intNumber = parseInt(intPart, 10);
     if (intNumber > 0 && intNumber <= 3999) {
       line = RomanNumbers.convert(intNumber, RomanNumbersStyle.Alphabets);
       result.push(line);

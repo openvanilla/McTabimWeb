@@ -210,8 +210,8 @@ class ChromeMcTabim {
     }
 
     if (!selectedTableSet) {
-      let item = inputTableMenus[0];
-      let id = item.id.split('-').pop();
+      const item = inputTableMenus[0];
+      const id = item.id.split('-').pop();
       InputTableManager.getInstance().setInputTableById(id || 'checj');
       this.settings.selectedInputMethodId = id || 'checj';
     }

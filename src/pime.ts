@@ -119,7 +119,7 @@ class PimeMcTabim {
 
   /** Resets the UI state before handling a key. */
   public resetBeforeHandlingKey(): void {
-    let copy = this.uiState;
+    const copy = this.uiState;
     this.uiState = {
       commitString: '',
       compositionString: copy.compositionString,
@@ -563,7 +563,7 @@ module.exports = {
         return response;
       }
 
-      let isEmpty = pimeMcTabim.inputController.state instanceof EmptyState;
+      const isEmpty = pimeMcTabim.inputController.state instanceof EmptyState;
       let rtn = false;
       // Single Shift to toggle alphabet mode.
       if (isEmpty && pimeMcTabim.isShiftHold) {
@@ -761,7 +761,7 @@ module.exports = {
     }
 
     if (request.method === 'onMenu') {
-      let menu: any[] = [
+      const menu: any[] = [
         {
           text: '小麥他命輸入法網站',
           id: PimeMcTabimCommand.OpenHomepage,

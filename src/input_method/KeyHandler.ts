@@ -61,7 +61,7 @@ export class KeyHandler {
     if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
       const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
       if (phrases && phrases.length > 0) {
-        let selectionKeys = state.selectionKeys;
+        const selectionKeys = state.selectionKeys;
         let exactSelectionKeys = state.selectionKeys;
         let annotation = '';
         if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS) {
