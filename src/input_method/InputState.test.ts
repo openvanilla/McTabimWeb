@@ -649,6 +649,7 @@ describe('NumberInputtingState', () => {
     const state = new NumberInputtingState({
       radicals: '123',
       selectionKeys: '12',
+      exactSelectionKeys: '!@#$%',
       candidates: mockCandidates,
       selectedCandidateIndex: 1,
     });
@@ -661,24 +662,26 @@ describe('NumberInputtingState', () => {
     const state = new NumberInputtingState({
       radicals: '456',
       selectionKeys: '12',
+      exactSelectionKeys: '!@#$%',
       candidates: mockCandidates,
       selectedCandidateIndex: 0,
     });
     const newState = state.copyWithArgs({ selectedCandidateIndex: 2 });
-    expect(newState).toBeInstanceOf(SymbolInputtingState);
+    expect(newState).toBeInstanceOf(NumberInputtingState);
     expect(newState.selectedCandidateIndex).toBe(2);
     expect(newState.candidates).toEqual(mockCandidates);
-    expect(newState.displayedRadicals).toStrictEqual(['[符]456']);
+    expect(newState.displayedRadicals).toStrictEqual(['[數字]456']);
   });
 
   it('toString returns correct details', () => {
     const state = new NumberInputtingState({
       radicals: '789',
       selectionKeys: '1',
+      exactSelectionKeys: '!',
       candidates: [new Candidate('7', '')],
     });
     expect(state.toString()).toBe(
-      "SymbolInputtingState(radicals='789', candidates=1, selectedCandidateIndex=0)",
+      "NumberInputtingState(radicals='789', candidates=1, selectedCandidateIndex=0)",
     );
   });
 });
