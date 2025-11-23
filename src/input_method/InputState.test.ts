@@ -36,6 +36,12 @@ describe('Test EmptyState', () => {
     expect(state).toBeInstanceOf(Object);
   });
 
+  it('should have a reason', () => {
+    const reason = 'test';
+    const state = new EmptyState(reason);
+    expect(state.reason).toBe(reason);
+  });
+
   describe('Test CommittingState', () => {
     it('should store the commit string', () => {
       const state = new CommittingState('hello');

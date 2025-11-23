@@ -41,6 +41,7 @@ describe('InputController', () => {
     controller.reset(reason);
     expect(ui.reset).toHaveBeenCalledTimes(1);
     expect(controller.state).toBeInstanceOf(EmptyState);
+    expect((controller.state as EmptyState).reason).toBe(reason);
   });
 
   it('should get and set settings correctly', () => {
