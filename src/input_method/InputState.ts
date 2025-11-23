@@ -17,7 +17,6 @@ export class EmptyState extends InputState {
 export class CommittingState extends InputState {
   constructor(readonly commitString: string) {
     super();
-    this.commitString = commitString;
   }
   toString(): string {
     return `CommittingState(commitString='${this.commitString}')`;
@@ -27,7 +26,6 @@ export class CommittingState extends InputState {
 export class TooltipOnlyState extends InputState {
   constructor(readonly tooltip: string) {
     super();
-    this.tooltip = tooltip;
   }
   toString(): string {
     return `TooltipOnlyState(tooltip='${this.tooltip}')`;

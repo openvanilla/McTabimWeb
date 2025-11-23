@@ -25,7 +25,6 @@ export class InputController {
       this.onSettingChanged?.(this.settings_);
     },
   );
-  private ui_: InputUI;
   private settings_: Settings = {
     chineseConversionEnabled: false,
     associatedPhrasesEnabled: false,
@@ -62,9 +61,7 @@ export class InputController {
     return this.state_;
   }
 
-  constructor(ui: InputUI) {
-    this.ui_ = ui;
-  }
+  constructor(private ui_: InputUI) {}
 
   reset(reason: string): void {
     this.enterState(this.state_, new EmptyState(reason));

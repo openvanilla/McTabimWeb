@@ -106,7 +106,6 @@ export class KeyHandler {
     if (state instanceof AssociatedPhrasesState) {
       const selectionKeys = state.exactSelectionKeys;
       if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
-        console.log('key.ascii:' + key.ascii);
         const candidates = state.candidatesInCurrentPage;
         if (candidates === undefined || candidates.length === 0) {
           errorCallback();
