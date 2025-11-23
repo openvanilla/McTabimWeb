@@ -1,4 +1,5 @@
 import { Candidate, InputTableManager, MenuCandidate, SymbolCategory } from '../data';
+import HelperDataInput from './HelperDataInput';
 import { Settings } from './Settings';
 
 export abstract class InputState {}
@@ -481,6 +482,21 @@ export class MenuState extends InputtingState {
         });
       }),
     );
+
+    candidates.push(
+      new MenuCandidate('日期與時間', '', () => {
+        const candidates = HelperDataInput.fillDateEntries();
+        return new SymbolCategoryState({
+          title: '日期與時間',
+          displayedRadicals: ['日期與時間'],
+          selectionKeys: args.selectionKeys,
+          previousState: this,
+          nodes: candidates,
+        });
+      }),
+    );
+
+    // HelperDataInput.test;
 
     super({
       radicals: '',

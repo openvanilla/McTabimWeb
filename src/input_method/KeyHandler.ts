@@ -1,4 +1,5 @@
 import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
+import NumberInputHelper from './HelperNumberInput';
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
@@ -14,7 +15,6 @@ import {
   TooltipOnlyState,
 } from './InputState';
 import { Key, KeyName } from './Key';
-import NumberInputHelper from './NumberInputHelper';
 import { Settings } from './Settings';
 
 export class KeyHandler {

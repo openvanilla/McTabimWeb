@@ -58,6 +58,9 @@ export default class NumberInputHelper {
   ]);
 
   static fillCandidates(inputString: string): Candidate[] {
+    if (inputString.trim().length === 0) {
+      return [];
+    }
     const candidates: string[] = NumberInputHelper.fillCandidatesStrings(inputString);
     return candidates.map((text) => {
       return new Candidate(text, '');
@@ -66,6 +69,9 @@ export default class NumberInputHelper {
 
   static fillCandidatesStrings(inputString: string): string[] {
     let input = inputString.trim();
+    if (input.length === 0) {
+      return [];
+    }
 
     let result: string[] = [];
 

@@ -61,6 +61,7 @@
     "assert": false
   },
   "dependencies": {
-    "chinese_convert": "^1.0.8"
+    "chinese_convert": "^1.0.8",
+    "dayjs": "^1.11.19"
   }
 }
