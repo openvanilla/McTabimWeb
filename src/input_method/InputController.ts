@@ -17,14 +17,7 @@ const ChineseConvert = require('chinese_convert');
 
 export class InputController {
   private state_: InputState = new EmptyState();
-  private keyHandler_: KeyHandler = new KeyHandler(
-    () => InputTableManager.getInstance().currentTable,
-    () => this.settings_ as Settings,
-    (settings) => {
-      this.settings_ = settings;
-      this.onSettingChanged?.(this.settings_);
-    },
-  );
+  private keyHandler_: KeyHandler;
   private settings_: Settings = {
     chineseConversionEnabled: false,
     associatedPhrasesEnabled: false,
@@ -61,7 +54,18 @@ export class InputController {
     return this.state_;
   }
 
-  constructor(private ui_: InputUI) {}
+  constructor(private ui_: InputUI, keyHandler?: KeyHandler) {
+    this.keyHandler_ =
+      keyHandler ??
+      new KeyHandler(
+        () => InputTableManager.getInstance().currentTable,
+        () => this.settings_ as Settings,
+        (settings) => {
+          this.settings_ = settings;
+          this.onSettingChanged?.(this.settings_);
+        },
+      );
+  }
 
   reset(reason: string): void {
     this.enterState(this.state_, new EmptyState(reason));
@@ -96,7 +100,7 @@ export class InputController {
       if (index >= 0 && index < candidates.length) {
         const candidate = candidates[index];
         this.ui_.commitString(candidate.displayText);
-        this.ui_.reset();
+        // this.ui_.reset();
         const newState = new EmptyState('reset after candidate selection');
         this.enterState(oldState, newState);
       }
