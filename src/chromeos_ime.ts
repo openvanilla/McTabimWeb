@@ -110,6 +110,27 @@ class ChromeMcTabim {
     }
   }
 
+  toggleChineseConversion() {
+    const enabled = this.settings.inputSettings.chineseConversionEnabled;
+    this.settings.inputSettings.chineseConversionEnabled = !enabled;
+    this.inputController.settings = this.settings.inputSettings;
+    this.saveSettings();
+
+    if (this.settings.useNotification) {
+      const notificationId = 'mctabim-chinese-mode';
+      chrome.notifications.clear(notificationId, () => {
+        chrome.notifications.create(notificationId, {
+          title: this.settings.inputSettings.chineseConversionEnabled
+            ? chrome.i18n.getMessage('simp_chinese')
+            : chrome.i18n.getMessage('trad_chinese'),
+          message: '',
+          type: 'basic',
+          iconUrl: 'icons/icon48.png',
+        });
+      });
+    }
+  }
+
   /**
    * Loads the settings from chrome.storage.sync.
    */
@@ -544,6 +565,14 @@ chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
   }
 
   switch (name) {
+    case 'mctabim-toggle-alphabet-mode':
+      chromeMcTabim.toggleAlphabetMode();
+      chromeMcTabim.updateMenu();
+      break;
+    case 'mctabim-chinese-conversion':
+      chromeMcTabim.toggleChineseConversion();
+      chromeMcTabim.updateMenu();
+      break;
     case 'mctabim-options':
       chromeMcTabim.tryOpen(chrome.runtime.getURL('options.html'));
       break;

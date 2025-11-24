@@ -132,5 +132,17 @@
   },
   "beep": {
     "message": "提示音"
-  }
+  },
+  "alphabet_mode": {
+		"message": "切換到字母模式"
+	},
+	"chinese_mode": {
+		"message": "切換到中文模式"
+	},
+	"simp_chinese": {
+		"message": "切換到簡體中文"
+	},
+	"trad_chinese": {
+		"message": "切換到繁體中文"
+	}
 }
