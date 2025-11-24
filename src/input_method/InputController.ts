@@ -1,4 +1,4 @@
-import { InputTableManager } from '../data';
+import { InputTableManager, MenuCandidate } from '../data';
 import {
   CommittingState,
   EmptyState,
@@ -99,10 +99,15 @@ export class InputController {
       const candidates = oldState.candidatesInCurrentPage ?? [];
       if (index >= 0 && index < candidates.length) {
         const candidate = candidates[index];
-        this.ui_.commitString(candidate.displayText);
-        // this.ui_.reset();
-        const newState = new EmptyState('reset after candidate selection');
-        this.enterState(oldState, newState);
+	if (candidate instanceof MenuCandidate) {
+	  const newState = candidate.nextState();
+	  this.enterState(oldState, newState);
+	} else {
+          this.ui_.commitString(candidate.displayText);
+	  // this.ui_.reset();
+	  const newState = new EmptyState('reset after candidate selection');
+	  this.enterState(oldState, newState);
+	}
       }
     }
   }
