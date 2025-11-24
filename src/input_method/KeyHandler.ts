@@ -24,8 +24,6 @@ export class KeyHandler {
   static readonly ASSOCIATED_PHRASES_SELECTION_KEYS2 = '!@#$%^&*(';
   static readonly NUMBER_INPUT_KEYS = '0123456789.';
 
-  isPime: boolean = false;
-
   constructor(
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
@@ -510,12 +508,6 @@ export class KeyHandler {
 
       if (state instanceof AssociatedPhrasesState) {
         if (key.ascii === 'Shift') {
-          return true;
-        }
-        // If it is PIME, we may input undesired characters, so we just ignore
-        // it.
-        if (this.isPime) {
-          errorCallback();
           return true;
         }
         stateCallback(new EmptyState('reset after pressing enter in associated phrases state'));

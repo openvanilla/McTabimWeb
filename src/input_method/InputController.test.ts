@@ -29,13 +29,6 @@ describe('InputController', () => {
     controller = new InputController(ui, mockKeyHandler);
   });
 
-  it('should get and set isPime correctly', () => {
-    expect(controller.isPime).toBe(false);
-    controller.isPime = true;
-    expect(mockKeyHandler.isPime).toBe(true);
-    expect(controller.isPime).toBe(true);
-  });
-
   it('should reset the controller to EmptyState and reset UI', () => {
     const reason = 'test reset';
     controller.reset(reason);

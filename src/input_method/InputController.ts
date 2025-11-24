@@ -32,14 +32,6 @@ export class InputController {
   onSettingChanged?: ((settings: Settings) => void) | undefined;
   onError?: (() => void) | undefined;
 
-  get isPime(): boolean {
-    return this.keyHandler_.isPime;
-  }
-
-  set isPime(value: boolean) {
-    this.keyHandler_.isPime = value;
-  }
-
   get settings(): Settings {
     return this.settings_;
   }
@@ -99,15 +91,15 @@ export class InputController {
       const candidates = oldState.candidatesInCurrentPage ?? [];
       if (index >= 0 && index < candidates.length) {
         const candidate = candidates[index];
-	if (candidate instanceof MenuCandidate) {
-	  const newState = candidate.nextState();
-	  this.enterState(oldState, newState);
-	} else {
+        if (candidate instanceof MenuCandidate) {
+          const newState = candidate.nextState();
+          this.enterState(oldState, newState);
+        } else {
           this.ui_.commitString(candidate.displayText);
-	  // this.ui_.reset();
-	  const newState = new EmptyState('reset after candidate selection');
-	  this.enterState(oldState, newState);
-	}
+          // this.ui_.reset();
+          const newState = new EmptyState('reset after candidate selection');
+          this.enterState(oldState, newState);
+        }
       }
     }
   }
@@ -142,7 +134,7 @@ export class InputController {
   }
 
   private handleInputtingState(oldState: InputState, newState: InputtingState): void {
-    const builder = new InputUIStateBuilder(newState, this.isPime);
+    const builder = new InputUIStateBuilder(newState);
     const uiState = builder.buildJsonString();
     this.ui_.reset();
     this.ui_.update(uiState);

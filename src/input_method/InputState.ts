@@ -124,7 +124,7 @@ export class AssociatedPhrasesState extends InputtingState {
   }) {
     super({
       radicals: '',
-      displayedRadicals: ['聯想詞'],
+      displayedRadicals: [],
       selectionKeys: args.selectionKeys,
       exactSelectionKeys: args.exactSelectionKeys,
       candidates: args.candidates,

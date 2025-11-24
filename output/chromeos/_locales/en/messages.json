@@ -133,16 +133,16 @@
   "beep": {
     "message": "Beep"
   },
-	"alphabet_mode": {
-		"message": "Use alphabet mode"
-	},
-	"chinese_mode": {
-		"message": "Use Chinese mode"
-	},
-	"simp_chinese": {
-		"message": "Use Simplified Chinese"
-	},
-	"trad_chinese": {
-		"message": "Use Traditional Chinese"
-	}
+  "alphabet_mode": {
+    "message": "Use alphabet mode"
+  },
+  "chinese_mode": {
+    "message": "Use Chinese mode"
+  },
+  "simp_chinese": {
+    "message": "Use Simplified Chinese"
+  },
+  "trad_chinese": {
+    "message": "Use Traditional Chinese"
+  }
 }

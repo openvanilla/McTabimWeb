@@ -224,7 +224,7 @@ describe('Other InputState subclasses', () => {
         candidates: mockCandidates,
         selectedCandidateIndex: 1,
       });
-      expect(state.displayedRadicals).toStrictEqual(['聯想詞']);
+      expect(state.displayedRadicals).toStrictEqual([]);
       expect(state.candidates).toEqual(mockCandidates);
       expect(state.selectedCandidateIndex).toBe(1);
     });
