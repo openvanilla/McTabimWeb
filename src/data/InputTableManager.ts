@@ -1,13 +1,13 @@
-import associatedPhrasesJson from './associated_phrases/phrase.json';
+import associatedPhrasesJson from './associated_phrases/phrase.json?raw';
 import { Candidate } from './Candidate';
-import array30 from './cin/array30.json';
-import array40 from './cin/array40.json';
-import checj from './cin/checj.json';
-import cj5 from './cin/cj5.json';
-import dayi3 from './cin/dayi3.json';
-import dayi4 from './cin/dayi4.json';
-import simplex from './cin/simplex.json';
-import simplex5 from './cin/simplex5.json';
+import array30 from './cin/array30.json?raw';
+import array40 from './cin/array40.json?raw';
+import checj from './cin/checj.json?raw';
+import cj5 from './cin/cj5.json?raw';
+import dayi3 from './cin/dayi3.json?raw';
+import dayi4 from './cin/dayi4.json?raw';
+import simplex from './cin/simplex.json?raw';
+import simplex5 from './cin/simplex5.json?raw';
 import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
@@ -20,10 +20,7 @@ type AssociatedPhrases = {
   chardefs: { [key: string]: string[] };
 };
 
-const associatedPhrases: AssociatedPhrases = {
-  chardefs: associatedPhrasesJson.chardefs as { [key: string]: string[] },
-};
-
+// const shiftLetterSymbols: { [key: string]: string } = JSON.parse(shiftLetters);
 const shiftLetterSymbols: { [key: string]: string } = shiftLetters;
 
 export interface SymbolTable {
@@ -76,16 +73,31 @@ export class InputTableManager {
 
   readonly emojiTable: EmojiTable = new EmojiTable();
 
+  // private symbolTable_: SymbolTable | undefined;
   get symbolTable(): SymbolTable {
     return symbols;
+    // if (!this.symbolTable_) {
+    //   this.symbolTable_ = JSON.parse(symbols) as SymbolTable;
+    // }
+    // return this.symbolTable_;
   }
 
+  // private shiftLetterSymbols_: { [key: string]: string } | undefined;
   get shiftLetterSymbols(): { [key: string]: string } {
     return shiftLetterSymbols;
+    // if (!this.shiftLetterSymbols_) {
+    //   this.shiftLetterSymbols_ = JSON.parse(shiftLetters) as { [key: string]: string };
+    // }
+    // return this.shiftLetterSymbols_;
   }
 
+  // private shiftPunctuationsSymbols_: { [key: string]: string } | undefined;
   get shiftPunctuationsSymbols(): { [key: string]: string } {
     return shiftPunctuations;
+    // if (!this.shiftPunctuationsSymbols_) {
+    //   this.shiftPunctuationsSymbols_ = JSON.parse(shiftPunctuations) as { [key: string]: string };
+    // }
+    // return this.shiftPunctuationsSymbols_;
   }
 
   readonly customSymbolTable: CustomSymbolTable = new CustomSymbolTable();
@@ -140,8 +152,20 @@ export class InputTableManager {
     return result;
   }
 
+  associatedPhrases_: AssociatedPhrases | undefined = undefined;
+  get associatedPhrases(): AssociatedPhrases {
+    if (!this.associatedPhrases_) {
+      console.log('Loading associated phrases JSON');
+      const parsed = JSON.parse(associatedPhrasesJson);
+      this.associatedPhrases_ = {
+        chardefs: parsed.chardefs as { [key: string]: string[] },
+      };
+    }
+    return this.associatedPhrases_;
+  }
+
   lookUpForAssociatedPhrases(prefix: string): Candidate[] | [] {
-    const founds = associatedPhrases.chardefs[prefix];
+    const founds = this.associatedPhrases.chardefs[prefix];
     const candidates: Candidate[] = [];
     if (founds) {
       for (const found of founds) {

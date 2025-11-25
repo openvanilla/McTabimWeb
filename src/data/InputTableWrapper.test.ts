@@ -2,22 +2,22 @@ import { Candidate } from './Candidate';
 import { InputTable } from './InputTable';
 import { InputTableSettings, InputTableWrapper } from './InputTableWrapper';
 
-const mockTable: InputTable = {
-  chardefs: {
-    a: ['你', '呢'],
-    b: ['好'],
-    ab: ['嗎'],
+const mockTable = `{
+  "chardefs": {
+    "a": ["你", "呢"],
+    "b": ["好"],
+    "ab": ["嗎"]
   },
-  cname: 'test',
-  ename: 'test',
-  cincount: undefined,
-  privateuse: {},
-  keynames: {
-    a: 'ㄅ',
-    b: 'ㄆ',
+  "cname": "test",
+  "ename": "test",
+  "cincount": null,
+  "privateuse": {},
+  "keynames": {
+    "a": "ㄅ",
+    "b": "ㄆ"
   },
-  selkey: '1234567890',
-};
+  "selkey": "1234567890"
+}`;
 
 const settings: InputTableSettings = { maxRadicals: 2 };
 
@@ -73,16 +73,18 @@ describe('InputTableWrapper', () => {
   });
 
   it('does not mutate input objects', () => {
-    const originalChardefs = JSON.parse(JSON.stringify(mockTable.chardefs));
+    const parsedTable = JSON.parse(mockTable);
+    const originalChardefs = JSON.parse(JSON.stringify(parsedTable.chardefs));
     wrapper.lookupForCandidate('a');
-    expect(mockTable.chardefs).toEqual(originalChardefs);
+    expect(JSON.parse(mockTable).chardefs).toEqual(originalChardefs);
   });
 
   it('does not mutate input objects', () => {
-    const originalChardefs = JSON.parse(JSON.stringify(mockTable.chardefs));
+    const parsedTable = JSON.parse(mockTable);
+    const originalChardefs = JSON.parse(JSON.stringify(parsedTable.chardefs));
     const result = wrapper.lookupForCandidate('a*');
     expect(result).toHaveLength(1);
     expect(result[0].displayText).toBe('嗎');
-    expect(mockTable.chardefs).toEqual(originalChardefs);
+    expect(JSON.parse(mockTable).chardefs).toEqual(originalChardefs);
   });
 });

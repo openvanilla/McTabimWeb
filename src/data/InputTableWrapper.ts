@@ -8,7 +8,16 @@ export interface InputTableSettings {
 export class InputTableWrapper {
   private reverseLookUpTable_: { [key: string]: string[] } | undefined = undefined;
 
-  constructor(public id: string, public table: InputTable, public settings: InputTableSettings) {}
+  constructor(public id: string, public jsonSource: string, public settings: InputTableSettings) {}
+
+  table_: InputTable | undefined;
+  get table(): InputTable {
+    if (!this.table_) {
+      console.log(`Parsing InputTable JSON for table id: ${this.id}`);
+      this.table_ = JSON.parse(this.jsonSource) as InputTable;
+    }
+    return this.table_;
+  }
 
   private buildReverseLookUpTable__(): void {
     this.reverseLookUpTable_ = {};

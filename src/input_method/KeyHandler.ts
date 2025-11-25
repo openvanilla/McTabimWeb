@@ -93,7 +93,7 @@ export class KeyHandler {
   ): boolean {
     const settings = this.onRequestSettings();
     const table = this.onRequestTable();
-    let inputKeys = Object.keys(table.table.keynames);
+    let inputKeys = Object.keys(table.table?.keynames || {});
     if (settings.wildcardMatchingEnabled) {
       inputKeys = inputKeys.concat(['*']);
     }

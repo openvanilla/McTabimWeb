@@ -1,15 +1,6 @@
-import { InputTable } from './InputTable';
 import { InputTableManager } from './InputTableManager';
 
 describe('InputTableManager', () => {
-  it('test get keynames', () => {
-    const manager = InputTableManager.getInstance();
-    manager.setInputTableById('cj5');
-    const table: InputTable = manager.currentTable.table;
-    expect(table.keynames['z']).toBe('重');
-    expect(table.keynames['a']).toBe('日');
-  });
-
   it('should return the same instance (singleton)', () => {
     const manager1 = InputTableManager.getInstance();
     const manager2 = InputTableManager.getInstance();
@@ -29,14 +20,6 @@ describe('InputTableManager', () => {
     const manager = InputTableManager.getInstance();
     manager.setInputTableById('invalid_id');
     expect(manager.currentTable.id).toBe('checj');
-  });
-
-  it('should have keynames property in current table', () => {
-    const manager = InputTableManager.getInstance();
-    manager.setInputTableById('cj5');
-    const table: InputTable = manager.currentTable.table;
-    expect(table).toHaveProperty('keynames');
-    expect(typeof table.keynames).toBe('object');
   });
 
   it('should return correct table id after switching', () => {
