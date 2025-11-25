@@ -136,7 +136,7 @@ class ChromeMcTabim {
    */
   loadSettings() {
     chrome.storage.sync.get('settings', (value) => {
-      this.settings = value.settings;
+      this.settings = value.settings as ChromeMcTabimSettings;
       if (this.settings === undefined) {
         this.settings = this.defaultSettings;
       }
@@ -158,7 +158,7 @@ class ChromeMcTabim {
 
   loadSymbolsTable() {
     chrome.storage.sync.get('symbolsTable', (value) => {
-      const table = value.symbolsTable;
+      const table = value.symbolsTable as string;
       if (table !== undefined) {
         InputTableManager.getInstance().customSymbolTable.sourceData = table;
       }
@@ -167,7 +167,7 @@ class ChromeMcTabim {
 
   loadForeignLanguagesSymbolsTable() {
     chrome.storage.sync.get('foreignLanguagesSymbolsTable', (value) => {
-      const table = value.foreignLanguagesSymbolsTable;
+      const table = value.foreignLanguagesSymbolsTable as string;
       if (table !== undefined) {
         InputTableManager.getInstance().foreignLanguage.sourceData = table;
       }
