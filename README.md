@@ -5,6 +5,8 @@
 
 小麥他命輸入法（MacTabimWeb）是一套基於網頁技術打造的表格類中文輸入法，支援倉頡、速成、大易、行列等表格類輸入法。可以嵌入到網頁中，也可以在 Chrome OS、Windows 上的 PIME 輸入法框架中執行。
 
+![banner](resource/preview.png)
+
 <!-- TOC -->
 
 - [McTabimWeb 小麥他命輸入法](#mctabimweb-%E5%B0%8F%E9%BA%A5%E4%BB%96%E5%91%BD%E8%BC%B8%E5%85%A5%E6%B3%95)
