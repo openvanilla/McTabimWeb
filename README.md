@@ -1,4 +1,4 @@
-# McTabimWeb 小麥他命輸入法
+# McTabimWeb 小麥他命輸入法 Web/Chrome OS/PIME 版本
 
 ![Static Badge](https://img.shields.io/badge/platform-web-green)
 ![ChromeOS](https://img.shields.io/badge/platform-chome_os-yellow) ![Static Badge](https://img.shields.io/badge/platform-windows-blue) [![CI](https://github.com/openvanilla/McTabimWeb/actions/workflows/ci.yml/badge.svg)](https://github.com/openvanilla/McTabimWeb/actions/workflows/ci.yml) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/openvanilla/McTabimWeb)
@@ -9,7 +9,7 @@
 
 <!-- TOC -->
 
-- [McTabimWeb 小麥他命輸入法](#mctabimweb-%E5%B0%8F%E9%BA%A5%E4%BB%96%E5%91%BD%E8%BC%B8%E5%85%A5%E6%B3%95)
+- [McTabimWeb 小麥他命輸入法 Web/Chrome OS/PIME 版本](#mctabimweb-%E5%B0%8F%E9%BA%A5%E4%BB%96%E5%91%BD%E8%BC%B8%E5%85%A5%E6%B3%95-webchrome-ospime-%E7%89%88%E6%9C%AC)
   - [支援平台](#%E6%94%AF%E6%8F%B4%E5%B9%B3%E5%8F%B0)
   - [輸入功能](#%E8%BC%B8%E5%85%A5%E5%8A%9F%E8%83%BD)
   - [編譯方式](#%E7%B7%A8%E8%AD%AF%E6%96%B9%E5%BC%8F)
@@ -53,6 +53,8 @@
 大部分的 Node.js 版本應該都可以成功編譯這個專案，您也可以查看我們在 CI/CD 中使用的 Node.js 版本。
 
 ### Web 版
+
+您可以在 [這裡](https://openvanilla.github.io/McTabimWeb/)，體驗小麥他命的輸入功能。建議使用電腦而非手機打開這個網頁。
 
 請輸入：
 
