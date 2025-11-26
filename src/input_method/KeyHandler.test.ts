@@ -1,4 +1,4 @@
-import { Candidate, InputTableManager, MenuCandidate } from '../data';
+import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
@@ -35,6 +35,19 @@ describe('Test KeyHandler', () => {
   );
   it('test a in cj', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
+    jest.spyOn(InputTableManager.getInstance(), 'currentTable', 'get').mockReturnValue(
+      new InputTableWrapper(
+        'cj5',
+        JSON.stringify({
+          keynames: { a: 'A', z: 'Z' },
+          selkey: '1234567890',
+          chardefs: { a: ['中'], az: [] },
+          settings: { maxRadicals: 5 },
+        }),
+        { maxRadicals: 5 },
+      ),
+    );
+
     let state: InputtingState | EmptyState = new EmptyState();
     const keyZ = new Key('a', KeyName.UNKNOWN);
     const handled = keyHandler.handle(
@@ -81,11 +94,10 @@ describe('Test KeyHandler', () => {
     }
   });
 
-    it('should not handle non-input key in EmptyState', () =>{
+  it('should not handle non-input key in EmptyState', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
 
-      InputTableManager.getInstance().setInputTableById('cj5');
-
-      const state: InputtingState | EmptyState = new EmptyState();
+    const state: InputtingState | EmptyState = new EmptyState();
     const keyQ = new Key('?', KeyName.UNKNOWN);
     const handled = keyHandler.handle(
       keyQ,

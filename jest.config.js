@@ -4,4 +4,7 @@ module.exports = {
   collectCoverage: true,
   reporters: ['default', 'jest-junit'],
   coverageReporters: ['json', 'html', 'clover', 'json-summary'],
+  moduleNameMapper: {
+    '^.+\\.json\\?raw$': '<rootDir>/test/__mocks__/raw-json-mock.js',
+  },
 };

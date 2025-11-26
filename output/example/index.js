@@ -5,11 +5,12 @@ let example = (function () {
       document.getElementById(feature).style.display = 'none';
     }
     document.getElementById(id).style.display = 'block';
+    const prefix = 'McTabIM 小麥他命輸入法 - ';
     if (id === 'feature_input') {
       document.getElementById('text_area').focus();
-      document.title = '輸入功能';
+      document.title = prefix + '輸入功能';
     } else if (id === 'feature_user_data') {
-      document.title = '自訂符號表管理';
+      document.title = prefix + '自訂符號表管理';
     }
   }
 

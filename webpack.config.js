@@ -14,6 +14,16 @@ module.exports = {
         ],
         use: 'ts-loader',
       },
+      {
+        test: /\.json$/,
+        resourceQuery: /raw/,
+        type: 'javascript/auto',
+        use: [
+          {
+            loader: path.resolve(__dirname, 'json-minifier-loader.js'),
+          },
+        ],
+      },
     ],
   },
   resolve: {
