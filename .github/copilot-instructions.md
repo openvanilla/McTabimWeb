@@ -27,6 +27,7 @@
 - Unit tests are required for all new or modified code. Place tests beside implementation files as `*.test.ts`.
 - When code is modified, also update this copilot-instructions.md file if relevant.
 - Jest with `ts-jest` is configured; high-signal tests already exist beside the implementation files (`*.test.ts`).
+- **Webpack for JSON**: The project uses webpack to bundle CIN tables. To optimize the size, a custom `json-minifier-loader.js` is used to minify JSON files. The webpack configuration explicitly targets JSON files with a `?raw` resource query, like `import '../data/cin/array30.json?raw'`.
 - Use `npm run ts-build` for type-checking and `npm run eslint` to enforce the TypeScript ESLint ruleset. Keep CI-friendly scripts free of watch flags.
 - AI agents may call `test:coverage` (via agent) to find code not covered by tests and should address coverage gaps.
 
