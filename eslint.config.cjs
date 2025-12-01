@@ -9,7 +9,7 @@ module.exports = [
       'coverage/**',
       'node_modules/**',
       '*.js',
-      '!eslint.config.js',
+      '!eslint.config.js',z
       '!jest.config.js',
       '!webpack.config.*.js',
     ],

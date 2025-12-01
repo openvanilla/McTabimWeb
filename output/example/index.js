@@ -562,6 +562,92 @@ let example = (function () {
       return false;
     };
 
+    
+    // IndexedDB logic for saving text area content.
+    (() => {
+      const DB_NAME = 'McTabimUserData';
+      const STORE_NAME = 'textAreaContent';
+      const CONTENT_KEY = 'main_text_area';
+      let db = null;
+
+      function openDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, 1);
+          request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME);
+            }
+          };
+          request.onsuccess = event => {
+            db = event.target.result;
+            resolve(db);
+          };
+          request.onerror = event => {
+            console.error('IndexedDB error:', event.target.error);
+            reject(event.target.error);
+          };
+        });
+      }
+
+      function saveContent(content) {
+        if (!db) return;
+        try {
+          const transaction = db.transaction([STORE_NAME], 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
+          store.put(content, CONTENT_KEY);
+        } catch (e) {
+          console.error('Failed to save content to IndexedDB', e);
+        }
+      }
+
+      function loadContent() {
+        if (!db) return Promise.resolve(null);
+        return new Promise((resolve, reject) => {
+          try {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(CONTENT_KEY);
+            request.onsuccess = () => {
+              resolve(request.result);
+            };
+            request.onerror = (event) => {
+              reject(event.target.error);
+            };
+          } catch (e) {
+            console.error('Failed to load content from IndexedDB', e);
+            reject(e);
+          }
+        });
+      }
+
+      const textArea = document.getElementById('text_area');
+      if (!textArea) {
+        console.error('Text area not found');
+        return;
+      }
+
+      openDB().then(() => {
+        loadContent().then(savedContent => {
+          if (typeof savedContent === 'string') {
+            textArea.value = savedContent;
+          }
+        }).catch(err => {
+          console.error("Failed to load content:", err);
+        });
+      }).catch(err => {
+        console.error("Failed to open DB:", err);
+      });
+
+      let debounceTimeout;
+      textArea.addEventListener('input', () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+          saveContent(textArea.value);
+        }, 500);
+      });
+    })();
+
     document.getElementById('text_area').focus();
   })();
 
