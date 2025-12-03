@@ -58,7 +58,7 @@
             </div>
             <div class="right">
                 <h2>輸入法</h2>
-                <select id="input-table-select">
+                <select id="input-table-select" title="輸入法">
                 </select>
                 <details open>
                     <summary> 設定 </summary>
@@ -91,6 +91,8 @@
                                     for="wildcard_matching_enabled">啟用萬用字元</label><br>
                                 <input type="checkbox" id="reverse_radical_lookup_enabled"><label
                                     for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
+                                <input type="checkbox" id="homophone_lookup_enabled"><label
+                                    for="homophone_lookup_enabled">啟用同音字反查</label><br>
                             </td>
                         </tr>
                     </table>
@@ -117,8 +119,10 @@
                     <summary> 版本資訊 </summary>
                     <ul>
                         <li>0.1.1 版</li>
-                        <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank">專案首頁</a></li>
-                        <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank">意見回報</a></li>
+                        <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank" title="專案首頁">專案首頁</a>
+                        </li>
+                        <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank"
+                                title="意見回報">意見回報</a></li>
                     </ul>
                 </details>
             </div>
@@ -131,13 +135,14 @@
                         <button id="load_user_data_button">載入自訂符號表</button>
                         <button id="save_user_data_button">儲存自訂符號表</button>
                     </p>
-                    <textarea id="user_data_symbol_area" rows="20" cols="50" placeholder=""></textarea>
-                    <h2>自訂符號表管理</h2>
+                    <textarea id="user_data_symbol_area" rows="20" cols="50" placeholder="" title="自訂符號表"></textarea>
+                    <h2>自訂外語符號表管理</h2>
                     <p>
                         <button id="load_user_data_foreign_language_button">載入自訂外語符號表</button>
                         <button id="save_user_data_foreign_language_button">儲存自訂外語符號表</button>
                     </p>
-                    <textarea id="user_data_foreign_language_area" rows="20" cols="50" placeholder=""></textarea>
+                    <textarea id="user_data_foreign_language_area" rows="20" cols="50" placeholder=""
+                        title="自訂外語符號表"></textarea>
                 </div>
                 <div class="right">
                     <p>請在編輯之後，按下儲存按鈕。</p>
@@ -145,7 +150,7 @@
             </div>
         </div>
         <p class="credit">Copyright (c) 2022 and onwards The McTabLM Authors. This code is released under the MIT
-            license.版本：0.1.0. <a href="privacy_policy.html">隱私權政策</a></p>
+            license.版本：0.1.2. <a href="privacy_policy.html">隱私權政策</a></p>
     </div>
 </body>
 

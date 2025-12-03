@@ -16,6 +16,7 @@ window.onload = () => {
           clearOnErrors: false,
           beepOnErrors: true,
           reverseRadicalLookupEnabled: false,
+          homophoneLookupEnabled: true,
         },
       };
 
@@ -62,6 +63,8 @@ window.onload = () => {
           that.settings.inputSettings.beepOnErrors;
         document.getElementById('reverse-radical-lookup').checked =
           that.settings.inputSettings.reverseRadicalLookupEnabled;
+        document.getElementById('homophone-lookup').checked =
+          that.settings.inputSettings.homophoneLookupEnabled;
         document.getElementById('shift-toggle-alphabet-mode').checked =
           that.settings.shiftKeyToToggleAlphabetMode;
 
@@ -179,6 +182,10 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
       };
       document.getElementById('reverse-radical-lookup').onchange = (e) => {
         settings.settings.inputSettings.reverseRadicalLookupEnabled = e.target.checked;
+        settings.save();
+      };
+      document.getElementById('homophone-lookup').onchange = (e) => {
+        settings.settings.inputSettings.homophoneLookupEnabled = e.target.checked;
         settings.save();
       };
       document.getElementById('save-symbols-table').onclick = () => {

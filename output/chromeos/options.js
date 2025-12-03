@@ -14,6 +14,7 @@ window.onload = () => {
         clearOnErrors: false,
         beepOnErrors: false,
         reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
       },
     };
     that.settings = that.defaults;
@@ -48,6 +49,8 @@ window.onload = () => {
       document.getElementById('beep-on-errors').checked = that.settings.inputSettings.beepOnErrors;
       document.getElementById('reverse-radical-lookup').checked =
         that.settings.inputSettings.reverseRadicalLookupEnabled;
+      document.getElementById('homophone-lookup').checked =
+        that.settings.inputSettings.homophoneLookupEnabled;
       document.getElementById('shift-toggle-alphabet-mode').checked =
         that.settings.shiftKeyToToggleAlphabetMode;
       document.getElementById('use-notification').checked = that.settings.useNotification;
@@ -154,6 +157,10 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
       settings.settings.inputSettings.reverseRadicalLookupEnabled = e.target.checked;
       settings.save();
     };
+    document.getElementById('homophone-lookup').onchange = (e) => {
+      settings.settings.inputSettings.homophoneLookupEnabled = e.target.checked;
+      settings.save();
+    };
     document.getElementById('save-symbols-table').onclick = () => {
       symbolsTableSettings.save();
     };
@@ -217,6 +224,11 @@ Unicode=♨☀☁☂☃♠♥♣♦♩♪♫♬☺☻
       chrome.i18n.getMessage('reverseRadicalLookupDescription');
     document.getElementById('label-shift-toggle-alphabet-mode').innerText = chrome.i18n.getMessage(
       'labelShiftToggleAlphabetMode',
+    );
+    document.getElementById('label-homophone-lookup').innerText =
+      chrome.i18n.getMessage('labelHomophoneLookup');
+    document.getElementById('homophone-lookup-description').innerText = chrome.i18n.getMessage(
+      'homophoneLookupDescription',
     );
 
     document.getElementById('label-shift-toggle-alphabet-mode').innerText =

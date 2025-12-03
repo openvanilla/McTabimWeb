@@ -144,5 +144,11 @@
   },
   "trad_chinese": {
     "message": "切換到繁體中文"
+  },
+  "labelHomophoneLookup": {
+    "message": "同音字查詢"
+  },
+  "homophoneLookupDescription": {
+    "message": "當您輸入一個字元時，可以幫您查詢同音字。"
   }
 }

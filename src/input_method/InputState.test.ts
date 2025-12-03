@@ -25,6 +25,7 @@ const createSettings = (overrides: Partial<Settings> = {}): Settings => ({
   clearOnErrors: false,
   beepOnErrors: false,
   reverseRadicalLookupEnabled: false,
+  homophoneLookupEnabled: true,
   ...overrides,
 });
 

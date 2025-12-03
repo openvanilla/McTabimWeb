@@ -282,6 +282,7 @@ let example = (function () {
         clearOnErrors: false,
         beepOnErrors: false,
         reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
       },
     };
     that.settings = {
@@ -295,6 +296,7 @@ let example = (function () {
         clearOnErrors: false,
         beepOnErrors: false,
         reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
       },
     };
     that.load = () => {
@@ -344,6 +346,8 @@ let example = (function () {
         inputSettings.wildcardMatchingEnabled;
       document.getElementById('reverse_radical_lookup_enabled').checked =
         inputSettings.reverseRadicalLookupEnabled;
+      document.getElementById('homophone_lookup_enabled').checked =
+        inputSettings.homophoneLookupEnabled;
     };
     return that;
   })();
@@ -434,37 +438,44 @@ let example = (function () {
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
-
     document.getElementById('chinese_convert_simp').onchange = function (event) {
       settings.settings.inputSettings.chineseConversionEnabled = true;
       settings.save();
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
-
     document.getElementById('associated_phrases_enabled').onchange = (event) => {
       settings.settings.inputSettings.associatedPhrasesEnabled = event.target.checked;
       settings.save();
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
-
     document.getElementById('shift_punctuation_for_symbols_enabled').onchange = (event) => {
       settings.settings.inputSettings.shiftPunctuationForSymbolsEnabled = event.target.checked;
       settings.save();
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
-
     document.getElementById('shift_letter_for_symbols_enabled').onchange = (event) => {
       settings.settings.inputSettings.shiftLetterForSymbolsEnabled = event.target.checked;
       settings.save();
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
-
     document.getElementById('wildcard_matching_enabled').onchange = (event) => {
       settings.settings.inputSettings.wildcardMatchingEnabled = event.target.checked;
+      settings.save();
+      settings.applyToInputMethod();
+      document.getElementById('text_area').focus();
+    };
+    document.getElementById('reverse_radical_lookup_enabled').onchange = (event) => {
+      settings.settings.inputSettings.reverseRadicalLookupEnabled = event.target.checked;
+      settings.save();
+      settings.applyToInputMethod();
+      document.getElementById('text_area').focus();
+    };
+    document.getElementById('homophone_lookup_enabled').onchange = (event) => {
+      settings.settings.inputSettings.homophoneLookupEnabled = event.target.checked;
       settings.save();
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
@@ -481,13 +492,6 @@ let example = (function () {
       settings.applyToInputMethod();
       document.getElementById('text_area').focus();
     };
-    document.getElementById('reverse_radical_lookup_enabled').onchange = (event) => {
-      settings.settings.inputSettings.reverseRadicalLookupEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-
     window.addEventListener('hashchange', () => {
       let hash = window.location.hash;
       toggle_feature(hash.substring(1));
@@ -562,7 +566,6 @@ let example = (function () {
       return false;
     };
 
-    
     // IndexedDB logic for saving text area content.
     (() => {
       const DB_NAME = 'McTabimUserData';
@@ -573,17 +576,17 @@ let example = (function () {
       function openDB() {
         return new Promise((resolve, reject) => {
           const request = indexedDB.open(DB_NAME, 1);
-          request.onupgradeneeded = event => {
+          request.onupgradeneeded = (event) => {
             const db = event.target.result;
             if (!db.objectStoreNames.contains(STORE_NAME)) {
               db.createObjectStore(STORE_NAME);
             }
           };
-          request.onsuccess = event => {
+          request.onsuccess = (event) => {
             db = event.target.result;
             resolve(db);
           };
-          request.onerror = event => {
+          request.onerror = (event) => {
             console.error('IndexedDB error:', event.target.error);
             reject(event.target.error);
           };
@@ -627,17 +630,21 @@ let example = (function () {
         return;
       }
 
-      openDB().then(() => {
-        loadContent().then(savedContent => {
-          if (typeof savedContent === 'string') {
-            textArea.value = savedContent;
-          }
-        }).catch(err => {
-          console.error("Failed to load content:", err);
+      openDB()
+        .then(() => {
+          loadContent()
+            .then((savedContent) => {
+              if (typeof savedContent === 'string') {
+                textArea.value = savedContent;
+              }
+            })
+            .catch((err) => {
+              console.error('Failed to load content:', err);
+            });
+        })
+        .catch((err) => {
+          console.error('Failed to open DB:', err);
         });
-      }).catch(err => {
-        console.error("Failed to open DB:", err);
-      });
 
       let debounceTimeout;
       textArea.addEventListener('input', () => {

@@ -31,6 +31,7 @@ interface Settings {
     clearOnErrors: boolean;
     beepOnErrors: boolean;
     reverseRadicalLookupEnabled: boolean;
+    homophoneLookupEnabled: boolean;
   };
 }
 
@@ -72,6 +73,7 @@ const defaultSettings: Settings = {
     clearOnErrors: false,
     beepOnErrors: true,
     reverseRadicalLookupEnabled: false,
+    homophoneLookupEnabled: true,
   },
 };
 

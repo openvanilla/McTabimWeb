@@ -26,6 +26,7 @@ type ChromeMcTabimSettings = {
     clearOnErrors: boolean;
     beepOnErrors: boolean;
     reverseRadicalLookupEnabled: boolean;
+    homophoneLookupEnabled: boolean;
   };
 };
 
@@ -61,6 +62,7 @@ class ChromeMcTabim {
       clearOnErrors: false,
       beepOnErrors: false,
       reverseRadicalLookupEnabled: false,
+      homophoneLookupEnabled: true,
     },
   };
   settings: ChromeMcTabimSettings = {
@@ -76,6 +78,7 @@ class ChromeMcTabim {
       clearOnErrors: false,
       beepOnErrors: false,
       reverseRadicalLookupEnabled: false,
+      homophoneLookupEnabled: true,
     },
   };
   inputController: InputController;

@@ -320,7 +320,7 @@ export class SettingsState extends InputtingState {
         },
       ],
       [
-        '使用萬用字元 (*)',
+        '使用萬用字元 (字根 + *)',
         args.settings.wildcardMatchingEnabled,
         () => {
           this.settings.wildcardMatchingEnabled = !this.settings.wildcardMatchingEnabled;
@@ -331,6 +331,13 @@ export class SettingsState extends InputtingState {
         args.settings.reverseRadicalLookupEnabled,
         () => {
           this.settings.reverseRadicalLookupEnabled = !this.settings.reverseRadicalLookupEnabled;
+        },
+      ],
+      [
+        '使用同音字反查 (字根 + `)',
+        args.settings.homophoneLookupEnabled,
+        () => {
+          this.settings.homophoneLookupEnabled = !this.settings.homophoneLookupEnabled;
         },
       ],
     ];

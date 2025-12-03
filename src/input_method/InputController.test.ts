@@ -47,6 +47,7 @@ describe('InputController', () => {
       clearOnErrors: false,
       beepOnErrors: false,
       reverseRadicalLookupEnabled: false,
+      homophoneLookupEnabled: true,
     };
     expect(controller.settings).toEqual(defaultSettings);
 

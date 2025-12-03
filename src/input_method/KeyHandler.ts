@@ -373,7 +373,10 @@ export class KeyHandler {
       }
 
       if (state instanceof BasicInputtingState) {
-        let useHomophone = key.ascii === '`' && state.candidates.length > 0;
+        let useHomophone =
+          this.onRequestSettings().homophoneLookupEnabled &&
+          key.ascii === '`' &&
+          state.candidates.length > 0;
         if (useHomophone) {
           let selectedWord = state.candidates[state.selectedCandidateIndex ?? 0];
           let bpmfReadings = InputTableManager.getInstance().lookupBpmfReadings(

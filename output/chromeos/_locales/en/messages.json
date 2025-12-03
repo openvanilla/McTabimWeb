@@ -144,5 +144,11 @@
   },
   "trad_chinese": {
     "message": "Use Traditional Chinese"
+  },
+  "labelHomophoneLookup": {
+    "message": "Homophone Lookup:"
+  },
+  "homophoneLookupDescription": {
+    "message": "It is useful when you forgot the radicals of a character."
   }
 }

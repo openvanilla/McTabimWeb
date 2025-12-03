@@ -27,6 +27,7 @@ export class InputController {
     clearOnErrors: false,
     beepOnErrors: false,
     reverseRadicalLookupEnabled: false,
+    homophoneLookupEnabled: true,
   };
 
   onSettingChanged?: ((settings: Settings) => void) | undefined;

@@ -30,6 +30,7 @@ describe('Test KeyHandler', () => {
         clearOnErrors: false,
         beepOnErrors: false,
         reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
       };
     },
     (settings) => {},
@@ -379,6 +380,7 @@ describe('Test Associated Phrases', () => {
         clearOnErrors: false,
         beepOnErrors: false,
         reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
       };
     },
     (settings) => {},
@@ -515,6 +517,7 @@ describe('Test Associated Phrases', () => {
         clearOnErrors: false,
         beepOnErrors: false,
         reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
       }),
       () => {},
     );
@@ -552,6 +555,7 @@ describe('KeyHandler edge cases', () => {
     clearOnErrors: false,
     beepOnErrors: false,
     reverseRadicalLookupEnabled: false,
+    homophoneLookupEnabled: true,
     ...overrides,
   });
 
@@ -882,6 +886,7 @@ describe('Test Homophone Selection', () => {
     clearOnErrors: false,
     beepOnErrors: false,
     reverseRadicalLookupEnabled: false,
+    homophoneLookupEnabled: true,
     ...overrides,
   });
 

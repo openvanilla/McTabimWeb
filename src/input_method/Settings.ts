@@ -25,4 +25,5 @@ export interface Settings {
   clearOnErrors: boolean;
   beepOnErrors: boolean;
   reverseRadicalLookupEnabled: boolean;
+  homophoneLookupEnabled: boolean;
 }
