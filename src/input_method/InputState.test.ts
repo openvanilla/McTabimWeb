@@ -1,4 +1,4 @@
-import { Candidate, MenuCandidate, SymbolCategory } from '../data';
+import { Candidate, InputTableManager, MenuCandidate, SymbolCategory } from '../data';
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
@@ -7,6 +7,8 @@ import {
   InputtingState,
   MenuState,
   NumberInputtingState,
+  SelectingHomophoneReadingsState,
+  SelectingHomophoneWordState,
   SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
@@ -24,6 +26,15 @@ const createSettings = (overrides: Partial<Settings> = {}): Settings => ({
   beepOnErrors: false,
   reverseRadicalLookupEnabled: false,
   ...overrides,
+});
+
+// Mock InputTableManager
+jest.mock('../data/InputTableManager', () => {
+  return {
+    InputTableManager: {
+      getInstance: jest.fn(),
+    },
+  };
 });
 
 // Helper for test candidates
@@ -520,6 +531,16 @@ describe('MenuState', () => {
       associatedPhrasesEnabled: false,
     });
 
+  beforeEach(() => {
+    // Setup mock for InputTableManager
+    (InputTableManager.getInstance as jest.Mock).mockReturnValue({
+      customSymbolTable: { tables: ['dummy'] },
+      bopomofoSymbols: [],
+      foreignLanguage: { tables: [] },
+      emojiTable: { tables: [] },
+    });
+  });
+
   it('toggles Chinese conversion and calls the callback', () => {
     const settings = baseSettings();
     const onSettingsChanged = jest.fn();
@@ -560,6 +581,114 @@ describe('MenuState', () => {
 
     const copied = state.copyWithArgs({ selectedCandidateIndex: 2 });
     expect(copied.selectedCandidateIndex).toBe(2);
+  });
+});
+
+describe('SelectingHomophoneReadingsState', () => {
+  const mockCandidates = [new Candidate('A', ''), new Candidate('B', '')];
+
+  it('should initialize with correct properties', () => {
+    const previousState = new EmptyState();
+    const state = new SelectingHomophoneReadingsState({
+      radicals: 'test',
+      displayedRadicals: ['test'],
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+      previousState,
+    });
+
+    expect(state.radicals).toBe('test');
+    expect(state.displayedRadicals).toEqual(['test']);
+    expect(state.selectionKeys).toBe('12');
+    expect(state.candidates).toEqual(mockCandidates);
+    expect(state.previousState).toBe(previousState);
+  });
+
+  it('copyWithArgs should update selectedCandidateIndex', () => {
+    const previousState = new EmptyState();
+    const state = new SelectingHomophoneReadingsState({
+      radicals: 'test',
+      displayedRadicals: ['test'],
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+      previousState,
+    });
+
+    const newState = state.copyWithArgs({
+      selectedCandidateIndex: 1,
+    }) as SelectingHomophoneReadingsState;
+    expect(newState).toBeInstanceOf(SelectingHomophoneReadingsState);
+    expect(newState.selectedCandidateIndex).toBe(1);
+    expect(newState.previousState).toBe(previousState);
+  });
+
+  it('toString returns correct details', () => {
+    const previousState = new EmptyState();
+    const state = new SelectingHomophoneReadingsState({
+      radicals: 'test',
+      displayedRadicals: ['test'],
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+      previousState,
+    });
+    expect(state.toString()).toContain('SelectingHomophoneReadingsState >>');
+  });
+});
+
+describe('SelectingHomophoneWordState', () => {
+  const mockCandidates = [new Candidate('A', ''), new Candidate('B', '')];
+
+  it('should initialize with correct properties', () => {
+    const previousState = new EmptyState();
+    const state = new SelectingHomophoneWordState({
+      radicals: 'test',
+      displayedRadicals: ['test'],
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+      previousState,
+    });
+
+    expect(state.radicals).toBe('test');
+    expect(state.displayedRadicals).toEqual(['test']);
+    expect(state.selectionKeys).toBe('12');
+    expect(state.candidates).toEqual(mockCandidates);
+    expect(state.previousState).toBe(previousState);
+  });
+
+  it('copyWithArgs should update selectedCandidateIndex', () => {
+    const previousState = new EmptyState();
+    const state = new SelectingHomophoneWordState({
+      radicals: 'test',
+      displayedRadicals: ['test'],
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+      previousState,
+    });
+
+    const newState = state.copyWithArgs({
+      selectedCandidateIndex: 1,
+    }) as SelectingHomophoneWordState;
+    expect(newState).toBeInstanceOf(SelectingHomophoneWordState);
+    expect(newState.selectedCandidateIndex).toBe(1);
+    expect(newState.previousState).toBe(previousState);
+  });
+
+  it('toString returns correct details', () => {
+    const previousState = new EmptyState();
+    const state = new SelectingHomophoneWordState({
+      radicals: 'test',
+      displayedRadicals: ['test'],
+      selectionKeys: '12',
+      candidates: mockCandidates,
+      selectedCandidateIndex: 0,
+      previousState,
+    });
+    expect(state.toString()).toContain('SelectingHomophoneWordState >>');
   });
 });
 

@@ -7,6 +7,7 @@ import {
   InputState,
   InputtingState,
   MenuState,
+  SelectingHomophoneWordState,
   SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
@@ -868,5 +869,186 @@ describe('KeyHandler edge cases', () => {
     );
     expect(handled).toBe(false);
     expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(EmptyState);
+  });
+});
+
+describe('Test Homophone Selection', () => {
+  const buildSettings = (overrides: Partial<Settings> = {}): Settings => ({
+    chineseConversionEnabled: false,
+    associatedPhrasesEnabled: false,
+    shiftLetterForSymbolsEnabled: false,
+    shiftPunctuationForSymbolsEnabled: false,
+    wildcardMatchingEnabled: false,
+    clearOnErrors: false,
+    beepOnErrors: false,
+    reverseRadicalLookupEnabled: false,
+    ...overrides,
+  });
+
+  const createStubTable = () => ({
+    table: {
+      keynames: { a: 'A' },
+      selkey: KeyHandler.COMMON_SELECTION_KEYS,
+      chardefs: {},
+    },
+    lookupForCandidate: jest.fn(() => []),
+    lookUpForDisplayedKeyName: jest.fn((key: string) => key.toUpperCase()),
+    reverseLookupForRadicals: jest.fn(() => ['Ａ']),
+    settings: { maxRadicals: 5 },
+  });
+
+  it('should enter SelectingHomophoneWordState when backtick is pressed and one reading found', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+
+    const lookupBpmfReadingsSpy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookupBpmfReadings')
+      .mockReturnValue([['中', 'ㄓㄨㄥ']]);
+    const lookupCandidatesSpy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookupCandidatesForBpmfRadicals')
+      .mockReturnValue([new Candidate('中', '')]);
+
+    const state = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('中', '')],
+    });
+
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      new Key('`', KeyName.UNKNOWN),
+      state,
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(stateCallback).toHaveBeenCalled();
+    const newState = stateCallback.mock.calls[0][0];
+    expect(newState.constructor.name).toBe('SelectingHomophoneWordState');
+    expect(newState.candidates.length).toBe(1);
+    expect(newState.candidates[0].displayText).toBe('中');
+
+    lookupBpmfReadingsSpy.mockRestore();
+    lookupCandidatesSpy.mockRestore();
+  });
+
+  it('should enter SelectingHomophoneWordState with menu when backtick is pressed and multiple readings found', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+
+    const lookupBpmfReadingsSpy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookupBpmfReadings')
+      .mockReturnValue([
+        ['重', 'ㄓㄨㄥˋ'],
+        ['重', 'ㄔㄨㄥˊ'],
+      ]);
+    const lookupCandidatesSpy = jest
+      .spyOn(InputTableManager.getInstance(), 'lookupCandidatesForBpmfRadicals')
+      .mockReturnValue([new Candidate('重', '')]);
+
+    const state = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('重', '')],
+    });
+
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      new Key('`', KeyName.UNKNOWN),
+      state,
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(stateCallback).toHaveBeenCalled();
+    const newState = stateCallback.mock.calls[0][0];
+    expect(newState.constructor.name).toBe('SelectingHomophoneWordState');
+    expect(newState.candidates.length).toBe(2);
+    expect(newState.candidates[0]).toBeInstanceOf(MenuCandidate);
+    expect(newState.candidates[1]).toBeInstanceOf(MenuCandidate);
+
+    lookupBpmfReadingsSpy.mockRestore();
+    lookupCandidatesSpy.mockRestore();
+  });
+
+  it('should handle selection in SelectingHomophoneWordState', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+
+    const prevState = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('中', '')],
+    });
+
+    const state = new SelectingHomophoneWordState({
+      previousState: prevState,
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('重', '')],
+    });
+
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      new Key('1', KeyName.UNKNOWN),
+      state,
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(stateCallback).toHaveBeenCalled();
+    const newState = stateCallback.mock.calls[0][0];
+    expect(newState).toBeInstanceOf(CommittingState);
+    expect((newState as CommittingState).commitString).toBe('重');
+  });
+
+  it('should return to previous state on BACKSPACE in SelectingHomophoneWordState', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+
+    const prevState = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('中', '')],
+    });
+
+    const state = new SelectingHomophoneWordState({
+      previousState: prevState,
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('重', '')],
+    });
+
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      Key.namedKey(KeyName.BACKSPACE),
+      state,
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(stateCallback).toHaveBeenCalledWith(prevState);
   });
 });
