@@ -41,8 +41,6 @@
                             <a href="#" id="fullscreen">全螢幕編輯</a>
                         </div>
                     </div>
-
-
                     <textarea placeholder="請在此直接使用英數鍵盤打字" id="text_area" rows="10" cols="50" title="輸入區"
                         autocapitalize="off"></textarea>
                     <div class="function" id="function">
@@ -88,11 +86,11 @@
                                 <input type="checkbox" id="beep_on_error"><label
                                     for="beep_on_error">輸入錯誤時發出提示音</label><br>
                                 <input type="checkbox" id="wildcard_matching_enabled"><label
-                                    for="wildcard_matching_enabled">啟用萬用字元</label><br>
+                                    for="wildcard_matching_enabled">啟用萬用字元 (字根 + *)</label><br>
                                 <input type="checkbox" id="reverse_radical_lookup_enabled"><label
                                     for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
                                 <input type="checkbox" id="homophone_lookup_enabled"><label
-                                    for="homophone_lookup_enabled">啟用同音字反查</label><br>
+                                    for="homophone_lookup_enabled">啟用同音字反查 (字根 + `)</label><br>
                             </td>
                         </tr>
                     </table>
@@ -109,6 +107,12 @@
                         <li>
                             按下 `M 或 ``` 之後，可以叫出功能選單。
                         </li>
+                        <li>
+                            啟用萬用字元選項後，可以先輸入字根，再輸入 * 來查詢不確定的部首。
+                        </li>
+                        <li>
+                            啟用同音字反查選項後，可以先打一個字，再用 ` 來查詢同音字。
+                        </li>
                     </ul>
                     <p>打出某些字詞之後，可以選擇聯想詞。輸入方式是按下 Shift + 數字按鍵。</p>
                     <h2>資料來源</h2>
@@ -118,7 +122,7 @@
                 <details>
                     <summary> 版本資訊 </summary>
                     <ul>
-                        <li>0.1.1 版</li>
+                        <li>0.1.2 版</li>
                         <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank" title="專案首頁">專案首頁</a>
                         </li>
                         <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank"
