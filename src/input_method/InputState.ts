@@ -2,8 +2,29 @@ import { Candidate, InputTableManager, MenuCandidate, SymbolCategory } from '../
 import HelperDataInput from './HelperDataInput';
 import { Settings } from './Settings';
 
+/**
+ * The abstract base class for all input states.
+ *
+ * This class provides a common interface for the various states that the input
+ * method can be in, such as "empty", "inputting", or "committing". Each state
+ * represents a different stage in the user's interaction with the input method.
+ *
+ * The input controller (`InputController`) manages the transitions between these
+ * states in response to user input. Each state class is responsible for
+ * handling a specific set of user actions and for determining the next state.
+ */
 export abstract class InputState {}
 
+/**
+ * Represents the state where there is no active input.
+ *
+ * This is the default state of the input method, and it is returned to after an
+ * input has been committed or cancelled. In this state, the input method is
+ * ready to accept a new input from the user.
+ *
+ * @param {string} reason - An optional description of why the empty state was
+ *     entered. This can be useful for debugging.
+ */
 export class EmptyState extends InputState {
   constructor(public reason: string = 'Initial State') {
     super();
@@ -14,6 +35,15 @@ export class EmptyState extends InputState {
   }
 }
 
+/**
+ * Represents the state where a string is being committed.
+ *
+ * This state is entered after the user has selected a candidate from the list
+ * of suggestions. The input method will then commit the selected string to the
+ * text field and return to the `EmptyState`.
+ *
+ * @param {string} commitString - The string to be committed.
+ */
 export class CommittingState extends InputState {
   constructor(readonly commitString: string) {
     super();
@@ -23,6 +53,16 @@ export class CommittingState extends InputState {
   }
 }
 
+/**
+ * A state that only displays a tooltip.
+ *
+ * This state is used to show a temporary message to the user, such as an error
+ * message or a hint. The input method will remain in this state until the user
+t
+ * akes some action, at which point it will transition to another state.
+ *
+ * @param {string} tooltip - The message to be displayed in the tooltip.
+ */
 export class TooltipOnlyState extends InputState {
   constructor(readonly tooltip: string) {
     super();
@@ -32,6 +72,28 @@ export class TooltipOnlyState extends InputState {
   }
 }
 
+/**
+ * Represents the state where the user is actively inputting characters.
+ *
+ * This is the main state of the input method, and it is where most of the user's
+ * interaction takes place. In this state, the user can type characters, select
+ * candidates from a list of suggestions, and perform other actions.
+ *
+ * @param {string} radicals - The current input radicals.
+ * @param {string[]} displayedRadicals - The radicals as they are displayed to the
+ *     user. This may be different from the actual radicals, for example if the
+ *     user is using a phonetic input method.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ * @param {string} [exactSelectionKeys] - The exact keys that are used to
+ *     select candidates. This is used for input methods that have a fixed set
+ *     of selection keys.
+ * @param {string} [tooltip] - A tooltip to be displayed to the user.
+ * @param {string} [candidateAnnotation] - An annotation to be displayed next to
+ *     the candidates.
+ */
 export class InputtingState extends InputState {
   readonly radicals: string;
   readonly displayedRadicals: string[];
@@ -96,6 +158,14 @@ export class InputtingState extends InputState {
   }
 }
 
+/**
+ * A basic inputting state that handles character input and candidate selection.
+ *
+ * This is the default inputting state, and it is used for most input methods.
+ * It provides basic functionality for handling user input, such as adding and
+ * removing characters, selecting candidates, and navigating through the
+ * candidate list.
+ */
 export class BasicInputtingState extends InputtingState {
   copyWithArgs(args: { selectedCandidateIndex?: number }): BasicInputtingState {
     return new BasicInputtingState({
@@ -113,6 +183,22 @@ export class BasicInputtingState extends InputtingState {
   }
 }
 
+/**
+ * A state for selecting associated phrases.
+ *
+ * This state is entered after the user has selected a candidate, and it allows
+ * them to select an associated phrase from a list of suggestions.
+ *
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {string} exactSelectionKeys - The exact keys that are used to select
+ *     candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ * @param {string} [tooltip] - A tooltip to be displayed to the user.
+ * @param {string} [candidateAnnotation] - An annotation to be displayed next to
+ *     the candidates.
+ */
 export class AssociatedPhrasesState extends InputtingState {
   constructor(args: {
     selectionKeys: string;
@@ -149,6 +235,23 @@ export class AssociatedPhrasesState extends InputtingState {
   }
 }
 
+/**
+ * A state for inputting numbers.
+ *
+ * This state is used to handle numeric input, and it provides a list of
+ * suggestions for different number formats, such as full-width and half-width
+ * numbers, as well as Chinese numerals.
+ *
+ * @param {string} radicals - The current input radicals.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {string} exactSelectionKeys - The exact keys that are used to select
+ *     candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ * @param {string} [candidateAnnotation] - An annotation to be displayed next to
+ *     the candidates.
+ */
 export class NumberInputtingState extends InputtingState {
   constructor(args: {
     radicals: string;
@@ -184,6 +287,19 @@ export class NumberInputtingState extends InputtingState {
   }
 }
 
+/**
+ * A state for inputting symbols.
+ *
+ * This state is used to handle symbol input, and it provides a list of
+ * suggestions for different symbols, such as punctuation marks, emojis, and
+ * other special characters.
+ *
+ * @param {string} radicals - The current input radicals.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ */
 export class SymbolInputtingState extends InputtingState {
   constructor(args: {
     radicals: string;
@@ -213,6 +329,23 @@ export class SymbolInputtingState extends InputtingState {
   }
 }
 
+/**
+ * A state for selecting a symbol from a category.
+ *
+ * This state is used to display a list of symbols from a specific category,
+ * such as "emojis" or "punctuation". The user can then select a symbol from
+ * the list to be inserted into the text field.
+ *
+ * @param {string} title - The title of the symbol category.
+ * @param {string[]} displayedRadicals - The radicals as they are displayed to the
+ *     user.
+ * @param {InputState} previousState - The previous state of the input method.
+ * @param {(SymbolCategory | string)[]} nodes - The list of symbols in the
+ *     category.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ */
 export class SymbolCategoryState extends InputtingState {
   nodes: (SymbolCategory | string)[];
   previousState: InputState;
@@ -269,6 +402,21 @@ export class SymbolCategoryState extends InputtingState {
   }
 }
 
+/**
+ * A state for managing the input method's settings.
+ *
+ * This state is used to display a list of settings that the user can modify,
+ * such as the input method's language, the layout of the keyboard, and other
+ * preferences.
+ *
+ * @param {InputState} previousState - The previous state of the input method.
+ * @param {Settings} settings - The current settings of the input method.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {function} [onSettingsChanged] - A callback function that is called
+ *     when the settings are changed.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ */
 export class SettingsState extends InputtingState {
   previousState: InputState;
   settings: Settings;
@@ -384,6 +532,20 @@ export class SettingsState extends InputtingState {
   }
 }
 
+/**
+ * A state that displays a menu of options.
+ *
+ * This state is used to show a list of commands or options to the user, such as
+ * "Settings", "Help", or "About". The user can then select an option from the
+ * list to be executed.
+ *
+ * @param {Settings} settings - The current settings of the input method.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {function} onSettingsChanged - A callback function that is called when
+ *     the settings are changed.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ */
 export class MenuState extends InputtingState {
   settings: Settings;
   onSettingsChanged: ((settings: Settings) => void) | undefined;
@@ -527,6 +689,25 @@ export class MenuState extends InputtingState {
   }
 }
 
+/**
+ * A state for selecting the reading of a homophone.
+ *
+ * This state is entered when the user has entered a word that has multiple
+ * possible readings. It allows the user to select the correct reading from a
+ * list of suggestions.
+ *
+ * @param {string} radicals - The current input radicals.
+ * @param {string[]} displayedRadicals - The radicals as they are displayed to the
+ *     user.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ * @param {string} [exactSelectionKeys] - The exact keys that are used to
+ *     select candidates.
+ * @param {string} [tooltip] - A tooltip to be displayed to the user.
+ * @param {InputState} previousState - The previous state of the input method.
+ */
 export class SelectingHomophoneReadingsState extends InputtingState {
   readonly previousState: InputState;
   constructor(args: {
@@ -561,6 +742,24 @@ export class SelectingHomophoneReadingsState extends InputtingState {
   }
 }
 
+/**
+ * A state for selecting a homophone word.
+ *
+ * This state is entered after the user has selected a reading for a homophone.
+ * It allows the user to select the correct word from a list of suggestions.
+ *
+ * @param {string} radicals - The current input radicals.
+ * @param {string[]} displayedRadicals - The radicals as they are displayed to the
+ *     user.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ * @param {string} [exactSelectionKeys] - The exact keys that are used to
+ *     select candidates.
+ * @param {string} [tooltip] - A tooltip to be displayed to the user.
+ * @param {InputState} previousState - The previous state of the input method.
+ */
 export class SelectingHomophoneWordState extends InputtingState {
   readonly previousState: InputState;
   constructor(args: {

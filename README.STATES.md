@@ -15,11 +15,18 @@ stateDiagram-v2
     BasicInputtingState --> BasicInputtingState: Radical key / Backspace
     BasicInputtingState --> CommittingState: Select candidate (Space, Enter, 1-9)
     BasicInputtingState --> EmptyState: Esc / Backspace on last radical
+    BasicInputtingState --> SelectingHomophoneReadingsState: '`' key
 
     SymbolInputtingState --> SymbolInputtingState: Symbol key / Backspace
     SymbolInputtingState --> CommittingState: Select candidate
     SymbolInputtingState --> MenuState: '`' + '`' or '`' + 'm'
     SymbolInputtingState --> EmptyState: Esc
+
+    SelectingHomophoneReadingsState --> SelectingHomophoneWordState: Select reading
+    SelectingHomophoneReadingsState --> BasicInputtingState: Esc / Backspace
+
+    SelectingHomophoneWordState --> CommittingState: Select candidate
+    SelectingHomophoneWordState --> SelectingHomophoneReadingsState: Esc / Backspace
 
     MenuState --> SettingsState: Select 'Settings'
     MenuState --> SymbolCategoryState: Select symbol category

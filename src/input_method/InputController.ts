@@ -15,6 +15,25 @@ import { Settings } from './Settings';
 
 const ChineseConvert = require('chinese_convert');
 
+/**
+ * The main controller for the input method.
+ *
+ * This class is responsible for managing the state of the input method,
+ * handling user input, and interacting with the UI. It acts as the central
+ * hub of the input method, coordinating the activities of the other
+ * components.
+ *
+ * The `InputController` maintains the current state of the input method, which
+ * can be one of several states, such as "empty", "inputting", or
+ * "committing". It receives user input in the form of keyboard events, and
+ * then passes them to the `KeyHandler` to be processed. The `KeyHandler`
+ * then determines the next state of the input method, and the
+ * `InputController` transitions to that state.
+ *
+ * The `InputController` also interacts with the UI to display the current
+ * state of the input method, such as the current input, the list of
+ * candidates, and any error messages.
+ */
 export class InputController {
   private state_: InputState = new EmptyState();
   private keyHandler_: KeyHandler;
@@ -60,15 +79,32 @@ export class InputController {
       );
   }
 
+  /**
+   * Resets the input controller to its initial state.
+   *
+   * @param {string} reason - The reason for resetting the controller.
+   */
   reset(reason: string): void {
     this.enterState(this.state_, new EmptyState(reason));
   }
 
+  /**
+   * Handles a keyboard event.
+   *
+   * @param {KeyboardEvent} event - The keyboard event to handle.
+   * @returns {boolean} - True if the event was handled, false otherwise.
+   */
   handleKeyboardEvent(event: KeyboardEvent): boolean {
     const key = KeyMapping.keyFromKeyboardEvent(event);
     return this.handle(key);
   }
 
+  /**
+   * Handles a key.
+   *
+   * @param {Key} key - The key to handle.
+   * @returns {boolean} - True if the key was handled, false otherwise.
+   */
   handle(key: Key): boolean {
     const handled = this.keyHandler_.handle(
       key,
@@ -86,6 +122,11 @@ export class InputController {
     return handled;
   }
 
+  /**
+   * Selects a candidate at the given index.
+   *
+   * @param {number} index - The index of the candidate to select.
+   */
   selectCandidateAtIndex(index: number): void {
     const oldState = this.state_;
     if (oldState instanceof InputtingState) {

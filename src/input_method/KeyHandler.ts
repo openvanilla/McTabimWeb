@@ -19,6 +19,27 @@ import {
 import { Key, KeyName } from './Key';
 import { Settings } from './Settings';
 
+/**
+ * Handles key events and transitions between input states.
+ *
+ * This class is responsible for processing user input, such as key presses,
+ * and for determining the appropriate next state for the input method. It
+ * works in conjunction with the `InputController` to manage the overall
+ * state of the input method.
+ *
+ * The `KeyHandler` receives key events from the `InputController`, and then
+ * uses the current state to determine how to handle the event. For example,
+ * if the input method is in the `InputtingState`, the `KeyHandler` will
+- * append the new character to the current input, and then update the
+- * candidate list.
++ * append the new character to the current input, and then update the candidate
++ * list.
+ *
+ * The `KeyHandler` also handles special keys, such as the backspace key, the
+ * enter key, and the arrow keys. These keys are used to perform actions such
+ * as deleting characters, committing the current input, and navigating the
+ * candidate list.
+ */
 export class KeyHandler {
   static readonly COMMON_SELECTION_KEYS = '1234567890';
   static readonly ASSOCIATED_PHRASES_SELECTION_KEYS = '!@#$%^&*()';
@@ -32,6 +53,16 @@ export class KeyHandler {
     readonly onSettingChanged: (settings: Settings) => void,
   ) {}
 
+  /**
+   * Handles the selection of a candidate.
+   *
+   * @param {InputtingState} state - The current inputting state.
+   * @param {Candidate} selectedCandidate - The candidate that was selected.
+   * @param {function} stateCallback - A callback function to be called with the
+   *     new state.
+   * @param {boolean} [allowAssociatedPhrases=true] - Whether to allow
+   *     associated phrases to be displayed.
+   */
   handleCandidate(
     state: InputtingState,
     selectedCandidate: Candidate,
@@ -87,6 +118,17 @@ export class KeyHandler {
     }
   }
 
+  /**
+   * Handles a key event.
+   *
+   * @param {Key} key - The key that was pressed.
+   * @param {InputState} state - The current state of the input method.
+   * @param {function} stateCallback - A callback function to be called with the
+   *     new state.
+   * @param {function} errorCallback - A callback function to be called when an
+   *     error occurs.
+   * @returns {boolean} Whether the key event was handled.
+   */
   handle(
     key: Key,
     state: InputState,
