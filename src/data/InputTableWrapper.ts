@@ -13,7 +13,6 @@ export class InputTableWrapper {
   table_: InputTable | undefined;
   get table(): InputTable {
     if (!this.table_) {
-      console.log(`Parsing InputTable JSON for table id: ${this.id}`);
       this.table_ = JSON.parse(this.jsonSource) as InputTable;
     }
     return this.table_;
@@ -36,6 +35,7 @@ export class InputTableWrapper {
     if (!this.reverseLookUpTable_) {
       this.buildReverseLookUpTable__();
     }
+
     const founds = this.reverseLookUpTable_![character] || [];
     const remapped: string[] = [];
     for (const found of founds) {
@@ -49,6 +49,29 @@ export class InputTableWrapper {
         }
       }
       remapped.push(displayedRadicals.join(''));
+    }
+    remapped.sort((a, b) => a.length - b.length);
+    return remapped;
+  }
+
+  reverseLookupForTranslatedAndOriginalRadicals(character: string): string[][] {
+    if (!this.reverseLookUpTable_) {
+      this.buildReverseLookUpTable__();
+    }
+
+    const founds = this.reverseLookUpTable_![character] || [];
+    const remapped: string[][] = [];
+    for (const found of founds) {
+      var displayedRadicals = [];
+      for (const char of found) {
+        const translate = this.table.keynames[char];
+        if (translate) {
+          displayedRadicals.push(translate);
+        } else {
+          displayedRadicals.push(char);
+        }
+      }
+      remapped.push([displayedRadicals.join(''), found]);
     }
     remapped.sort((a, b) => a.length - b.length);
     return remapped;

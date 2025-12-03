@@ -519,3 +519,71 @@ export class MenuState extends InputtingState {
     return `MenuState(selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
+
+export class SelectingHomophoneReadingsState extends InputtingState {
+  readonly previousState: InputState;
+  constructor(args: {
+    radicals: string;
+    displayedRadicals: string[];
+    selectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+    exactSelectionKeys?: string | undefined;
+    tooltip?: string | undefined;
+    previousState: InputState;
+  }) {
+    super(args);
+    this.previousState = args.previousState;
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+    return new SelectingHomophoneReadingsState({
+      radicals: this.radicals,
+      displayedRadicals: this.displayedRadicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      exactSelectionKeys: this.exactSelectionKeys,
+      tooltip: this.tooltip,
+      previousState: this.previousState,
+    });
+  }
+
+  toString(): string {
+    return `SelectingHomophoneReadingsState >>` + this.candidates;
+  }
+}
+
+export class SelectingHomophoneWordState extends InputtingState {
+  readonly previousState: InputState;
+  constructor(args: {
+    radicals: string;
+    displayedRadicals: string[];
+    selectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+    exactSelectionKeys?: string | undefined;
+    tooltip?: string | undefined;
+    readonly previousState: InputState;
+  }) {
+    super(args);
+    this.previousState = args.previousState;
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+    return new SelectingHomophoneWordState({
+      radicals: this.radicals,
+      displayedRadicals: this.displayedRadicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      exactSelectionKeys: this.exactSelectionKeys,
+      tooltip: this.tooltip,
+      previousState: this.previousState,
+    });
+  }
+
+  toString(): string {
+    return `SelectingHomophoneWordState >>` + this.candidates;
+  }
+}

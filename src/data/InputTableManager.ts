@@ -2,6 +2,7 @@ import associatedPhrasesJson from './associated_phrases/phrase.json?raw';
 import { Candidate } from './Candidate';
 import array30 from './cin/array30.json?raw';
 import array40 from './cin/array40.json?raw';
+import bpmf from './cin/bpmf.json?raw';
 import checj from './cin/checj.json?raw';
 import cj5 from './cin/cj5.json?raw';
 import dayi3 from './cin/dayi3.json?raw';
@@ -148,14 +149,12 @@ export class InputTableManager {
         result.push(new RadicalLookupEntry(tableWrapper.table.cname, radicals));
       }
     }
-    console.log('Reverse lookup result:', result);
     return result;
   }
 
   associatedPhrases_: AssociatedPhrases | undefined = undefined;
   get associatedPhrases(): AssociatedPhrases {
     if (!this.associatedPhrases_) {
-      console.log('Loading associated phrases JSON');
       const parsed = JSON.parse(associatedPhrasesJson);
       this.associatedPhrases_ = {
         chardefs: parsed.chardefs as { [key: string]: string[] },
@@ -173,5 +172,21 @@ export class InputTableManager {
       }
     }
     return candidates;
+  }
+
+  private bmpfTable_: InputTableWrapper | undefined = undefined;
+  private get bmpfTable(): InputTableWrapper {
+    if (!this.bmpfTable_) {
+      this.bmpfTable_ = new InputTableWrapper('bpmf', bpmf, { maxRadicals: 4 });
+    }
+    return this.bmpfTable_;
+  }
+
+  lookupBpmfReadings(key: string): string[][] {
+    return this.bmpfTable.reverseLookupForTranslatedAndOriginalRadicals(key);
+  }
+
+  lookupCandidatesForBpmfRadicals(radicals: string): Candidate[] {
+    return this.bmpfTable.lookupForCandidate(radicals);
   }
 }

@@ -9,6 +9,8 @@ import {
   InputtingState,
   MenuState,
   NumberInputtingState,
+  SelectingHomophoneReadingsState,
+  SelectingHomophoneWordState,
   SettingsState,
   SymbolCategoryState,
   SymbolInputtingState,
@@ -101,6 +103,7 @@ export class KeyHandler {
     const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
 
+    // Check if the user selects an associated phrase.
     if (state instanceof AssociatedPhrasesState) {
       const selectionKeys = state.exactSelectionKeys;
       if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
@@ -369,6 +372,57 @@ export class KeyHandler {
         }
       }
 
+      if (state instanceof BasicInputtingState) {
+        let useHomophone = key.ascii === '`' && state.candidates.length > 0;
+        if (useHomophone) {
+          let selectedWord = state.candidates[state.selectedCandidateIndex ?? 0];
+          let bpmfReadings = InputTableManager.getInstance().lookupBpmfReadings(
+            selectedWord.displayText,
+          );
+          if (bpmfReadings.length === 1) {
+            let bpmf = bpmfReadings[0][1];
+            let words = InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmf);
+            let newState = new SelectingHomophoneWordState({
+              previousState: state,
+              radicals: state.radicals,
+              displayedRadicals: state.displayedRadicals,
+              selectionKeys: state.selectionKeys,
+              candidates: words,
+            });
+            stateCallback(newState);
+            return true;
+          } else if (bpmfReadings.length > 1) {
+            let menuCandidates: MenuCandidate[] = [];
+            for (let bpmfReading of bpmfReadings) {
+              let bpmf = bpmfReading[1];
+              let candidates =
+                InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmf);
+              let menu = new MenuCandidate(bpmfReading[0], '', () => {
+                let newState = new SelectingHomophoneWordState({
+                  previousState: state,
+                  radicals: state.radicals,
+                  displayedRadicals: state.displayedRadicals,
+                  selectionKeys: state.selectionKeys,
+                  candidates: candidates,
+                });
+                stateCallback(newState);
+                return true;
+              });
+              menuCandidates.push(menu);
+            }
+            let newState = new SelectingHomophoneWordState({
+              previousState: state,
+              radicals: state.radicals,
+              displayedRadicals: state.displayedRadicals,
+              selectionKeys: state.selectionKeys,
+              candidates: menuCandidates,
+            });
+            stateCallback(newState);
+            return true;
+          }
+        }
+      }
+
       // Ignore ESC key in inputting state
       if (key.name === KeyName.ESC) {
         stateCallback(new EmptyState('reset from ESC key'));
@@ -385,6 +439,12 @@ export class KeyHandler {
           stateCallback(state.previousState);
           return true;
         } else if (state instanceof SettingsState) {
+          stateCallback(state.previousState);
+          return true;
+        } else if (state instanceof SelectingHomophoneReadingsState) {
+          stateCallback(state.previousState);
+          return true;
+        } else if (state instanceof SelectingHomophoneWordState) {
           stateCallback(state.previousState);
           return true;
         }

@@ -10,8 +10,10 @@
 ## Architecture hints for Copilot
 
 - **Data layer (`src/data/`)**: `InputTableManager` lazily loads CIN tables plus emoji/symbol metadata. It is a singleton accessed through `InputTableManager.getInstance()`. Preserve that pattern and prefer readonly properties when exposing tables.
+- **BPMF homophone lookup**: Bopomofo readings come from `src/data/cin/bpmf.json` via `InputTableManager.lookupBpmfReadings` and `lookupCandidatesForBpmfRadicals`. Keep the table lazy-loaded through `InputTableWrapper`.
 - **Input pipeline (`src/input_method/`)**: `InputController` orchestrates state transitions (`EmptyState`, `InputtingState`, `CommittingState`) and keeps UI + KeyHandler in sync. Any change to state creation usually needs companion updates in `InputUIStateBuilder` and the associated Jest specs in the same folder.
 - **Key handling**: `Key`, `KeyHandler`, and `KeyMapping` work together; favor pure functions that accept the current `Settings` and `InputTableWrapper` so behavior stays testable. Never reference DOM APIs from these modules.
+- **Homophone selection states**: `SelectingHomophoneReadingsState` and `SelectingHomophoneWordState` are entered from `KeyHandler` when the backtick key triggers a BPMF homophone lookup. ESC/backspace should exit back to the prior state.
 - **Platform-specific shims**: ChromeOS and PIME entrypoints (`src/chromeos_ime.ts`, `src/pime.ts`, `src/pime_keys.ts`) should stay thin and call into the shared `InputController`.
   - The ChromeOS extension (`src/chromeos_ime.ts`) also implements a context menu feature. When text is selected or an editable area is focused, a 'lookup' option appears. Activating this option performs a reverse radical lookup using the `InputTableManager` and sends the result to the content script.
 
