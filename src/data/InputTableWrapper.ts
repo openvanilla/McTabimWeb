@@ -3,6 +3,7 @@ import { InputTable } from './InputTable';
 
 export interface InputTableSettings {
   maxRadicals: number;
+  isBopomofo?: boolean | undefined;
 }
 
 export class InputTableWrapper {

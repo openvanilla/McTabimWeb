@@ -1,4 +1,10 @@
-import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
+import {
+  BopomofoSyllable,
+  Candidate,
+  InputTableManager,
+  InputTableWrapper,
+  MenuCandidate,
+} from '../data';
 import NumberInputHelper from './HelperNumberInput';
 import {
   AssociatedPhrasesState,
@@ -186,17 +192,31 @@ export class KeyHandler {
         return true;
       } else if (inputKeys.includes(key.ascii)) {
         /// Enter radical inputting state
-        const chr = key.ascii;
-        const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
+        const radical = key.ascii;
+        const displayedRadicals = (() => {
+          if (table.settings.isBopomofo === true) {
+            const syllable = BopomofoSyllable.fromKeys(radical);
+            return syllable.reading.split('');
+          } else {
+            return [table.lookUpForDisplayedKeyName(radical) || radical];
+          }
+        })();
         let selectionKeys = table.table.selkey;
         if (selectionKeys === undefined || selectionKeys.length === 0) {
           selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         }
 
-        const candidates = table.lookupForCandidate(chr) || [];
+        const candidates = (() => {
+          if (table.settings.isBopomofo === true) {
+            return [];
+          } else {
+            return table.lookupForCandidate(radical) || [];
+          }
+        })();
+
         const newState = new BasicInputtingState({
-          radicals: chr,
-          displayedRadicals: [displayedChr],
+          radicals: radical,
+          displayedRadicals: displayedRadicals,
           selectionKeys: selectionKeys,
           candidates: candidates,
         });
@@ -252,6 +272,29 @@ export class KeyHandler {
           return true;
         }
 
+        if (state instanceof BasicInputtingState && table.settings.isBopomofo === true) {
+          const syllable = BopomofoSyllable.fromKeys(state.radicals);
+          const radicals = syllable.keys;
+          const candidates = table.lookupForCandidate(radicals);
+          if (candidates.length === 0) {
+            if (this.onRequestSettings().clearOnErrors) {
+              errorCallback();
+              stateCallback(new EmptyState('reset after error'));
+              return true;
+            }
+          }
+          const newState = new BasicInputtingState({
+            radicals: radicals,
+            displayedRadicals: syllable.reading.split(''),
+            selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+            candidates: candidates,
+          });
+          stateCallback(newState);
+          return true;
+        }
+
+        // non-bpmf
+
         if (state.candidates.length > 0) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
           const allowAssociatedPhrases = !(state instanceof AssociatedPhrasesState);
@@ -265,7 +308,7 @@ export class KeyHandler {
         return true;
       }
 
-      if (!(state instanceof AssociatedPhrasesState)) {
+      if (!(state instanceof AssociatedPhrasesState) && state.candidates.length > 0) {
         let selectionKeys = state.selectionKeys;
         if (state instanceof NumberInputtingState) {
           if (state.exactSelectionKeys) {
@@ -384,23 +427,51 @@ export class KeyHandler {
         }
       } else if (state instanceof BasicInputtingState || state instanceof AssociatedPhrasesState) {
         if (key.ascii && inputKeys.includes(key.ascii)) {
-          // associated phrase state also reach here, and start to input a new radical
-          const chr = key.ascii;
-          const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
           let selectionKeys = table.table.selkey;
           if (selectionKeys === undefined || selectionKeys.length === 0) {
             selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
           }
 
-          if (state.radicals.length >= table.settings.maxRadicals) {
+          if (
+            table.settings.isBopomofo !== true &&
+            state.radicals.length >= table.settings.maxRadicals
+          ) {
             errorCallback();
             return true;
           }
+
+          const chr = key.ascii;
           let joined = state.radicals + chr;
+
+          if (state instanceof BasicInputtingState && table.settings.isBopomofo === true) {
+            let newSyllable = BopomofoSyllable.fromKeys(joined);
+            let candidates: Candidate[] = [];
+            if (newSyllable.isValid && newSyllable.tone !== undefined) {
+              const keys = newSyllable.keys;
+              candidates = table.lookupForCandidate(keys);
+              if (candidates.length === 0) {
+                if (this.onRequestSettings().clearOnErrors) {
+                  errorCallback();
+                  stateCallback(new EmptyState('Invalid input'));
+                  return true;
+                }
+              }
+            }
+            const newState = new BasicInputtingState({
+              radicals: newSyllable.keys,
+              displayedRadicals: newSyllable.reading.split(''),
+              selectionKeys: state.selectionKeys,
+              candidates: candidates,
+            });
+            stateCallback(newState);
+            return true;
+          }
+
           if (state instanceof AssociatedPhrasesState) {
             joined = chr;
           }
 
+          const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
           const displayedConcat = state.displayedRadicals.concat([displayedChr]);
           const candidates = table.lookupForCandidate(joined) || [];
           const newState = new BasicInputtingState({
@@ -529,6 +600,19 @@ export class KeyHandler {
           return true;
         }
         if (state instanceof BasicInputtingState) {
+          if (table.settings.isBopomofo === true) {
+            const newSyllable = BopomofoSyllable.fromKeys(newRadicals);
+            const newDisplayedRadicals = newSyllable.reading.split('');
+            const newState = new BasicInputtingState({
+              radicals: newRadicals,
+              displayedRadicals: newDisplayedRadicals,
+              selectionKeys: state.selectionKeys,
+              candidates: [],
+            });
+            stateCallback(newState);
+            return true;
+          }
+
           const newDisplayedRadicals = state.displayedRadicals.slice(0, -1);
           const candidates = table.lookupForCandidate(newRadicals) || [];
           const newState = new BasicInputtingState({

@@ -139,6 +139,7 @@ export class InputTableManager {
     new InputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
     new InputTableWrapper('array30', array30, { maxRadicals: 4 }),
     new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
+    this.bmpfTable,
   ];
 
   reverseLookupForRadicals(character: string): RadicalLookupEntry[] {
@@ -177,7 +178,7 @@ export class InputTableManager {
   private bmpfTable_: InputTableWrapper | undefined = undefined;
   private get bmpfTable(): InputTableWrapper {
     if (!this.bmpfTable_) {
-      this.bmpfTable_ = new InputTableWrapper('bpmf', bpmf, { maxRadicals: 4 });
+      this.bmpfTable_ = new InputTableWrapper('bpmf', bpmf, { maxRadicals: 4, isBopomofo: true });
     }
     return this.bmpfTable_;
   }
