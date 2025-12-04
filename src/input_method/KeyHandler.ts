@@ -486,9 +486,13 @@ export class KeyHandler {
       }
 
       if (state instanceof BasicInputtingState) {
+        // Determines if homophone lookup should be triggered. It requires the
+        // backtick key, non-Bopomofo table, homophone lookup enabled in
+        // settings, and existing candidates in the current state.
         let useHomophone =
-          this.onRequestSettings().homophoneLookupEnabled &&
           key.ascii === '`' &&
+          table.settings.isBopomofo !== true &&
+          this.onRequestSettings().homophoneLookupEnabled &&
           state.candidates.length > 0;
         if (useHomophone) {
           let selectedWord = state.candidates[state.selectedCandidateIndex ?? 0];
