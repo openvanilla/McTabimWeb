@@ -370,7 +370,7 @@ let example = (function () {
     })();
     that.tableManager = InputTableManager.getInstance();
     that.populateInputMethodTableSelect = () => {
-      const tables = that.tableManager.getTables();
+      const tables = that.tableManager.tables;
       const selectedIndexValue = that.tableManager.selectedIndexValue;
       const select = document.getElementById('input-table-select');
       select.innerHTML = '';
@@ -411,7 +411,7 @@ let example = (function () {
     });
 
     textarea.addEventListener('keydown', (event) => {
-      if (event.metaKey || event.altKey || event.ctrlKey) {
+      if (event.metaKey || event.altKey) {
         inputMethod.controller.reset();
         return;
       }

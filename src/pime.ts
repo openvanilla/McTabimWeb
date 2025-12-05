@@ -418,7 +418,7 @@ class PimeMcTabim {
   public handleCommand(id: PimeMcTabimCommand): void {
     if (id > PimeMcTabimCommand.InputTable) {
       const inputMethodIndex = id - PimeMcTabimCommand.InputTable;
-      const tables = InputTableManager.getInstance().getTables();
+      const tables = InputTableManager.getInstance().tables;
       const tableId = tables[inputMethodIndex][0]; // 0 - id, 1 - name
       InputTableManager.getInstance().setInputTableById(tableId);
       this.settings.selectedInputMethodId = tableId;
@@ -778,7 +778,7 @@ module.exports = {
       ];
       menu.push({});
 
-      const tables = InputTableManager.getInstance().getTables();
+      const tables = InputTableManager.getInstance().tables;
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
         const tableId = table[0];

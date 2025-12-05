@@ -213,7 +213,7 @@ class ChromeMcTabim {
     ];
 
     const selectedId = this.settings.selectedInputMethodId || 0;
-    const inputTables = InputTableManager.getInstance().getTables();
+    const inputTables = InputTableManager.getInstance().tables;
     let selectedTableSet = false;
 
     const inputTableMenus: chrome.input.ime.MenuItem[] = [];
@@ -592,7 +592,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log(request);
 
   if (request.command === 'get_table_names_and_settings') {
-    const tables = InputTableManager.getInstance().getTables();
+    const tables = InputTableManager.getInstance().tables;
     sendResponse({ status: 'ok', tables });
   }
 });

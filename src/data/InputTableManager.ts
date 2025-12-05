@@ -13,6 +13,7 @@ import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
 import { InputTableWrapper } from './InputTableWrapper';
+import ctrlSymbols from './symbols/dsymbols.json';
 import shiftPunctuations from './symbols/fsymbols.json';
 import symbols from './symbols/msymbols.json';
 import shiftLetters from './symbols/swkb.json';
@@ -47,7 +48,7 @@ export class InputTableManager {
   }
 
   get currentTable(): InputTableWrapper {
-    return this.tables[this.internalIndex_];
+    return this.tables_[this.internalIndex_];
   }
 
   get selectedIndexValue(): number {
@@ -55,7 +56,7 @@ export class InputTableManager {
   }
 
   set selectedIndexValue(index: number) {
-    if (index >= 0 && index < this.tables.length) {
+    if (index >= 0 && index < this.tables_.length) {
       this.internalIndex_ = index;
     } else {
       throw new Error('Index out of bounds');
@@ -63,7 +64,7 @@ export class InputTableManager {
   }
 
   setInputTableById(id: string): void {
-    const index = this.tables.findIndex((table) => table.id === id);
+    const index = this.tables_.findIndex((table) => table.id === id);
     if (index !== -1) {
       this.internalIndex_ = index;
     } else {
@@ -74,34 +75,29 @@ export class InputTableManager {
 
   readonly emojiTable: EmojiTable = new EmojiTable();
 
-  // private symbolTable_: SymbolTable | undefined;
+  /// The symbols that uses when a user triggers the "`" key.
   get symbolTable(): SymbolTable {
     return symbols;
-    // if (!this.symbolTable_) {
-    //   this.symbolTable_ = JSON.parse(symbols) as SymbolTable;
-    // }
-    // return this.symbolTable_;
   }
 
-  // private shiftLetterSymbols_: { [key: string]: string } | undefined;
+  /// The symbols that uses when a user triggers the "Shift + Letter" keys.
   get shiftLetterSymbols(): { [key: string]: string } {
     return shiftLetterSymbols;
-    // if (!this.shiftLetterSymbols_) {
-    //   this.shiftLetterSymbols_ = JSON.parse(shiftLetters) as { [key: string]: string };
-    // }
-    // return this.shiftLetterSymbols_;
   }
-
-  // private shiftPunctuationsSymbols_: { [key: string]: string } | undefined;
+  /// The symbols that uses when a user triggers the "Shift + Punctuation" keys.
   get shiftPunctuationsSymbols(): { [key: string]: string } {
     return shiftPunctuations;
-    // if (!this.shiftPunctuationsSymbols_) {
-    //   this.shiftPunctuationsSymbols_ = JSON.parse(shiftPunctuations) as { [key: string]: string };
-    // }
-    // return this.shiftPunctuationsSymbols_;
   }
 
+  /// The symbols that uses when a user triggers the "Ctrl + Punctuation" keys.
+  get ctrlKeySymbols(): { chardefs: { [key: string]: string[] }; keynames: string[] } {
+    return ctrlSymbols;
+  }
+
+  /// The custom symbol table used in the main function menu.
   readonly customSymbolTable: CustomSymbolTable = new CustomSymbolTable();
+
+  /// The foreign language symbol table used in the main function menu.
   readonly foreignLanguage: ForeignLanguage = new ForeignLanguage();
 
   private bopomofoSymbols_: string[] = (() => {
@@ -122,15 +118,17 @@ export class InputTableManager {
     return bopomofolist;
   })();
 
+  /// The list of Bopomofo symbols.
   get bopomofoSymbols(): string[] {
     return this.bopomofoSymbols_;
   }
 
-  getTables(): [string, string][] {
-    return this.tables.map((table) => [table.id, table.table.cname]);
+  /// Return all available input tables as [id, cname][].
+  get tables(): [string, string][] {
+    return this.tables_.map((table) => [table.id, table.table.cname]);
   }
 
-  private readonly tables: Array<InputTableWrapper> = [
+  private readonly tables_: Array<InputTableWrapper> = [
     new InputTableWrapper('checj', checj, { maxRadicals: 5 }),
     new InputTableWrapper('cj5', cj5, { maxRadicals: 5 }),
     new InputTableWrapper('simplex', simplex, { maxRadicals: 2 }),
@@ -144,7 +142,7 @@ export class InputTableManager {
 
   reverseLookupForRadicals(character: string): RadicalLookupEntry[] {
     const result = [];
-    for (const tableWrapper of this.tables) {
+    for (const tableWrapper of this.tables_) {
       const radicals = tableWrapper.reverseLookupForRadicals(character);
       if (radicals.length > 0) {
         result.push(new RadicalLookupEntry(tableWrapper.table.cname, radicals));

@@ -35,7 +35,7 @@ describe('InputTableManager', () => {
     manager.setInputTableById('dayi3');
     const index = manager.selectedIndexValue;
     expect(manager.currentTable.id).toBe('dayi3');
-    expect(manager.getTables()[index][0]).toBe('dayi3');
+    expect(manager.tables[index][0]).toBe('dayi3');
   });
 
   it('should set selectedIndexValue and update currentTable', () => {
@@ -57,7 +57,7 @@ describe('InputTableManager', () => {
 
   it('should return all tables with getTables()', () => {
     const manager = InputTableManager.getInstance();
-    const tables = manager.getTables();
+    const tables = manager.tables;
     expect(Array.isArray(tables)).toBe(true);
     expect(tables.length).toBeGreaterThan(0);
     expect(tables[0][0]).toBe('checj');

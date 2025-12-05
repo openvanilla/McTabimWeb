@@ -10,6 +10,7 @@ import {
   AssociatedPhrasesState,
   BasicInputtingState,
   CommittingState,
+  CtrlSymbolInputtingState,
   EmptyState,
   InputState,
   InputtingState,
@@ -147,6 +148,29 @@ export class KeyHandler {
     if (settings.wildcardMatchingEnabled) {
       inputKeys = inputKeys.concat(['*']);
     }
+    const ctrlKeySymbols = InputTableManager.getInstance().ctrlKeySymbols;
+    if (key.ctrlPressed) {
+      if (ctrlKeySymbols.keynames.includes(key.ascii)) {
+        if (state instanceof CtrlSymbolInputtingState) {
+          const symbol = state.candidates[0].displayText;
+          stateCallback(new CommittingState(symbol));
+        }
+        {
+          const condidates = ctrlKeySymbols.chardefs[key.ascii];
+          const newState = new CtrlSymbolInputtingState({
+            radicals: key.ascii,
+            selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+            candidates: condidates.map((chr) => new Candidate(chr, '')),
+          });
+          stateCallback(newState);
+          return true;
+        }
+      }
+      if (!(state instanceof EmptyState)) {
+        return true;
+      }
+      return false;
+    }
 
     const shiftLetterSymbols = InputTableManager.getInstance().shiftLetterSymbols;
     const shiftPunctuationsSymbols = InputTableManager.getInstance().shiftPunctuationsSymbols;
@@ -229,7 +253,7 @@ export class KeyHandler {
           const components = chr.split('');
           if (components.length > 1) {
             const inputtingState = new SymbolCategoryState({
-              displayedRadicals: ['[符]' + key.ascii],
+              displayedRadicals: ['[符]' + components[0]],
               nodes: components,
               selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
               previousState: state,
@@ -425,7 +449,11 @@ export class KeyHandler {
           stateCallback(newState);
           return true;
         }
-      } else if (state instanceof BasicInputtingState || state instanceof AssociatedPhrasesState) {
+      } else if (
+        state instanceof BasicInputtingState ||
+        state instanceof AssociatedPhrasesState ||
+        state instanceof CtrlSymbolInputtingState
+      ) {
         if (key.ascii && inputKeys.includes(key.ascii)) {
           let selectionKeys = table.table.selkey;
           if (selectionKeys === undefined || selectionKeys.length === 0) {
@@ -467,12 +495,17 @@ export class KeyHandler {
             return true;
           }
 
-          if (state instanceof AssociatedPhrasesState) {
+          let currentDisplayed = state.displayedRadicals;
+          if (
+            state instanceof AssociatedPhrasesState ||
+            state instanceof CtrlSymbolInputtingState
+          ) {
             joined = chr;
+            currentDisplayed = [];
           }
 
           const displayedChr = table.lookUpForDisplayedKeyName(chr) || chr;
-          const displayedConcat = state.displayedRadicals.concat([displayedChr]);
+          const displayedConcat = currentDisplayed.concat([displayedChr]);
           const candidates = table.lookupForCandidate(joined) || [];
           const newState = new BasicInputtingState({
             radicals: joined,

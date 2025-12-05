@@ -209,13 +209,13 @@ export class AssociatedPhrasesState extends InputtingState {
     candidates: Candidate[];
     selectedCandidateIndex?: number | undefined;
     tooltip?: string | undefined;
-    candidateAnnotation?: string | undefined;
     useShiftedKeyCap?: boolean | undefined;
   }) {
     super({
       ...args,
       radicals: '',
       displayedRadicals: [],
+      candidateAnnotation: '聯想詞',
     });
   }
 
@@ -225,7 +225,6 @@ export class AssociatedPhrasesState extends InputtingState {
       exactSelectionKeys: this.exactSelectionKeys!,
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
-      candidateAnnotation: this.candidateAnnotation,
       useShiftedKeyCap: this.useShiftedKeyCap,
     });
   }
@@ -279,6 +278,45 @@ export class NumberInputtingState extends InputtingState {
   }
   toString(): string {
     return `NumberInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
+  }
+}
+
+/**
+ * A state for inputting symbols.
+ *
+ * This state is used to handle symbol input, and it provides a list of
+ * suggestions for different symbols, such as punctuation marks, emojis, and
+ * other special characters.
+ *
+ * @param {string} radicals - The current input radicals.
+ * @param {string} selectionKeys - The keys that are used to select candidates.
+ * @param {Candidate[]} candidates - The list of suggested candidates.
+ * @param {number} [selectedCandidateIndex] - The index of the currently
+ *     selected candidate.
+ */
+export class CtrlSymbolInputtingState extends InputtingState {
+  constructor(args: {
+    radicals: string;
+    selectionKeys: string;
+    candidates: Candidate[];
+    selectedCandidateIndex?: number | undefined;
+  }) {
+    super({
+      ...args,
+      displayedRadicals: [`[符]${args.candidates[0].displayText}`],
+    });
+  }
+
+  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+    return new CtrlSymbolInputtingState({
+      radicals: this.radicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+    });
+  }
+  toString(): string {
+    return `SymbolInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
 
