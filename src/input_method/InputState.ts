@@ -103,6 +103,7 @@ export class InputtingState extends InputState {
   readonly tooltip?: string | undefined;
   readonly candidateAnnotation?: string | undefined;
 
+  readonly useShiftedKeyCap: boolean | undefined;
   readonly selectedCandidateIndex?: number | undefined;
   readonly candidatesInCurrentPage?: Candidate[];
   readonly selectedCandidateIndexInCurrentPage?: number | undefined;
@@ -118,6 +119,7 @@ export class InputtingState extends InputState {
     exactSelectionKeys?: string | undefined;
     tooltip?: string | undefined;
     readonly candidateAnnotation?: string | undefined;
+    readonly useShiftedKeyCap?: boolean | undefined;
   }) {
     super();
     this.radicals = args.radicals;
@@ -128,6 +130,7 @@ export class InputtingState extends InputState {
     this.selectedCandidateIndex = args.selectedCandidateIndex;
     this.tooltip = args.tooltip;
     this.candidateAnnotation = args.candidateAnnotation;
+    this.useShiftedKeyCap = args.useShiftedKeyCap;
 
     const candidatesPerPage = Math.max(this.selectionKeys.length, 1);
     if (this.candidates.length > 0) {
@@ -207,16 +210,12 @@ export class AssociatedPhrasesState extends InputtingState {
     selectedCandidateIndex?: number | undefined;
     tooltip?: string | undefined;
     candidateAnnotation?: string | undefined;
+    useShiftedKeyCap?: boolean | undefined;
   }) {
     super({
+      ...args,
       radicals: '',
       displayedRadicals: [],
-      selectionKeys: args.selectionKeys,
-      exactSelectionKeys: args.exactSelectionKeys,
-      candidates: args.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex,
-      tooltip: args.tooltip,
-      candidateAnnotation: args.candidateAnnotation,
     });
   }
 
@@ -227,7 +226,7 @@ export class AssociatedPhrasesState extends InputtingState {
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
       candidateAnnotation: this.candidateAnnotation,
-      // tooltip: this.tooltip,
+      useShiftedKeyCap: this.useShiftedKeyCap,
     });
   }
   toString(): string {
@@ -262,13 +261,9 @@ export class NumberInputtingState extends InputtingState {
     candidateAnnotation?: string | undefined;
   }) {
     super({
-      radicals: args.radicals,
+      ...args,
       displayedRadicals: [`[數字]${args.radicals}`],
-      selectionKeys: args.selectionKeys,
-      exactSelectionKeys: args.exactSelectionKeys,
-      candidates: args.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex,
-      candidateAnnotation: args.candidateAnnotation,
+      useShiftedKeyCap: true,
     });
   }
 
@@ -308,11 +303,8 @@ export class SymbolInputtingState extends InputtingState {
     selectedCandidateIndex?: number | undefined;
   }) {
     super({
-      radicals: args.radicals,
+      ...args,
       displayedRadicals: [`[符]${args.radicals}`],
-      selectionKeys: args.selectionKeys,
-      candidates: args.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex,
     });
   }
 
@@ -377,11 +369,12 @@ export class SymbolCategoryState extends InputtingState {
     });
 
     super({
+      ...args,
       radicals: '',
-      displayedRadicals: args.displayedRadicals,
-      selectionKeys: args.selectionKeys,
+      // displayedRadicals: args.displayedRadicals,
+      // selectionKeys: args.selectionKeys,
       candidates: candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex,
+      // selectedCandidateIndex: args.selectedCandidateIndex,
     });
     this.previousState = args.previousState;
     this.nodes = args.nodes;
@@ -645,7 +638,6 @@ export class MenuState extends InputtingState {
           selectionKeys: '123456789',
           exactSelectionKeys: '!@#$%^&*(',
           candidates: [],
-          candidateAnnotation: '(Shift + 數字按鍵)',
         });
       }),
     );
@@ -662,8 +654,6 @@ export class MenuState extends InputtingState {
         });
       }),
     );
-
-    // HelperDataInput.test;
 
     super({
       radicals: '',
@@ -720,7 +710,8 @@ export class SelectingHomophoneReadingsState extends InputtingState {
     tooltip?: string | undefined;
     previousState: InputState;
   }) {
-    super(args);
+    const copy = { ...args, candidateAnnotation: '同音字查詢' };
+    super(copy);
     this.previousState = args.previousState;
   }
 
@@ -772,7 +763,8 @@ export class SelectingHomophoneWordState extends InputtingState {
     tooltip?: string | undefined;
     readonly previousState: InputState;
   }) {
-    super(args);
+    const copy = { ...args, candidateAnnotation: '同音字查詢' };
+    super(copy);
     this.previousState = args.previousState;
   }
 

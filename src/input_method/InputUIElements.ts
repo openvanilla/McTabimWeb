@@ -107,9 +107,13 @@ export class InputUIStateBuilder {
     const candidateWrappers: CandidateWrapper[] = [];
     if (this.state.candidatesInCurrentPage) {
       for (let i = 0; i < this.state.candidatesInCurrentPage.length; i++) {
+        let selectionKey = selectionKeys[i];
+        if (this.state.useShiftedKeyCap) {
+          selectionKey = '⇧' + selectionKey;
+        }
         const candidate = this.state.candidatesInCurrentPage[i];
         const selected = i === (this.state.selectedCandidateIndexInCurrentPage ?? -1);
-        candidateWrappers.push(new CandidateWrapper(selectionKeys[i], candidate, selected));
+        candidateWrappers.push(new CandidateWrapper(selectionKey, candidate, selected));
       }
     }
     return new InputUIState(

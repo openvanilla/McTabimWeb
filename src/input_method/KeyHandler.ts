@@ -100,21 +100,21 @@ export class KeyHandler {
       if (phrases && phrases.length > 0) {
         const selectionKeys = state.selectionKeys;
         let exactSelectionKeys = state.selectionKeys;
-        let annotation = '';
+        let useShiftedKeyCap = false;
         if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS;
-          annotation = '(Shift + 數字按鍵)';
+          useShiftedKeyCap = true;
         } else if (selectionKeys === KeyHandler.COMMON_SELECTION_KEYS2) {
           exactSelectionKeys = KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS2;
-          annotation = '(Shift + 數字按鍵)';
+          useShiftedKeyCap = true;
         }
 
         const associatedPhrasesState = new AssociatedPhrasesState({
           selectionKeys: selectionKeys,
           exactSelectionKeys: exactSelectionKeys,
           candidates: phrases,
-          candidateAnnotation: annotation,
           tooltip: tooltip,
+          useShiftedKeyCap: useShiftedKeyCap,
         });
         stateCallback(associatedPhrasesState);
       }
