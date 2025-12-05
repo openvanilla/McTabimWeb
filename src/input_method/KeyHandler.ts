@@ -150,15 +150,44 @@ export class KeyHandler {
     }
     const ctrlKeySymbols = InputTableManager.getInstance().ctrlKeySymbols;
     if (key.ctrlPressed) {
-      if (ctrlKeySymbols.keynames.includes(key.ascii)) {
+      let ascii = key.ascii.toLowerCase();
+      if (key.shiftPressed) {
+        const map: { [key: string]: string } = {
+          '1': '!',
+          '2': '@',
+          '3': '#',
+          '4': '$',
+          '5': '%',
+          '6': '^',
+          '7': '&',
+          '8': '*',
+          '9': '(',
+          '0': ')',
+          '-': '_',
+          '=': '+',
+          '[': '{',
+          ']': '}',
+          '\\': '|',
+          ';': ':',
+          "'": '"',
+          ',': '<',
+          '.': '>',
+          '/': '?',
+        };
+        if (map.hasOwnProperty(ascii)) {
+          ascii = map[ascii];
+        }
+      }
+
+      if (ctrlKeySymbols.keynames.includes(ascii)) {
         if (state instanceof CtrlSymbolInputtingState) {
           const symbol = state.candidates[0].displayText;
           stateCallback(new CommittingState(symbol));
         }
         {
-          const condidates = ctrlKeySymbols.chardefs[key.ascii];
+          const condidates = ctrlKeySymbols.chardefs[ascii];
           const newState = new CtrlSymbolInputtingState({
-            radicals: key.ascii,
+            radicals: ascii,
             selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
             candidates: condidates.map((chr) => new Candidate(chr, '')),
           });
