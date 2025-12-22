@@ -1,7 +1,11 @@
 import { SymbolCategory } from './SymbolCategory';
 import src from './symbols/emoji.json';
 
+/**
+ * Represents the emoji symbol table.
+ */
 export class EmojiTable {
+  /** The tables in the emoji symbol table. */
   tables: SymbolCategory[] = (() => {
     const emoticons = new SymbolCategory({
       name: '表情符號',

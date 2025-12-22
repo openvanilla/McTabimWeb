@@ -87,4 +87,19 @@ describe('InputTableWrapper', () => {
     expect(result[0].displayText).toBe('嗎');
     expect(JSON.parse(mockTable).chardefs).toEqual(originalChardefs);
   });
+  describe('reverseLookupForTranslatedAndOriginalRadicals', () => {
+    it('returns translated and original radicals for a character', () => {
+      const result = wrapper.reverseLookupForTranslatedAndOriginalRadicals('你');
+      expect(result).toEqual([['ㄅ', 'a']]);
+    });
+
+    it('returns translated and original radicals for a character with multiple keys', () => {
+      const result = wrapper.reverseLookupForTranslatedAndOriginalRadicals('嗎');
+      expect(result).toEqual([['ㄅㄆ', 'ab']]);
+    });
+
+    it('returns empty array for character not in table', () => {
+      expect(wrapper.reverseLookupForTranslatedAndOriginalRadicals('無')).toEqual([]);
+    });
+  });
 });

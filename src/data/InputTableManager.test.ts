@@ -83,4 +83,40 @@ describe('InputTableManager', () => {
     expect(manager.emojiTable).toBeDefined();
     expect(typeof manager.emojiTable).toBe('object');
   });
+  it('should return the same instance from getInstance()', () => {
+    const instance1 = InputTableManager.getInstance();
+    const instance2 = InputTableManager.getInstance();
+    expect(instance1).toBe(instance2);
+  });
+
+  it('should return the correct selectedTable based on selectedIndexValue', () => {
+    const manager = InputTableManager.getInstance();
+    manager.selectedIndexValue = 0;
+    expect(manager.currentTable.id).toBe('checj');
+  });
+
+  it('should return associatedPhrases as an object', () => {
+    const manager = InputTableManager.getInstance();
+    const phrases = manager.associatedPhrases;
+    expect(phrases).toBeDefined();
+    expect(typeof phrases).toBe('object');
+  });
+
+  it('should return an array of phrases for lookUpForAssociatedPhrases', () => {
+    const manager = InputTableManager.getInstance();
+    const phrases = manager.lookUpForAssociatedPhrases('a');
+    expect(Array.isArray(phrases)).toBe(true);
+  });
+
+  it('should return an array of radicals for reverseLookupForRadicals', () => {
+    const manager = InputTableManager.getInstance();
+    const radicals = manager.reverseLookupForRadicals('我');
+    expect(Array.isArray(radicals)).toBe(true);
+  });
+
+  it('should return an array of strings for lookupBpmfReadings', () => {
+    const manager = InputTableManager.getInstance();
+    const readings = manager.lookupBpmfReadings('中');
+    expect(Array.isArray(readings)).toBe(true);
+  });
 });

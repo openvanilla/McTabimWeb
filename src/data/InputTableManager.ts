@@ -18,22 +18,33 @@ import shiftPunctuations from './symbols/fsymbols.json';
 import symbols from './symbols/msymbols.json';
 import shiftLetters from './symbols/swkb.json';
 
-type AssociatedPhrases = {
+type AssociatedPhrases_ = {
   chardefs: { [key: string]: string[] };
 };
 
-// const shiftLetterSymbols: { [key: string]: string } = JSON.parse(shiftLetters);
-const shiftLetterSymbols: { [key: string]: string } = shiftLetters;
+const shiftLetterSymbols_: { [key: string]: string } = shiftLetters;
 
+/**
+ * Represents a table of symbols and their corresponding characters.
+ */
 export interface SymbolTable {
   chardefs: { [key: string]: string[] };
   keynames: string[];
 }
 
+/**
+ * Represents an entry for looking up radicals in a specific input table.
+ */
 export class RadicalLookupEntry {
   constructor(public inputTableName: string, public radicals: string[]) {}
 }
 
+/**
+ * The `InputTableManager` class is responsible for managing and providing
+ * access to various input tables, symbols, and associated phrases used for
+ * character input. It follows the singleton pattern to ensure a single point of
+ * access throughout the application.
+ */
 export class InputTableManager {
   private static instance: InputTableManager;
   private internalIndex_: number = 0;
@@ -82,7 +93,7 @@ export class InputTableManager {
 
   /// The symbols that uses when a user triggers the "Shift + Letter" keys.
   get shiftLetterSymbols(): { [key: string]: string } {
-    return shiftLetterSymbols;
+    return shiftLetterSymbols_;
   }
   /// The symbols that uses when a user triggers the "Shift + Punctuation" keys.
   get shiftPunctuationsSymbols(): { [key: string]: string } {
@@ -151,8 +162,8 @@ export class InputTableManager {
     return result;
   }
 
-  associatedPhrases_: AssociatedPhrases | undefined = undefined;
-  get associatedPhrases(): AssociatedPhrases {
+  associatedPhrases_: AssociatedPhrases_ | undefined = undefined;
+  get associatedPhrases(): AssociatedPhrases_ {
     if (!this.associatedPhrases_) {
       const parsed = JSON.parse(associatedPhrasesJson);
       this.associatedPhrases_ = {
@@ -163,14 +174,12 @@ export class InputTableManager {
   }
 
   lookUpForAssociatedPhrases(prefix: string): Candidate[] | [] {
-    const founds = this.associatedPhrases.chardefs[prefix];
-    const candidates: Candidate[] = [];
-    if (founds) {
-      for (const found of founds) {
-        candidates.push(new Candidate(found, ''));
-      }
+    try {
+      const founds = this.associatedPhrases.chardefs[prefix];
+      return founds ? founds.map((found) => new Candidate(found, '')) : [];
+    } catch (error) {
+      return [];
     }
-    return candidates;
   }
 
   private bmpfTable_: InputTableWrapper | undefined = undefined;

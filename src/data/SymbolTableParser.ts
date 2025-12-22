@@ -1,8 +1,16 @@
 import { SymbolCategory } from './SymbolCategory';
 
+/**
+ * Parses a string of symbol categories and symbols into an array of symbol
+ * categories.
+ */
 export class SymbolTableParser {
   private constructor() {}
 
+  /**
+   * Parses a string of symbol categories and symbols into an array of symbol
+   * categories.
+   */
   static parse(text: string): (SymbolCategory | string)[] {
     const categories: (SymbolCategory | string)[] = [];
     const lines = text.split('\n');
