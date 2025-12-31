@@ -58,7 +58,7 @@ export class KeyHandler {
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
     readonly onSettingChanged: (settings: Settings) => void,
-  ) {}
+  ) { }
 
   /**
    * Handles the selection of a candidate.
@@ -483,6 +483,11 @@ export class KeyHandler {
         state instanceof AssociatedPhrasesState ||
         state instanceof CtrlSymbolInputtingState
       ) {
+        if (state instanceof CtrlSymbolInputtingState) {
+          const symbol = state.candidates[0].displayText;
+          stateCallback(new CommittingState(symbol));
+        }
+
         if (key.ascii && inputKeys.includes(key.ascii)) {
           let selectionKeys = table.table.selkey;
           if (selectionKeys === undefined || selectionKeys.length === 0) {
@@ -747,7 +752,7 @@ export class KeyHandler {
           const candidatesPerPage = state.selectionKeys.length;
           const newIndex = Math.max(
             Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1) *
-              candidatesPerPage,
+            candidatesPerPage,
             0,
           );
           const newState = state.copyWithArgs({
@@ -762,7 +767,7 @@ export class KeyHandler {
       }
 
       if (state instanceof AssociatedPhrasesState) {
-        if (key.ascii === 'Shift') {
+        if (key.ascii === 'Shift' || key.ascii === 'Ctrl' || key.ascii === 'Alt') {
           return true;
         }
         stateCallback(new EmptyState('reset after pressing enter in associated phrases state'));

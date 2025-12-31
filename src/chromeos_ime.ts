@@ -307,7 +307,7 @@ class ChromeMcTabim {
               visible: false,
             },
           });
-        } catch (e) {}
+        } catch (e) { }
       },
 
       commitString: (text: string) => {
@@ -478,9 +478,12 @@ chrome.input?.ime.onBlur.addListener((context) => {
   chromeMcTabim.deferredReset();
 });
 
-chrome.input?.ime.onReset.addListener((context) => {
-  chromeMcTabim.deferredReset();
-});
+// Note: Google Docs calls onReset repeatedly when users are inputting text.
+// It is annoying, so we comment it out.
+//
+// chrome.input?.ime.onReset.addListener((context) => {
+//   chromeMcTabim.deferredReset();
+// });
 
 // Called when the user switch to another input method.
 chrome.input?.ime.onDeactivated.addListener((context) => {
@@ -522,12 +525,6 @@ chrome.input?.ime.onKeyEvent.addListener((engineID, keyData) => {
   }
 
   if (keyData.type !== 'keydown') {
-    return false;
-  }
-
-  // We always prevent handling Ctrl + Space so we can switch input methods.
-  if (keyData.ctrlKey) {
-    chromeMcTabim.inputController.reset('Deferred reset on Ctrl key');
     return false;
   }
 
@@ -625,7 +622,7 @@ async function keepAlive() {
       await chrome.scripting.executeScript(args);
       chrome.tabs.onUpdated.removeListener(retryOnTabUpdate);
       return;
-    } catch (e) {}
+    } catch (e) { }
   }
   chrome.tabs.onUpdated.addListener(retryOnTabUpdate);
 }
