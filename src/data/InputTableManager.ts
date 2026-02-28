@@ -1,5 +1,8 @@
 import associatedPhrasesJson from './associated_phrases/phrase.json?raw';
 import { Candidate } from './Candidate';
+import arrayphrase from './cin/array-phrase.json?raw';
+import arrayshortcode from './cin/array-shortcode.json?raw';
+import arraySpecial from './cin/array-special.json?raw';
 import array30 from './cin/array30.json?raw';
 import array40 from './cin/array40.json?raw';
 import bpmf from './cin/bpmf.json?raw';
@@ -146,7 +149,11 @@ export class InputTableManager {
     new InputTableWrapper('simplex5', simplex5, { maxRadicals: 2 }),
     new InputTableWrapper('dayi3', dayi3, { maxRadicals: 3 }),
     new InputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
-    new InputTableWrapper('array30', array30, { maxRadicals: 4 }),
+    new InputTableWrapper('array30', array30, { maxRadicals: 4 }, [
+      arrayphrase,
+      arrayshortcode,
+      arraySpecial,
+    ]),
     new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
     this.bmpfTable,
   ];
