@@ -54,6 +54,10 @@ export class InputTableManager {
 
   private constructor() {}
 
+  /**
+   * Gets the singleton instance of the `InputTableManager`.
+   * @returns The singleton instance.
+   */
   public static getInstance(): InputTableManager {
     if (!InputTableManager.instance) {
       InputTableManager.instance = new InputTableManager();
@@ -61,14 +65,25 @@ export class InputTableManager {
     return InputTableManager.instance;
   }
 
+  /**
+   * Gets the currently active input table.
+   */
   get currentTable(): InputTableWrapper {
     return this.tables_[this.internalIndex_];
   }
 
+  /**
+   * Gets the index of the currently active input table.
+   */
   get selectedIndexValue(): number {
     return this.internalIndex_;
   }
 
+  /**
+   * Sets the index of the currently active input table.
+   * @param index The index to set.
+   * @throws {Error} If the index is out of bounds.
+   */
   set selectedIndexValue(index: number) {
     if (index >= 0 && index < this.tables_.length) {
       this.internalIndex_ = index;
@@ -77,6 +92,11 @@ export class InputTableManager {
     }
   }
 
+  /**
+   * Sets the currently active input table by its ID.
+   * If the ID is not found, it defaults to the first table.
+   * @param id The ID of the input table to activate.
+   */
   setInputTableById(id: string): void {
     const index = this.tables_.findIndex((table) => table.id === id);
     if (index !== -1) {
@@ -87,31 +107,46 @@ export class InputTableManager {
     }
   }
 
+  /**
+   * The emoji table instance providing access to emoji characters.
+   */
   readonly emojiTable: EmojiTable = new EmojiTable();
 
-  /// The symbols that uses when a user triggers the "`" key.
+  /**
+   * The symbols that are used when a user triggers the "`" key.
+   */
   get symbolTable(): SymbolTable {
     return symbols;
   }
 
-  /// The symbols that uses when a user triggers the "Shift + Letter" keys.
+  /**
+   * The symbols that are used when a user triggers the "Shift + Letter" keys.
+   */
   get shiftLetterSymbols(): { [key: string]: string } {
     return shiftLetterSymbols_;
   }
-  /// The symbols that uses when a user triggers the "Shift + Punctuation" keys.
+  /**
+   * The symbols that are used when a user triggers the "Shift + Punctuation" keys.
+   */
   get shiftPunctuationsSymbols(): { [key: string]: string } {
     return shiftPunctuations;
   }
 
-  /// The symbols that uses when a user triggers the "Ctrl + Punctuation" keys.
+  /**
+   * The symbols that are used when a user triggers the "Ctrl + Punctuation" keys.
+   */
   get ctrlKeySymbols(): { chardefs: { [key: string]: string[] }; keynames: string[] } {
     return ctrlSymbols;
   }
 
-  /// The custom symbol table used in the main function menu.
+  /**
+   * The custom symbol table used in the main function menu.
+   */
   readonly customSymbolTable: CustomSymbolTable = new CustomSymbolTable();
 
-  /// The foreign language symbol table used in the main function menu.
+  /**
+   * The foreign language symbol table used in the main function menu.
+   */
   readonly foreignLanguage: ForeignLanguage = new ForeignLanguage();
 
   private bopomofoSymbols_: string[] = (() => {
@@ -132,12 +167,16 @@ export class InputTableManager {
     return bopomofolist;
   })();
 
-  /// The list of Bopomofo symbols.
+  /**
+   * The list of Bopomofo symbols.
+   */
   get bopomofoSymbols(): string[] {
     return this.bopomofoSymbols_;
   }
 
-  /// Return all available input tables as [id, cname][].
+  /**
+   * Returns all available input tables as an array of tuples `[id, cname][]`.
+   */
   get tables(): [string, string][] {
     return this.tables_.map((table) => [table.id, table.table.cname]);
   }
@@ -158,6 +197,11 @@ export class InputTableManager {
     this.bmpfTable,
   ];
 
+  /**
+   * Performs a reverse lookup for a character across all available input tables.
+   * @param character The character to look up.
+   * @returns An array of `RadicalLookupEntry` objects containing the input table name and its radicals.
+   */
   reverseLookupForRadicals(character: string): RadicalLookupEntry[] {
     const result = [];
     for (const tableWrapper of this.tables_) {
@@ -170,6 +214,9 @@ export class InputTableManager {
   }
 
   associatedPhrases_: AssociatedPhrases_ | undefined = undefined;
+  /**
+   * Retrieves the associated phrases data, lazily loading it if necessary.
+   */
   get associatedPhrases(): AssociatedPhrases_ {
     if (!this.associatedPhrases_) {
       const parsed = JSON.parse(associatedPhrasesJson);
@@ -180,6 +227,11 @@ export class InputTableManager {
     return this.associatedPhrases_;
   }
 
+  /**
+   * Looks up associated phrases for a given prefix.
+   * @param prefix The prefix string to search for.
+   * @returns An array of candidate phrases matching the prefix, or an empty array if not found.
+   */
   lookUpForAssociatedPhrases(prefix: string): Candidate[] | [] {
     try {
       const founds = this.associatedPhrases.chardefs[prefix];
@@ -197,10 +249,20 @@ export class InputTableManager {
     return this.bmpfTable_;
   }
 
+  /**
+   * Looks up Bopomofo readings for a given key string.
+   * @param key The key string containing radicals.
+   * @returns An array of arrays containing translated and original radicals.
+   */
   lookupBpmfReadings(key: string): string[][] {
     return this.bmpfTable.reverseLookupForTranslatedAndOriginalRadicals(key);
   }
 
+  /**
+   * Looks up Bopomofo candidates matching the given radicals.
+   * @param radicals The radicals string to look up.
+   * @returns An array of candidates matching the given Bopomofo radicals.
+   */
   lookupCandidatesForBpmfRadicals(radicals: string): Candidate[] {
     return this.bmpfTable.lookupForCandidate(radicals);
   }

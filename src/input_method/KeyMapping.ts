@@ -1,6 +1,14 @@
 import { Key, KeyName } from './Key';
 
+/**
+ * Utility class for mapping keyboard events to internal `Key` representations.
+ */
 export class KeyMapping {
+  /**
+   * Converts a browser `KeyboardEvent` into a `Key` object used by the input controller.
+   * @param event The keyboard event to convert.
+   * @returns The corresponding `Key` object.
+   */
   static keyFromKeyboardEvent(event: KeyboardEvent): Key {
     let isNumpadKey = false;
     let keyName = KeyName.UNKNOWN;

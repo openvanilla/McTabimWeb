@@ -49,23 +49,47 @@ export class InputController {
     homophoneLookupEnabled: true,
   };
 
+  /**
+   * Optional callback function that is triggered when settings change.
+   */
   onSettingChanged?: ((settings: Settings) => void) | undefined;
+  /**
+   * Optional callback function that is triggered on an error event,
+   * typically used to beep or alert the user.
+   */
   onError?: (() => void) | undefined;
 
+  /**
+   * Gets the current settings for the input controller.
+   */
   get settings(): Settings {
     return this.settings_;
   }
 
+  /**
+   * Sets new settings for the input controller.
+   * If the settings have changed, it updates the internal state.
+   */
   set settings(value: Settings) {
     if (this.settings_ !== value) {
       this.settings_ = value;
     }
   }
 
+  /**
+   * Gets the current input state of the controller.
+   */
   get state(): InputState {
     return this.state_;
   }
 
+  /**
+   * Creates a new `InputController`.
+   *
+   * @param ui_ - The user interface implementation to interact with.
+   * @param keyHandler - An optional `KeyHandler` for handling key events.
+   *                     If not provided, a default `KeyHandler` is instantiated.
+   */
   constructor(private ui_: InputUI, keyHandler?: KeyHandler) {
     this.keyHandler_ =
       keyHandler ??

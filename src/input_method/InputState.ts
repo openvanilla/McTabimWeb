@@ -791,7 +791,10 @@ export class SelectingHomophoneReadingsState extends InputtingState {
  */
 export class SelectingHomophoneWordState extends InputtingState {
   readonly previousState: InputState;
+  readonly bpmf: string;
+
   constructor(args: {
+    bpmf: string;
     radicals: string;
     displayedRadicals: string[];
     selectionKeys: string;
@@ -801,13 +804,15 @@ export class SelectingHomophoneWordState extends InputtingState {
     tooltip?: string | undefined;
     readonly previousState: InputState;
   }) {
-    const copy = { ...args, candidateAnnotation: '同音字查詢' };
+    const copy = { ...args, candidateAnnotation: '同音字查詢:' + args.bpmf };
     super(copy);
     this.previousState = args.previousState;
+    this.bpmf = args.bpmf;
   }
 
   copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
     return new SelectingHomophoneWordState({
+      bpmf: this.bpmf,
       radicals: this.radicals,
       displayedRadicals: this.displayedRadicals,
       selectionKeys: this.selectionKeys,

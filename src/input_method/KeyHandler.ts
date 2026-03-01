@@ -58,7 +58,7 @@ export class KeyHandler {
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
     readonly onSettingChanged: (settings: Settings) => void,
-  ) { }
+  ) {}
 
   /**
    * Handles the selection of a candidate.
@@ -568,8 +568,12 @@ export class KeyHandler {
           );
           if (bpmfReadings.length === 1) {
             let bpmf = bpmfReadings[0][1];
+            let reading = bpmfReadings[0][0];
+
             let words = InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmf);
+
             let newState = new SelectingHomophoneWordState({
+              bpmf: reading,
               previousState: state,
               radicals: state.radicals,
               displayedRadicals: state.displayedRadicals,
@@ -582,10 +586,12 @@ export class KeyHandler {
             let menuCandidates: MenuCandidate[] = [];
             for (let bpmfReading of bpmfReadings) {
               let bpmf = bpmfReading[1];
+              let reading = bpmfReading[0];
               let candidates =
                 InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmf);
               let menu = new MenuCandidate(bpmfReading[0], '', () => {
                 let newState = new SelectingHomophoneWordState({
+                  bpmf: reading,
                   previousState: state,
                   radicals: state.radicals,
                   displayedRadicals: state.displayedRadicals,
@@ -598,6 +604,7 @@ export class KeyHandler {
               menuCandidates.push(menu);
             }
             let newState = new SelectingHomophoneWordState({
+              bpmf: '',
               previousState: state,
               radicals: state.radicals,
               displayedRadicals: state.displayedRadicals,
@@ -752,7 +759,7 @@ export class KeyHandler {
           const candidatesPerPage = state.selectionKeys.length;
           const newIndex = Math.max(
             Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1) *
-            candidatesPerPage,
+              candidatesPerPage,
             0,
           );
           const newState = state.copyWithArgs({

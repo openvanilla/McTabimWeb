@@ -1,4 +1,11 @@
+/**
+ * Represents a single Bopomofo (Zhuyin) syllable, consisting of an optional
+ * consonant, middle vowel, final vowel, and tone.
+ */
 export class BopomofoSyllable {
+  /**
+   * Maps keyboard keys to Bopomofo consonants.
+   */
   static consonants = new Map<string, string>([
     ['1', 'ㄅ'],
     ['q', 'ㄆ'],
@@ -23,12 +30,18 @@ export class BopomofoSyllable {
     ['n', 'ㄙ'],
   ]);
 
+  /**
+   * Maps keyboard keys to Bopomofo middle vowels (ㄧ, ㄨ, ㄩ).
+   */
   static middleVowels = new Map<string, string>([
     ['u', 'ㄧ'],
     ['j', 'ㄨ'],
     ['m', 'ㄩ'],
   ]);
 
+  /**
+   * Maps keyboard keys to Bopomofo final vowels.
+   */
   static finalVowels = new Map<string, string>([
     ['8', 'ㄚ'],
     ['i', 'ㄛ'],
@@ -45,6 +58,9 @@ export class BopomofoSyllable {
     ['-', 'ㄦ'],
   ]);
 
+  /**
+   * Maps keyboard keys to Bopomofo tones.
+   */
   static tones = new Map<string, string>([
     ['3', 'ˇ'],
     ['4', 'ˋ'],
@@ -59,6 +75,11 @@ export class BopomofoSyllable {
     public tone?: string | undefined,
   ) {}
 
+  /**
+   * Creates a BopomofoSyllable from a string of keys.
+   * @param keys A string containing the keyboard keys for the syllable.
+   * @returns A new BopomofoSyllable instance.
+   */
   static fromKeys(keys: string) {
     let consonant: string | undefined = undefined;
     let middleVowel: string | undefined = undefined;
@@ -78,6 +99,14 @@ export class BopomofoSyllable {
     return new BopomofoSyllable(consonant, middleVowel, finalVowel, tone);
   }
 
+  /**
+   * Checks if the current syllable is valid according to Bopomofo rules. A
+   * syllable is valid if:
+   * 1. It has a middle vowel.
+   * 2. It has a final vowel.
+   * 3. It has a specific consonant that can stand alone (e.g., ㄓ, ㄔ, ㄕ, ㄖ,
+   *    ㄗ, ㄘ, ㄙ).
+   */
   get isValid(): boolean {
     if (this.middleVowel !== undefined) {
       return true;
@@ -94,6 +123,9 @@ export class BopomofoSyllable {
     return false;
   }
 
+  /**
+   * Returns the string of keys representing this syllable.
+   */
   get keys(): string {
     let output = '';
     if (this.consonant) {
@@ -111,6 +143,9 @@ export class BopomofoSyllable {
     return output;
   }
 
+  /**
+   * Returns the Bopomofo reading of this syllable (e.g., "ㄅㄚˇ").
+   */
   get reading(): string {
     let output = '';
     if (this.consonant) {
