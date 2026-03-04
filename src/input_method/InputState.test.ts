@@ -645,7 +645,7 @@ describe('SelectingHomophoneWordState', () => {
   it('should initialize with correct properties', () => {
     const previousState = new EmptyState();
     const state = new SelectingHomophoneWordState({
-      bpmf: 'test',
+      displayedBpmf: 'test',
       radicals: 'test',
       displayedRadicals: ['test'],
       selectionKeys: '12',
@@ -664,7 +664,7 @@ describe('SelectingHomophoneWordState', () => {
   it('copyWithArgs should update selectedCandidateIndex', () => {
     const previousState = new EmptyState();
     const state = new SelectingHomophoneWordState({
-      bpmf: 'test',
+      displayedBpmf: 'test',
       radicals: 'test',
       displayedRadicals: ['test'],
       selectionKeys: '12',
@@ -684,7 +684,7 @@ describe('SelectingHomophoneWordState', () => {
   it('toString returns correct details', () => {
     const previousState = new EmptyState();
     const state = new SelectingHomophoneWordState({
-      bpmf: 'test',
+      displayedBpmf: 'test',
       radicals: 'test',
       displayedRadicals: ['test'],
       selectionKeys: '12',

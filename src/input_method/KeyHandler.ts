@@ -567,13 +567,14 @@ export class KeyHandler {
             selectedWord.displayText,
           );
           if (bpmfReadings.length === 1) {
-            let bpmf = bpmfReadings[0][1];
-            let reading = bpmfReadings[0][0];
+            let bpmfRadical = bpmfReadings[0][1];
+            let displayedReading = bpmfReadings[0][0];
 
-            let words = InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmf);
+            let words =
+              InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmfRadical);
 
             let newState = new SelectingHomophoneWordState({
-              bpmf: reading,
+              displayedBpmf: displayedReading,
               previousState: state,
               radicals: state.radicals,
               displayedRadicals: state.displayedRadicals,
@@ -585,13 +586,13 @@ export class KeyHandler {
           } else if (bpmfReadings.length > 1) {
             let menuCandidates: MenuCandidate[] = [];
             for (let bpmfReading of bpmfReadings) {
-              let bpmf = bpmfReading[1];
-              let reading = bpmfReading[0];
+              let bpmfRadical = bpmfReading[1];
+              let displayedReading = bpmfReading[0];
               let candidates =
-                InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmf);
-              let menu = new MenuCandidate(bpmfReading[0], '', () => {
+                InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmfRadical);
+              let menu = new MenuCandidate(displayedReading, '', () => {
                 let newState = new SelectingHomophoneWordState({
-                  bpmf: reading,
+                  displayedBpmf: displayedReading,
                   previousState: state,
                   radicals: state.radicals,
                   displayedRadicals: state.displayedRadicals,
@@ -604,7 +605,7 @@ export class KeyHandler {
               menuCandidates.push(menu);
             }
             let newState = new SelectingHomophoneWordState({
-              bpmf: '',
+              displayedBpmf: '',
               previousState: state,
               radicals: state.radicals,
               displayedRadicals: state.displayedRadicals,

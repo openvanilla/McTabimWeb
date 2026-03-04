@@ -1001,6 +1001,7 @@ describe('Test Homophone Selection', () => {
     });
 
     const state = new SelectingHomophoneWordState({
+      displayedBpmf: 'ㄓㄨㄥˋ',
       previousState: prevState,
       radicals: 'a',
       displayedRadicals: ['A'],
@@ -1038,6 +1039,7 @@ describe('Test Homophone Selection', () => {
     });
 
     const state = new SelectingHomophoneWordState({
+      displayedBpmf: 'ㄓㄨㄥˋ',
       previousState: prevState,
       radicals: 'a',
       displayedRadicals: ['A'],
