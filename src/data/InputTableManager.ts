@@ -15,7 +15,7 @@ import simplex5 from './cin/simplex5.json?raw';
 import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
-import { InputTableWrapper } from './InputTableWrapper';
+import { InputTableType, InputTableWrapper } from './InputTableWrapper';
 import ctrlSymbols from './symbols/dsymbols.json';
 import shiftPunctuations from './symbols/fsymbols.json';
 import symbols from './symbols/msymbols.json';
@@ -244,7 +244,10 @@ export class InputTableManager {
   private bmpfTable_: InputTableWrapper | undefined = undefined;
   private get bmpfTable(): InputTableWrapper {
     if (!this.bmpfTable_) {
-      this.bmpfTable_ = new InputTableWrapper('bpmf', bpmf, { maxRadicals: 4, isBopomofo: true });
+      this.bmpfTable_ = new InputTableWrapper('bpmf', bpmf, {
+        maxRadicals: 4,
+        type: InputTableType.Bopomofo,
+      });
     }
     return this.bmpfTable_;
   }
