@@ -58,8 +58,7 @@ export class CommittingState extends InputState {
  *
  * This state is used to show a temporary message to the user, such as an error
  * message or a hint. The input method will remain in this state until the user
-t
- * akes some action, at which point it will transition to another state.
+ * takes some action, at which point it will transition to another state.
  *
  * @param {string} tooltip - The message to be displayed in the tooltip.
  */
@@ -288,7 +287,7 @@ export class NumberInputtingState extends InputtingState {
 }
 
 /**
- * A state for inputting symbols.
+ * A base state for inputting symbols.
  *
  * This state is used to handle symbol input, and it provides a list of
  * suggestions for different symbols, such as punctuation marks, emojis, and
@@ -300,7 +299,20 @@ export class NumberInputtingState extends InputtingState {
  * @param {number} [selectedCandidateIndex] - The index of the currently
  *     selected candidate.
  */
-export class CtrlSymbolInputtingState extends InputtingState {
+export abstract class BaseSymbolInputtingState extends InputtingState {
+  protected get copyArgs() {
+    return {
+      radicals: this.radicals,
+      selectionKeys: this.selectionKeys,
+      candidates: this.candidates,
+    };
+  }
+}
+
+/**
+ * A state for inputting symbols via a Ctrl shortcut.
+ */
+export class CtrlSymbolInputtingState extends BaseSymbolInputtingState {
   constructor(args: {
     radicals: string;
     selectionKeys: string;
@@ -315,31 +327,19 @@ export class CtrlSymbolInputtingState extends InputtingState {
 
   copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new CtrlSymbolInputtingState({
-      radicals: this.radicals,
-      selectionKeys: this.selectionKeys,
-      candidates: this.candidates,
+      ...this.copyArgs,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
   }
   toString(): string {
-    return `SymbolInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
+    return `CtrlSymbolInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
   }
 }
 
 /**
- * A state for inputting symbols.
- *
- * This state is used to handle symbol input, and it provides a list of
- * suggestions for different symbols, such as punctuation marks, emojis, and
- * other special characters.
- *
- * @param {string} radicals - The current input radicals.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
+ * A regular state for inputting symbols.
  */
-export class SymbolInputtingState extends InputtingState {
+export class SymbolInputtingState extends BaseSymbolInputtingState {
   constructor(args: {
     radicals: string;
     selectionKeys: string;
@@ -354,9 +354,7 @@ export class SymbolInputtingState extends InputtingState {
 
   copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new SymbolInputtingState({
-      radicals: this.radicals,
-      selectionKeys: this.selectionKeys,
-      candidates: this.candidates,
+      ...this.copyArgs,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
     });
   }
@@ -767,7 +765,7 @@ export class SelectingHomophoneReadingsState extends InputtingState {
   }
 
   toString(): string {
-    return `SelectingHomophoneReadingsState >>` + this.candidates;
+    return `SelectingHomophoneReadingsState(candidates=${this.candidates.length})`;
   }
 }
 
@@ -819,6 +817,6 @@ export class SelectingHomophoneWordState extends InputtingState {
   }
 
   toString(): string {
-    return `SelectingHomophoneWordState >>` + this.candidates;
+    return `SelectingHomophoneWordState(candidates=${this.candidates.length})`;
   }
 }

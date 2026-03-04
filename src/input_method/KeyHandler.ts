@@ -499,7 +499,7 @@ export class KeyHandler {
           }
 
           if (
-            table.settings.type !== InputTableType.Bopomofo &&
+            (table.settings.type === undefined || table.settings.type === InputTableType.Regular) &&
             state.radicals.length >= table.settings.maxRadicals
           ) {
             errorCallback();
@@ -515,10 +515,16 @@ export class KeyHandler {
           ) {
             let newSyllable = BopomofoSyllable.fromKeys(joined);
             let candidates: Candidate[] = [];
-            if (newSyllable.isValid && newSyllable.tone !== undefined) {
-              const keys = newSyllable.keys;
-              candidates = table.lookupForCandidate(keys);
-              if (candidates.length === 0) {
+            if (newSyllable.tone !== undefined) {
+              let shouldClear = !newSyllable.isValid;
+              if (!shouldClear) {
+                const keys = newSyllable.keys;
+                candidates = table.lookupForCandidate(keys);
+                if (candidates.length === 0) {
+                  shouldClear = true;
+                }
+              }
+              if (shouldClear) {
                 if (this.onRequestSettings().clearOnErrors) {
                   errorCallback();
                   stateCallback(new EmptyState('Invalid input'));
@@ -526,6 +532,7 @@ export class KeyHandler {
                 }
               }
             }
+
             const newState = new BasicInputtingState({
               radicals: newSyllable.keys,
               displayedRadicals: newSyllable.reading.split(''),
@@ -565,9 +572,10 @@ export class KeyHandler {
         // settings, and existing candidates in the current state.
         let useHomophone =
           key.ascii === '`' &&
-          table.settings.type !== InputTableType.Bopomofo &&
+          (table.settings.type === undefined || table.settings.type === InputTableType.Regular) &&
           this.onRequestSettings().homophoneLookupEnabled &&
           state.candidates.length > 0;
+
         if (useHomophone) {
           let selectedWord = state.candidates[state.selectedCandidateIndex ?? 0];
           let bpmfReadings = InputTableManager.getInstance().lookupBpmfReadings(

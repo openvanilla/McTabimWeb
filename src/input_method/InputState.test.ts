@@ -671,7 +671,7 @@ describe('SelectingHomophoneReadingsState', () => {
       selectedCandidateIndex: 0,
       previousState,
     });
-    expect(state.toString()).toContain('SelectingHomophoneReadingsState >>');
+    expect(state.toString()).toContain('SelectingHomophoneReadingsState(candidates=');
   });
 });
 
@@ -728,7 +728,7 @@ describe('SelectingHomophoneWordState', () => {
       selectedCandidateIndex: 0,
       previousState,
     });
-    expect(state.toString()).toContain('SelectingHomophoneWordState >>');
+    expect(state.toString()).toContain('SelectingHomophoneWordState(candidates=');
   });
 });
 
