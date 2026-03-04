@@ -9,12 +9,23 @@ export interface InputTableSettings {
 export class InputTableWrapper {
   private reverseLookUpTable_: { [key: string]: string[] } | undefined = undefined;
 
-  constructor(public id: string, public jsonSource: string, public settings: InputTableSettings) {}
+  constructor(
+    public id: string,
+    public jsonSource: string,
+    public settings: InputTableSettings,
+    public additionalSource?: string[] | undefined,
+  ) {}
 
   table_: InputTable | undefined;
   get table(): InputTable {
     if (!this.table_) {
       this.table_ = JSON.parse(this.jsonSource) as InputTable;
+      if (this.additionalSource) {
+        for (const source of this.additionalSource) {
+          const additionalTable = JSON.parse(source) as InputTable;
+          this.table_.chardefs = { ...this.table_.chardefs, ...additionalTable.chardefs };
+        }
+      }
     }
     return this.table_;
   }
