@@ -1,14 +1,30 @@
 import { Candidate } from './Candidate';
 import { InputTable } from './InputTable';
 
-export interface InputTableSettings {
-  maxRadicals: number;
-  isBopomofo?: boolean | undefined;
+export enum InputTableType {
+  Regular = 'regular',
+  Bopomofo = 'bopomofo',
 }
 
+export interface InputTableSettings {
+  maxRadicals: number;
+  type?: InputTableType | undefined;
+}
+
+/**
+ * A wrapper class for InputTable that provides additional functionality such as
+ * reverse lookup and candidate lookup.
+ */
 export class InputTableWrapper {
   private reverseLookUpTable_: { [key: string]: string[] } | undefined = undefined;
 
+  /**
+   * Creates a new InputTableWrapper instance.
+   * @param id The ID of the input table.
+   * @param jsonSource The JSON source of the input table.
+   * @param settings The settings for the input table.
+   * @param additionalSource Optional additional JSON sources for the input table.
+   */
   constructor(
     public id: string,
     public jsonSource: string,

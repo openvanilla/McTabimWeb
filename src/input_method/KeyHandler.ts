@@ -5,6 +5,7 @@ import {
   InputTableWrapper,
   MenuCandidate,
 } from '../data';
+import { InputTableType } from '../data/InputTableWrapper';
 import NumberInputHelper from './HelperNumberInput';
 import {
   AssociatedPhrasesState,
@@ -247,7 +248,7 @@ export class KeyHandler {
         /// Enter radical inputting state
         const radical = key.ascii;
         const displayedRadicals = (() => {
-          if (table.settings.isBopomofo === true) {
+          if (table.settings.type === InputTableType.Bopomofo) {
             const syllable = BopomofoSyllable.fromKeys(radical);
             return syllable.reading.split('');
           } else {
@@ -260,7 +261,7 @@ export class KeyHandler {
         }
 
         const candidates = (() => {
-          if (table.settings.isBopomofo === true) {
+          if (table.settings.type === InputTableType.Bopomofo) {
             return [];
           } else {
             return table.lookupForCandidate(radical) || [];
@@ -325,7 +326,10 @@ export class KeyHandler {
           return true;
         }
 
-        if (state instanceof BasicInputtingState && table.settings.isBopomofo === true) {
+        if (
+          state instanceof BasicInputtingState &&
+          table.settings.type === InputTableType.Bopomofo
+        ) {
           const syllable = BopomofoSyllable.fromKeys(state.radicals);
           const radicals = syllable.keys;
           const candidates = table.lookupForCandidate(radicals);
@@ -495,7 +499,7 @@ export class KeyHandler {
           }
 
           if (
-            table.settings.isBopomofo !== true &&
+            table.settings.type !== InputTableType.Bopomofo &&
             state.radicals.length >= table.settings.maxRadicals
           ) {
             errorCallback();
@@ -505,7 +509,10 @@ export class KeyHandler {
           const chr = key.ascii;
           let joined = state.radicals + chr;
 
-          if (state instanceof BasicInputtingState && table.settings.isBopomofo === true) {
+          if (
+            state instanceof BasicInputtingState &&
+            table.settings.type === InputTableType.Bopomofo
+          ) {
             let newSyllable = BopomofoSyllable.fromKeys(joined);
             let candidates: Candidate[] = [];
             if (newSyllable.isValid && newSyllable.tone !== undefined) {
@@ -558,7 +565,7 @@ export class KeyHandler {
         // settings, and existing candidates in the current state.
         let useHomophone =
           key.ascii === '`' &&
-          table.settings.isBopomofo !== true &&
+          table.settings.type !== InputTableType.Bopomofo &&
           this.onRequestSettings().homophoneLookupEnabled &&
           state.candidates.length > 0;
         if (useHomophone) {
@@ -679,7 +686,7 @@ export class KeyHandler {
           return true;
         }
         if (state instanceof BasicInputtingState) {
-          if (table.settings.isBopomofo === true) {
+          if (table.settings.type === InputTableType.Bopomofo) {
             const newSyllable = BopomofoSyllable.fromKeys(newRadicals);
             const newDisplayedRadicals = newSyllable.reading.split('');
             const newState = new BasicInputtingState({

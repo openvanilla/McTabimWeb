@@ -2,7 +2,14 @@ import { Case, ChineseNumbers } from '../ChineseNumbers';
 import { Candidate } from '../data';
 import { RomanNumbers, RomanNumbersStyle } from '../RomanNumbers';
 
+/**
+ * A utility class for number-related operations including Chinese number
+ * conversions and Roman numeral conversions.
+ */
 export default class NumberInputHelper {
+  /**
+   * A map of number keys to their corresponding symbol strings.
+   */
   static readonly NUMBER_SYMBOLS = new Map<string, string>([
     ['_number_0', '０ 0 🄁 0 ⓿ 0 ⓪ 0 ⓿ 0 𝟎 0 𝟢 0 𝟬 0 𝟶 0 0️⃣ 0'],
     ['_number_1', '１ 0 ⒈ 0 🄂 0 ⑴ 0 ❶ 0 ① 0 ⓵ 0 ㈠ 0 ㊀ 0 Ⅰ 0 ⅰ 0 𝟏 0 𝟣 0 𝟭 0 𝟷 0 1️⃣ 0'],
@@ -57,6 +64,12 @@ export default class NumberInputHelper {
     ['_number_9', '９ 0 ⒐ 0 🄊 0 ⑼ 0 ❾ 0 ⑨ 0 ⓽ 0 ㈨ 0 ㊈ 0 Ⅸ 0 ⅸ 0 𝟗 0 𝟫 0 𝟵 0 𝟿 0 9️⃣ 0'],
   ]);
 
+  /**
+   * Fills the candidate list with number-related entries based on the input
+   * string.
+   * @param inputString The input string to process.
+   * @returns An array of Candidate objects.
+   */
   static fillCandidates(inputString: string): Candidate[] {
     if (inputString.trim().length === 0) {
       return [];
@@ -67,6 +80,12 @@ export default class NumberInputHelper {
     });
   }
 
+  /**
+   * Fills the candidate list with number-related entries based on the input
+   * string.
+   * @param inputString The input string to process.
+   * @returns An array of strings containing various number formats.
+   */
   static fillCandidatesStrings(inputString: string): string[] {
     const input = inputString.trim();
     if (input.length === 0) {
