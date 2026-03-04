@@ -487,12 +487,12 @@ export class KeyHandler {
         state instanceof AssociatedPhrasesState ||
         state instanceof CtrlSymbolInputtingState
       ) {
-        if (state instanceof CtrlSymbolInputtingState) {
-          const symbol = state.candidates[0].displayText;
-          stateCallback(new CommittingState(symbol));
-        }
-
         if (key.ascii && inputKeys.includes(key.ascii)) {
+          if (state instanceof CtrlSymbolInputtingState) {
+            const symbol = state.candidates[0].displayText;
+            stateCallback(new CommittingState(symbol));
+          }
+
           let selectionKeys = table.table.selkey;
           if (selectionKeys === undefined || selectionKeys.length === 0) {
             selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
