@@ -492,6 +492,42 @@ describe('InputtingState helper behavior', () => {
     expect(copied.selectedCandidateIndex).toBe(1);
     expect(copied.candidateAnnotation).toBe('注解');
   });
+
+  it('InputtingState copyWithArgs preserves optional metadata', () => {
+    const state = new InputtingState({
+      radicals: 'ab',
+      displayedRadicals: ['A'],
+      selectionKeys: '12',
+      exactSelectionKeys: '!@',
+      candidates,
+      selectedCandidateIndex: 0,
+      tooltip: '提示',
+      candidateAnnotation: '註記',
+      useShiftedKeyCap: true,
+    });
+    const copied = state.copyWithArgs({ selectedCandidateIndex: 1 });
+    expect(copied.exactSelectionKeys).toBe('!@');
+    expect(copied.tooltip).toBe('提示');
+    expect(copied.candidateAnnotation).toBe('註記');
+    expect(copied.useShiftedKeyCap).toBe(true);
+  });
+});
+
+describe('AssociatedPhrasesState', () => {
+  const mockCandidates = [new Candidate('A', ''), new Candidate('B', '')];
+
+  it('copyWithArgs preserves tooltip and shifted key-cap mode', () => {
+    const state = new AssociatedPhrasesState({
+      selectionKeys: '12',
+      exactSelectionKeys: 'ab',
+      candidates: mockCandidates,
+      tooltip: '關聯詞',
+      useShiftedKeyCap: true,
+    });
+    const copied = state.copyWithArgs({ selectedCandidateIndex: 1 });
+    expect(copied.tooltip).toBe('關聯詞');
+    expect(copied.useShiftedKeyCap).toBe(true);
+  });
 });
 
 describe('SymbolCategoryState deeper navigation', () => {

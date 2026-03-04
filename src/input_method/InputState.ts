@@ -72,6 +72,22 @@ export class TooltipOnlyState extends InputState {
   }
 }
 
+type InputtingStateArgs = {
+  radicals: string;
+  displayedRadicals: string[];
+  selectionKeys: string;
+  candidates: Candidate[];
+  selectedCandidateIndex?: number;
+  exactSelectionKeys?: string;
+  tooltip?: string;
+  candidateAnnotation?: string;
+  useShiftedKeyCap?: boolean;
+};
+
+type InputtingStateCopyArgs = {
+  selectedCandidateIndex?: number;
+};
+
 /**
  * Represents the state where the user is actively inputting characters.
  *
@@ -110,17 +126,7 @@ export class InputtingState extends InputState {
   readonly candidatePageIndex?: number | undefined;
   readonly candidatePageCount?: number | undefined;
 
-  constructor(args: {
-    radicals: string;
-    displayedRadicals: string[];
-    selectionKeys: string;
-    candidates: Candidate[];
-    selectedCandidateIndex?: number | undefined;
-    exactSelectionKeys?: string | undefined;
-    tooltip?: string | undefined;
-    readonly candidateAnnotation?: string | undefined;
-    readonly useShiftedKeyCap?: boolean | undefined;
-  }) {
+  constructor(args: InputtingStateArgs) {
     super();
     this.radicals = args.radicals;
     this.displayedRadicals = args.displayedRadicals;
@@ -146,15 +152,22 @@ export class InputtingState extends InputState {
     }
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
-    return new InputtingState({
+  protected buildArgs(args: InputtingStateCopyArgs): InputtingStateArgs {
+    return {
       radicals: this.radicals,
       displayedRadicals: this.displayedRadicals,
       selectionKeys: this.selectionKeys,
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
-      // tooltip: this.tooltip,
-    });
+      exactSelectionKeys: this.exactSelectionKeys,
+      tooltip: this.tooltip,
+      candidateAnnotation: this.candidateAnnotation,
+      useShiftedKeyCap: this.useShiftedKeyCap,
+    };
+  }
+
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
+    return new InputtingState(this.buildArgs(args));
   }
   toString(): string {
     return `InputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
@@ -170,16 +183,8 @@ export class InputtingState extends InputState {
  * candidate list.
  */
 export class BasicInputtingState extends InputtingState {
-  copyWithArgs(args: { selectedCandidateIndex?: number }): BasicInputtingState {
-    return new BasicInputtingState({
-      radicals: this.radicals,
-      displayedRadicals: this.displayedRadicals,
-      selectionKeys: this.selectionKeys,
-      candidates: this.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
-      // tooltip: this.tooltip,
-      candidateAnnotation: this.candidateAnnotation,
-    });
+  copyWithArgs(args: InputtingStateCopyArgs): BasicInputtingState {
+    return new BasicInputtingState(this.buildArgs(args));
   }
   toString(): string {
     return `BasicInputtingState(radicals='${this.radicals}', candidates=${this.candidates.length}, selectedCandidateIndex=${this.selectedCandidateIndex})`;
@@ -219,12 +224,13 @@ export class AssociatedPhrasesState extends InputtingState {
     });
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new AssociatedPhrasesState({
       selectionKeys: this.selectionKeys,
       exactSelectionKeys: this.exactSelectionKeys!,
       candidates: this.candidates,
       selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
+      tooltip: this.tooltip,
       useShiftedKeyCap: this.useShiftedKeyCap,
     });
   }
@@ -266,7 +272,7 @@ export class NumberInputtingState extends InputtingState {
     });
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new NumberInputtingState({
       radicals: this.radicals,
       selectionKeys: this.selectionKeys,
@@ -307,7 +313,7 @@ export class CtrlSymbolInputtingState extends InputtingState {
     });
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new CtrlSymbolInputtingState({
       radicals: this.radicals,
       selectionKeys: this.selectionKeys,
@@ -346,7 +352,7 @@ export class SymbolInputtingState extends InputtingState {
     });
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new SymbolInputtingState({
       radicals: this.radicals,
       selectionKeys: this.selectionKeys,
@@ -418,7 +424,7 @@ export class SymbolCategoryState extends InputtingState {
     this.nodes = args.nodes;
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number | undefined }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new SymbolCategoryState({
       title: this.displayedRadicals.join(''),
       displayedRadicals: this.displayedRadicals,
@@ -549,7 +555,7 @@ export class SettingsState extends InputtingState {
     this.onSettingsChanged = args.onSettingsChanged;
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new SettingsState({
       previousState: this.previousState,
       settings: this.settings,
@@ -704,7 +710,7 @@ export class MenuState extends InputtingState {
     this.onSettingsChanged = args.onSettingsChanged;
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new MenuState({
       settings: this.settings,
       selectionKeys: this.selectionKeys,
@@ -753,15 +759,9 @@ export class SelectingHomophoneReadingsState extends InputtingState {
     this.previousState = args.previousState;
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new SelectingHomophoneReadingsState({
-      radicals: this.radicals,
-      displayedRadicals: this.displayedRadicals,
-      selectionKeys: this.selectionKeys,
-      candidates: this.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
-      exactSelectionKeys: this.exactSelectionKeys,
-      tooltip: this.tooltip,
+      ...this.buildArgs(args),
       previousState: this.previousState,
     });
   }
@@ -810,16 +810,10 @@ export class SelectingHomophoneWordState extends InputtingState {
     this.bpmf = args.displayedBpmf;
   }
 
-  copyWithArgs(args: { selectedCandidateIndex?: number }): InputtingState {
+  copyWithArgs(args: InputtingStateCopyArgs): InputtingState {
     return new SelectingHomophoneWordState({
       displayedBpmf: this.bpmf,
-      radicals: this.radicals,
-      displayedRadicals: this.displayedRadicals,
-      selectionKeys: this.selectionKeys,
-      candidates: this.candidates,
-      selectedCandidateIndex: args.selectedCandidateIndex ?? this.selectedCandidateIndex,
-      exactSelectionKeys: this.exactSelectionKeys,
-      tooltip: this.tooltip,
+      ...this.buildArgs(args),
       previousState: this.previousState,
     });
   }
