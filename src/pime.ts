@@ -16,6 +16,7 @@ import { InputController } from './input_method';
 import { EmptyState } from './input_method/InputState';
 import { InputUI } from './input_method/InputUI';
 import { KeyFromKeyboardEvent, VK_Keys } from './pime_keys';
+import { text } from 'stream/consumers';
 
 interface Settings {
   candidateFontSize: number;
@@ -110,12 +111,12 @@ class PimeMcTabim {
   settings: Settings = defaultSettings;
   constructor() {
     this.inputController = new InputController(this.makeUI(this));
-    this.inputController.onError = () => {};
+    this.inputController.onError = () => { };
     this.inputController.onSettingChanged = (newSettings) => {
       this.settings.inputSettings = newSettings;
       this.writeSettings();
     };
-    this.loadSettings(() => {});
+    this.loadSettings(() => { });
   }
 
   /** Resets the UI state before handling a key. */
@@ -226,7 +227,7 @@ class PimeMcTabim {
       try {
         const text = data.toString();
         InputTableManager.getInstance().customSymbolTable.sourceData = text;
-      } catch {}
+      } catch { }
     });
   }
 
@@ -486,7 +487,7 @@ try {
 
   fs.watch(pimeMcTabim.userSettingsPath, (event, filename) => {
     if (filename) {
-      pimeMcTabim.loadSettings(() => {});
+      pimeMcTabim.loadSettings(() => { });
     }
   });
 } catch (e) {
@@ -794,6 +795,9 @@ module.exports = {
         text: '偏好設定 (&O)',
         id: PimeMcTabimCommand.OpenOptions,
       });
+      menu.push({});
+      menu.push({ text: '小麥他命輸入法 0.2.2' });
+
       const response = Object.assign({}, responseTemplate, { return: menu });
       return response;
     }
