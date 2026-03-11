@@ -339,9 +339,14 @@ export class KeyHandler {
         if (
           state instanceof BasicInputtingState &&
           (table.settings.type === InputTableType.Bopomofo ||
-            table.settings.type === InputTableType.Wsl) &&
-          state.candidates.length === 0
+            table.settings.type === InputTableType.Wsl)
         ) {
+          if (state.candidates.length > 0 && key.name === KeyName.RETURN) {
+            const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
+            this.handleCandidate(state, selectedCandidate, stateCallback);
+            return true;
+          }
+
           const syllable = (() => {
             if (table.settings.type === InputTableType.Bopomofo) {
               return BopomofoSyllable.fromKeys(state.radicals);
