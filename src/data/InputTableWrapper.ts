@@ -4,6 +4,7 @@ import { InputTable } from './InputTable';
 export enum InputTableType {
   Regular = 'regular',
   Bopomofo = 'bopomofo',
+  Wsl = 'WSL',
 }
 
 export interface InputTableSettings {

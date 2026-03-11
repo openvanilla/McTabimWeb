@@ -12,6 +12,7 @@ import dayi3 from './cin/dayi3.json?raw';
 import dayi4 from './cin/dayi4.json?raw';
 import simplex from './cin/simplex.json?raw';
 import simplex5 from './cin/simplex5.json?raw';
+import wsl from './cin/wsl.json?raw';
 import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
@@ -195,6 +196,7 @@ export class InputTableManager {
     ]),
     new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
     this.bmpfTable,
+    new InputTableWrapper('wsl', wsl, { maxRadicals: 4, type: InputTableType.Wsl }),
   ];
 
   /**
