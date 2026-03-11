@@ -339,7 +339,8 @@ export class KeyHandler {
         if (
           state instanceof BasicInputtingState &&
           (table.settings.type === InputTableType.Bopomofo ||
-            table.settings.type === InputTableType.Wsl)
+            table.settings.type === InputTableType.Wsl) &&
+          state.candidates.length === 0
         ) {
           const syllable = (() => {
             if (table.settings.type === InputTableType.Bopomofo) {
