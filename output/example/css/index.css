@@ -414,3 +414,11 @@ td {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 }
+
+.hg-button {
+  color: #000;
+}
+
+.simple-keyboard {
+  min-height: 230px;
+}

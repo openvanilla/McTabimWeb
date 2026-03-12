@@ -57,6 +57,10 @@ let example = (function () {
         : '<a href="" onclick="example.globalUi.enterAlphabetMode(); return false;">【中文】</a>';
     };
 
+    that.updateByKeyboardVisible = () => {
+      document.getElementById('keyboard').style.height = '30%';
+    };
+
     that.update = (string) => {
       that.updateByAlphabetMode();
       let state = JSON.parse(string);
@@ -205,6 +209,7 @@ let example = (function () {
   const globalUi = (() => {
     let that = {};
     that.alphabetMode = false;
+    that.keyboardVisible = false;
 
     that.enterAlphabetMode = () => {
       that.alphabetMode = true;
@@ -218,6 +223,11 @@ let example = (function () {
       ui.updateByAlphabetMode();
       inputMethod.controller.reset();
       document.getElementById('text_area').focus();
+    };
+
+    that.toggleKeyboard = () => {
+      that.keyboardVisible = !that.keyboardVisible;
+      ui.updateByKeyboardVisible();
     };
 
     return that;
@@ -390,6 +400,7 @@ let example = (function () {
         settings.settings.selectedId = value;
         settings.save();
         settings.applyToInputMethod();
+        keyboard.loadLayout();
         document.getElementById('text_area').focus();
       });
     };
@@ -665,6 +676,57 @@ let example = (function () {
   example.settings = settings;
   example.symbolTableUserData = symbolTableUserData;
   example.foreignLanguageUserData = foreignLanguageUserData;
+
+  const keyboard = (() => {
+    const Keyboard = window.SimpleKeyboard.default;
+
+    const keyboard = new Keyboard({
+      // onChange: (input) => onChange(input),
+      onKeyPress: (button) => onKeyPress(button),
+    });
+
+    let currentLayout = 'default';
+
+    function onKeyPress(button) {
+      console.log('Button pressed', button);
+      if (button === '{shift}' || button === '{lock}') {
+        currentLayout = currentLayout === 'default' ? 'shift' : 'default';
+        loadLayout(currentLayout === 'shift');
+      }
+    }
+
+    function loadLayout(isShift = false) {
+      const { InputTableManager } = window.mctabim;
+      const manager = InputTableManager.getInstance();
+      const names = manager.currentTable.table.keynames;
+
+      const display = {
+        '{tab}': 'Tab',
+        '{lock}': 'Lock',
+        '{shift}': 'Shift',
+        '{bksp}': 'Backspace',
+        '{enter}': 'Enter',
+      };
+
+      if (!isShift) {
+        for (const key in names) {
+          display[key] = names[key];
+        }
+      }
+
+      keyboard.setOptions({
+        layoutName: isShift ? 'shift' : 'default',
+        display: display,
+      });
+    }
+
+    const that = {};
+    that.loadLayout = loadLayout;
+    loadLayout();
+    return that;
+  })();
+
+  example.keyboard = keyboard;
   window.example = example;
   return example;
 })();

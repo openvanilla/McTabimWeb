@@ -235,7 +235,7 @@ export class KeyHandler {
       state instanceof TooltipOnlyState ||
       state instanceof CommittingState
     ) {
-      if (key.ascii === '`') {
+      if (key.ascii === '`' && inputKeys.includes('`') === false) {
         /// Enter Symbol Inputting State
         const selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         const newState = new SymbolInputtingState({
