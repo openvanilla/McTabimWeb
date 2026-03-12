@@ -15,7 +15,9 @@ stateDiagram-v2
     BasicInputtingState --> BasicInputtingState: Radical key / Backspace
     BasicInputtingState --> CommittingState: Select candidate (Space, Enter, 1-9)
     BasicInputtingState --> EmptyState: Esc / Backspace on last radical
-    BasicInputtingState --> SelectingHomophoneReadingsState: '`' key
+    BasicInputtingState --> SelectingHomophoneReadingsState: '`' key (Regular tables only)
+    BasicInputtingState --> BasicInputtingState: Space / Enter (Phonetic tables: trigger lookup)
+    BasicInputtingState --> CommittingState: Enter (Phonetic tables: commit selected candidate)
 
     SymbolInputtingState --> SymbolInputtingState: Symbol key / Backspace
     SymbolInputtingState --> CommittingState: Select candidate
@@ -50,3 +52,18 @@ stateDiagram-v2
     TooltipOnlyState --> EmptyState: Any key
     TooltipOnlyState --> BasicInputtingState: Radical key
 ```
+
+## Input Table Types and State Transitions
+
+The `InputTableType` of the active table alters certain behaviors and transitions within the `BasicInputtingState`:
+
+- **Regular Tables (`InputTableType.Regular` / Default)**:
+
+  - **Candidates Generation**: Candidates are populated and updated in real-time as the user types radical keys.
+  - **Homophone Lookup**: Pressing the backtick (`` ` ``) key when candidates are present transitions the state to `SelectingHomophoneReadingsState` (if homophone lookup is enabled).
+  - **Maximum Radicals**: Enforces the table's `maxRadicals` limit immediately upon input.
+
+- **Phonetic Tables (`InputTableType.Bopomofo`, `InputTableType.Wsl`)**:
+  - **Candidates Generation**: Candidates are **not** immediately populated upon typing. Radicals are buffered to compose a complete phonetic syllable (`BopomofoSyllable` or `BopomofoWslSyllable`). Pressing `Space` or `Enter` executes the lookup for the composed syllable and populates the candidate list.
+  - **Homophone Lookup**: The backtick (`` ` ``) key homophone lookup is disabled in these tables, as phonetic input inherently involves homophone selection.
+  - **Candidate Selection**: Once candidates are generated (after `Space`/`Enter`), a subsequent `Enter` will select the highlighted candidate and transition to `CommittingState`.

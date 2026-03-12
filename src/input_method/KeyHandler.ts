@@ -1,5 +1,6 @@
 import {
   BopomofoSyllable,
+  BopomofoWslSyllable,
   Candidate,
   InputTableManager,
   InputTableWrapper,
@@ -248,11 +249,17 @@ export class KeyHandler {
         /// Enter radical inputting state
         const radical = key.ascii;
         const displayedRadicals = (() => {
-          if (table.settings.type === InputTableType.Bopomofo) {
-            const syllable = BopomofoSyllable.fromKeys(radical);
-            return syllable.reading.split('');
-          } else {
-            return [table.lookUpForDisplayedKeyName(radical) || radical];
+          switch (table.settings.type) {
+            case InputTableType.Bopomofo: {
+              const syllable = BopomofoSyllable.fromKeys(radical);
+              return syllable.reading.split('');
+            }
+            case InputTableType.Wsl: {
+              const syllable = BopomofoWslSyllable.fromKeys(radical);
+              return syllable.reading.split('');
+            }
+            default:
+              return [table.lookUpForDisplayedKeyName(radical) || radical];
           }
         })();
         let selectionKeys = table.table.selkey;
@@ -261,7 +268,10 @@ export class KeyHandler {
         }
 
         const candidates = (() => {
-          if (table.settings.type === InputTableType.Bopomofo) {
+          if (
+            table.settings.type === InputTableType.Bopomofo ||
+            table.settings.type === InputTableType.Wsl
+          ) {
             return [];
           } else {
             return table.lookupForCandidate(radical) || [];
@@ -328,9 +338,25 @@ export class KeyHandler {
 
         if (
           state instanceof BasicInputtingState &&
-          table.settings.type === InputTableType.Bopomofo
+          (table.settings.type === InputTableType.Bopomofo ||
+            table.settings.type === InputTableType.Wsl)
         ) {
-          const syllable = BopomofoSyllable.fromKeys(state.radicals);
+          if (state.candidates.length > 0 && key.name === KeyName.RETURN) {
+            const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
+            this.handleCandidate(state, selectedCandidate, stateCallback);
+            return true;
+          }
+
+          const syllable = (() => {
+            if (table.settings.type === InputTableType.Bopomofo) {
+              return BopomofoSyllable.fromKeys(state.radicals);
+            } else if (table.settings.type === InputTableType.Wsl) {
+              return BopomofoWslSyllable.fromKeys(state.radicals);
+            }
+          })();
+          if (syllable === undefined) {
+            return true;
+          }
           const radicals = syllable.keys;
           const candidates = table.lookupForCandidate(radicals);
           if (candidates.length === 0) {
@@ -511,9 +537,19 @@ export class KeyHandler {
 
           if (
             state instanceof BasicInputtingState &&
-            table.settings.type === InputTableType.Bopomofo
+            (table.settings.type === InputTableType.Bopomofo ||
+              table.settings.type === InputTableType.Wsl)
           ) {
-            let newSyllable = BopomofoSyllable.fromKeys(joined);
+            const newSyllable = (() => {
+              if (table.settings.type === InputTableType.Bopomofo) {
+                return BopomofoSyllable.fromKeys(joined);
+              } else if (table.settings.type === InputTableType.Wsl) {
+                return BopomofoWslSyllable.fromKeys(joined);
+              }
+            })();
+            if (newSyllable === undefined) {
+              return true;
+            }
             let candidates: Candidate[] = [];
             if (newSyllable.tone !== undefined) {
               let shouldClear = !newSyllable.isValid;
@@ -694,8 +730,20 @@ export class KeyHandler {
           return true;
         }
         if (state instanceof BasicInputtingState) {
-          if (table.settings.type === InputTableType.Bopomofo) {
-            const newSyllable = BopomofoSyllable.fromKeys(newRadicals);
+          if (
+            table.settings.type === InputTableType.Bopomofo ||
+            table.settings.type === InputTableType.Wsl
+          ) {
+            const newSyllable = (() => {
+              if (table.settings.type === InputTableType.Bopomofo) {
+                return BopomofoSyllable.fromKeys(newRadicals);
+              } else if (table.settings.type === InputTableType.Wsl) {
+                return BopomofoWslSyllable.fromKeys(newRadicals);
+              }
+            })();
+            if (newSyllable === undefined) {
+              return true;
+            }
             const newDisplayedRadicals = newSyllable.reading.split('');
             const newState = new BasicInputtingState({
               radicals: newRadicals,

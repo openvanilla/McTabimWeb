@@ -321,7 +321,15 @@ export class CtrlSymbolInputtingState extends BaseSymbolInputtingState {
   }) {
     super({
       ...args,
-      displayedRadicals: [`[符]${args.candidates[0].displayText}`],
+      displayedRadicals: [
+        `[符]${(() => {
+          const index = args.selectedCandidateIndex;
+          if (args.candidates.length > 0) {
+            return args.candidates[index ?? 0].displayText;
+          }
+          return args.radicals;
+        })()}`,
+      ],
     });
   }
 
@@ -348,7 +356,15 @@ export class SymbolInputtingState extends BaseSymbolInputtingState {
   }) {
     super({
       ...args,
-      displayedRadicals: [`[符]${args.radicals}`],
+      displayedRadicals: [
+        `[符]${(() => {
+          const index = args.selectedCandidateIndex;
+          if (args.candidates.length > 0) {
+            return args.candidates[index ?? 0].displayText;
+          }
+          return args.radicals;
+        })()}`,
+      ],
     });
   }
 
