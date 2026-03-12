@@ -257,12 +257,12 @@ describe('Other InputState subclasses', () => {
   describe('SymbolInputtingState', () => {
     it('should set displayedRadicals with [符]', () => {
       const state = new SymbolInputtingState({
-        radicals: 'abc',
+        radicals: 'a',
         selectionKeys: '12',
         candidates: mockCandidates,
         selectedCandidateIndex: 0,
       });
-      expect(state.displayedRadicals).toStrictEqual(['[符]abc']);
+      expect(state.displayedRadicals).toStrictEqual(['[符]A']);
       expect(state.candidates).toEqual(mockCandidates);
     });
 
