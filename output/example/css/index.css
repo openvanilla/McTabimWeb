@@ -422,3 +422,13 @@ td {
 .simple-keyboard {
   min-height: 230px;
 }
+
+.hg-button[data-skbtn='{ctrl}'] {
+  flex-grow: 1 !important;
+  max-width: 80px; /* 或者設定一個最大寬度，讓它看起來像一般按鍵 */
+}
+
+.hg-button-active {
+  background-color: #007bff !important;
+  color: white !important;
+}

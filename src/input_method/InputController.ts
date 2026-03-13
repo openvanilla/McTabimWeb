@@ -90,7 +90,10 @@ export class InputController {
    * @param keyHandler - An optional `KeyHandler` for handling key events.
    *                     If not provided, a default `KeyHandler` is instantiated.
    */
-  constructor(private ui_: InputUI, keyHandler?: KeyHandler) {
+  constructor(
+    private ui_: InputUI,
+    keyHandler?: KeyHandler,
+  ) {
     this.keyHandler_ =
       keyHandler ??
       new KeyHandler(
@@ -120,6 +123,11 @@ export class InputController {
    */
   handleKeyboardEvent(event: KeyboardEvent): boolean {
     const key = KeyMapping.keyFromKeyboardEvent(event);
+    return this.handle(key);
+  }
+
+  handleSimpleKeyboardEvent(button: string, isShift: boolean, isCtrl: boolean): boolean {
+    const key = KeyMapping.keyFromSimpleKeyboardEvent(button, isShift, isCtrl);
     return this.handle(key);
   }
 

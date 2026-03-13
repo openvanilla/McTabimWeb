@@ -46,8 +46,20 @@ let example = (function () {
       var head = text.substring(0, selectionStart);
       var tail = text.substring(selectionEnd);
       document.getElementById('text_area').value = head + string + tail;
-      let start = selectionStart + string.length;
-      document.getElementById('text_area').setSelectionRange(start, start);
+      let cursorPosition = head.length + string.length;
+      document.getElementById('text_area').setSelectionRange(cursorPosition, cursorPosition);
+      composingBuffer = '';
+    };
+
+    that.backspace = () => {
+      var selectionStart = document.getElementById('text_area').selectionStart;
+      var selectionEnd = document.getElementById('text_area').selectionEnd;
+      var text = document.getElementById('text_area').value;
+      var head = text.substring(0, selectionStart);
+      var tail = text.substring(selectionEnd);
+      document.getElementById('text_area').value = head.substring(0, head.length - 1) + tail;
+      let cursorPosition = head.length - 1;
+      document.getElementById('text_area').setSelectionRange(cursorPosition, cursorPosition);
       composingBuffer = '';
     };
 
@@ -438,10 +450,10 @@ let example = (function () {
       }
     });
 
-    textarea.addEventListener('blur', () => {
-      inputMethod.controller.reset();
-      ui.reset();
-    });
+    // textarea.addEventListener('blur', () => {
+    //   inputMethod.controller.reset();
+    //   ui.reset();
+    // });
 
     document.getElementById('chinese_convert_trad').onchange = function (event) {
       settings.settings.inputSettings.chineseConversionEnabled = false;
@@ -678,49 +690,128 @@ let example = (function () {
   example.foreignLanguageUserData = foreignLanguageUserData;
 
   const keyboard = (() => {
+    const that = {};
+    that.isLock = false;
+    that.isShift = false;
+    that.isCtrl = false;
+
     const Keyboard = window.SimpleKeyboard.default;
 
     const keyboard = new Keyboard({
-      // onChange: (input) => onChange(input),
       onKeyPress: (button) => onKeyPress(button),
     });
 
-    let currentLayout = 'default';
-
     function onKeyPress(button) {
       console.log('Button pressed', button);
-      if (button === '{shift}' || button === '{lock}') {
-        currentLayout = currentLayout === 'default' ? 'shift' : 'default';
-        loadLayout(currentLayout === 'shift');
+      if (button === '{lock}') {
+        that.isLock = !that.isLock;
+        that.loadLayout();
+        return;
+      } else if (button === '{shift}') {
+        that.isShift = !that.isShift;
+        that.loadLayout();
+        return;
+      } else if (button === '{ctrl}') {
+        that.isCtrl = !that.isCtrl;
+        that.loadLayout();
+        return;
       }
+      const result = inputMethod.controller.handleSimpleKeyboardEvent(
+        button,
+        that.isShift || that.isLock,
+        that.isCtrl,
+      );
+      const textArea = document.getElementById('text_area');
+      textArea.focus();
+      if (that.isShift) {
+        that.isShift = false;
+        that.loadLayout();
+      }
+      if (that.isCtrl) {
+        that.isCtrl = false;
+        that.loadLayout();
+      }
+      if (!result) {
+        if (button === '{enter}') {
+          ui.commitString('\n');
+        } else if (button === '{space}') {
+          ui.commitString(' ');
+        } else if (button === '{bksp}') {
+          ui.backspace();
+        }
+      }
+      // textArea.focus();
     }
 
-    function loadLayout(isShift = false) {
+    function loadLayout() {
       const { InputTableManager } = window.mctabim;
       const manager = InputTableManager.getInstance();
       const names = manager.currentTable.table.keynames;
 
       const display = {
-        '{tab}': 'Tab',
+        '{tab}': '⇥ Tab',
         '{lock}': 'Lock',
-        '{shift}': 'Shift',
-        '{bksp}': 'Backspace',
-        '{enter}': 'Enter',
+        '{shift}': '⇧ Shift',
+        '{bksp}': '⌫ Backspace',
+        '{enter}': '↵ Enter',
+        '{space}': 'Space',
+        '{ctrl}': '⌃ Ctrl',
       };
 
-      if (!isShift) {
+      if (!that.isCtrl) {
         for (const key in names) {
+          if (key === '`') {
+            continue;
+          }
           display[key] = names[key];
         }
       }
 
+      let defaultLayout = [
+        '` 1 2 3 4 5 6 7 8 9 0 - = {bksp}',
+        '{tab} q w e r t y u i o p [ ] \\',
+        "{lock} a s d f g h j k l ; ' {enter}",
+        '{shift} z x c v b n m , . / {shift}',
+        '{ctrl} {space}',
+      ];
+      let shiftLayout = [
+        '~ ! @ # $ % ^ & * ( ) _ + {bksp}',
+        '{tab} Q W E R T Y U I O P { } |',
+        '{lock} A S D F G H J K L : " {enter}',
+        '{shift} Z X C V B N M < > ? {shift}',
+        '{ctrl} {space}',
+      ];
+      let layout = that.isShift || that.isLock ? shiftLayout : defaultLayout;
+
+      const buttonTheme = [];
+      if (that.isLock) {
+        buttonTheme.push({
+          class: 'hg-button-active',
+          buttons: '{lock}',
+        });
+      }
+      if (that.isShift) {
+        buttonTheme.push({
+          class: 'hg-button-active',
+          buttons: '{shift}',
+        });
+      }
+      if (that.isCtrl) {
+        buttonTheme.push({
+          class: 'hg-button-active',
+          buttons: '{ctrl}',
+        });
+      }
+
       keyboard.setOptions({
-        layoutName: isShift ? 'shift' : 'default',
         display: display,
+        layout: {
+          default: layout,
+        },
+        buttonTheme: buttonTheme,
       });
     }
 
-    const that = {};
     that.loadLayout = loadLayout;
     loadLayout();
     return that;

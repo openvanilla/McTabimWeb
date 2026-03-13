@@ -1,4 +1,4 @@
-import { Key, KeyFromKeyboardEvent, KeyName } from './Key';
+import { Key, KeyFromKeyboardEvent, KeyFromSimpleKeyboardEvent, KeyName } from './Key';
 
 describe('Key', () => {
   describe('construction', () => {
@@ -812,5 +812,48 @@ describe('KeyFromKeyboardEvent fall-through cases', () => {
     const key = KeyFromKeyboardEvent(event);
     expect(key.name).toBe(KeyName.UNKNOWN);
     expect(key.ascii).toBe('x');
+  });
+  describe('KeyFromSimpleKeyboardEvent', () => {
+    it('handles backspace', () => {
+      const key = KeyFromSimpleKeyboardEvent('{bksp}', false, false);
+      expect(key.name).toBe(KeyName.BACKSPACE);
+      expect(key.ascii).toBe('');
+    });
+
+    it('handles enter', () => {
+      const key = KeyFromSimpleKeyboardEvent('{enter}', false, false);
+      expect(key.name).toBe(KeyName.RETURN);
+      expect(key.ascii).toBe('');
+    });
+
+    it('handles space', () => {
+      const key = KeyFromSimpleKeyboardEvent('{space}', false, false);
+      expect(key.name).toBe(KeyName.SPACE);
+      expect(key.ascii).toBe(' ');
+    });
+
+    it('handles tab', () => {
+      const key = KeyFromSimpleKeyboardEvent('{tab}', false, false);
+      expect(key.name).toBe(KeyName.TAB);
+      expect(key.ascii).toBe('');
+    });
+
+    it('handles ASCII characters', () => {
+      const key = KeyFromSimpleKeyboardEvent('a', true, false);
+      expect(key.name).toBe(KeyName.ASCII);
+      expect(key.ascii).toBe('a');
+      expect(key.shiftPressed).toBe(true);
+    });
+
+    it('handles shift and ctrl flags', () => {
+      const key = KeyFromSimpleKeyboardEvent('x', true, true);
+      expect(key.shiftPressed).toBe(true);
+      expect(key.ctrlPressed).toBe(true);
+    });
+
+    it('handles unknown buttons', () => {
+      const key = KeyFromSimpleKeyboardEvent('{unknown}', false, false);
+      expect(key.name).toBe(KeyName.UNKNOWN);
+    });
   });
 });
