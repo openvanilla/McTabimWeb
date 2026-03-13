@@ -111,12 +111,12 @@ class PimeMcTabim {
   settings: Settings = defaultSettings;
   constructor() {
     this.inputController = new InputController(this.makeUI(this));
-    this.inputController.onError = () => { };
+    this.inputController.onError = () => {};
     this.inputController.onSettingChanged = (newSettings) => {
       this.settings.inputSettings = newSettings;
       this.writeSettings();
     };
-    this.loadSettings(() => { });
+    this.loadSettings(() => {});
   }
 
   /** Resets the UI state before handling a key. */
@@ -227,7 +227,7 @@ class PimeMcTabim {
       try {
         const text = data.toString();
         InputTableManager.getInstance().customSymbolTable.sourceData = text;
-      } catch { }
+      } catch {}
     });
   }
 
@@ -487,7 +487,7 @@ try {
 
   fs.watch(pimeMcTabim.userSettingsPath, (event, filename) => {
     if (filename) {
-      pimeMcTabim.loadSettings(() => { });
+      pimeMcTabim.loadSettings(() => {});
     }
   });
 } catch (e) {
@@ -796,7 +796,7 @@ module.exports = {
         id: PimeMcTabimCommand.OpenOptions,
       });
       menu.push({});
-      menu.push({ text: '小麥他命輸入法 0.2.2' });
+      menu.push({ text: '小麥他命輸入法 0.3.0' });
 
       const response = Object.assign({}, responseTemplate, { return: menu });
       return response;

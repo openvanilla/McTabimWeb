@@ -749,13 +749,13 @@ let example = (function () {
       const names = manager.currentTable.table.keynames;
 
       const display = {
-        '{tab}': '⇥ Tab',
+        '{tab}': '⇥',
         '{lock}': 'Lock',
         '{shift}': '⇧ Shift',
-        '{bksp}': '⌫ Backspace',
-        '{enter}': '↵ Enter',
+        '{bksp}': '⌫',
+        '{enter}': '↵',
         '{space}': 'Space',
-        '{ctrl}': '⌃ Ctrl',
+        '{ctrl}': '⌃',
       };
 
       if (!that.isCtrl) {
