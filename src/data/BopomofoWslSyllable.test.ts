@@ -89,4 +89,35 @@ describe('BopomofoWslSyllable', () => {
     syllable = BopomofoWslSyllable.fromKeys('!U*$');
     expect(syllable.reading).toBe('ㆠㆪㆩ(ㄅ,ㄉ,ㄍ,ㄏ)');
   });
+
+  it('test special cases for "a"', () => {
+    let syllable = BopomofoWslSyllable.fromKeys('a');
+    expect(syllable.consonant).toBe('a');
+    expect(syllable.reading).toBe('ㄇ');
+    expect(syllable.finalVowel).toBeUndefined();
+
+    syllable = BopomofoWslSyllable.fromKeys('ua');
+    expect(syllable.consonant).toBeUndefined();
+    expect(syllable.middleVowel).toEqual(['u']);
+    expect(syllable.finalVowel).toBe('a');
+    expect(syllable.reading).toBe('ㄧㄇ');
+
+    syllable = BopomofoWslSyllable.fromKeys('1ua');
+    expect(syllable.consonant).toBe('1');
+    expect(syllable.middleVowel).toEqual(['u']);
+    expect(syllable.finalVowel).toBe('a');
+    expect(syllable.reading).toBe('ㄅㄧㄇ');
+  });
+
+  it('test max 2 middle vowels', () => {
+    let syllable = BopomofoWslSyllable.fromKeys('uuu');
+    expect(syllable.middleVowel).toEqual(['u', 'u']);
+    expect(syllable.reading).toBe('ㄧㄧ');
+  });
+
+  it('test tone ^', () => {
+    let syllable = BopomofoWslSyllable.fromKeys('^');
+    expect(syllable.tone).toBe('^');
+    expect(syllable.reading).toBe('(ㄅ̇,ㄉ̇,ㄍ̇,ㄏ̇)');
+  });
 });
