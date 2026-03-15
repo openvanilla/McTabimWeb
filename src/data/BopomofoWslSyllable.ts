@@ -76,6 +76,7 @@ export class BopomofoWslSyllable {
     ['[', 'ㆰ'],
     [']', 'ㆱ'],
     ["'", 'ㆲ'],
+    ['a', 'ㄇ'],
   ]);
 
   /**
@@ -93,8 +94,8 @@ export class BopomofoWslSyllable {
     ['4', 'ˋ'],
     ['6', 'ˊ'],
     ['7', '˫'],
-    ['$', 'ㄅ, ㄉ, ㄍ, ㄏ'],
-    ['^', 'ㄅ̇, ㄉ̇, ㄍ̇, ㄏ̇'],
+    ['$', '(ㄅ,ㄉ,ㄍ,ㄏ)'],
+    ['^', '(ㄅ̇,ㄉ̇,ㄍ̇,ㄏ̇)'],
     ['7', '˫'],
     ['&', '˙'],
   ]);
@@ -117,13 +118,21 @@ export class BopomofoWslSyllable {
     let finalVowel: string | undefined = undefined;
     let tone: string | undefined = undefined;
     for (const char of keys) {
+      if (char === 'a') {
+        if (middleVowel !== undefined) {
+          finalVowel = 'a';
+          continue;
+        }
+      }
       if (BopomofoWslSyllable.consonants.has(char)) {
         consonant = char;
       } else if (BopomofoWslSyllable.middleVowels.has(char)) {
         if (middleVowel === undefined) {
           middleVowel = [];
         }
-        middleVowel.push(char);
+        if (middleVowel.length < 2) {
+          middleVowel.push(char);
+        }
       } else if (BopomofoWslSyllable.finalVowels.has(char)) {
         finalVowel = char;
       } else if (BopomofoWslSyllable.tones.has(char)) {

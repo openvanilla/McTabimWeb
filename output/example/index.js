@@ -499,13 +499,6 @@ let example = (function () {
           if (key === '`') {
             continue;
           }
-          // console.log(key, that.isShift, that.isLock);
-          // if (!(that.isShift || !that.isLock)) {
-          //   if (key.toUpperCase() === key) {
-          //     console.log('is uppper');
-          //     continue;
-          //   }
-          // }
           display[key] = names[key];
         }
       }
@@ -751,25 +744,31 @@ let example = (function () {
       if (text.length === 0) {
         return;
       }
-      const manager = inputMethod.tableManager;
-      const resuilt = manager.reverseLookupForRadicals(text);
       const resultElement = document.getElementById('lookup_result');
+      const manager = inputMethod.tableManager;
 
-      if (resuilt.length === 0) {
-        resultElement.innerText = '找不到對應的字根';
-      } else {
-        let html = '<table border="1" style="border-collapse: collapse; margin-top: 10px;">';
-        html +=
-          '<thead><tr><th style="padding: 4px 8px;">輸入法</th><th style="padding: 4px 8px;">字根</th></tr></thead>';
-        html += '<tbody>';
-        html += resuilt
-          .map((item) => {
-            return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
-          })
-          .join('');
-        html += '</tbody></table>';
-        resultElement.innerHTML = html;
+      const chars = text.split('');
+      let html = '';
+
+      for (let char of chars) {
+        const resuilt = manager.reverseLookupForRadicals(char);
+        html += `<h3>${char}</h3>`;
+        if (resuilt.length === 0) {
+          html += '<p>找不到對應的字根</p>';
+        } else {
+          html += '<table border="1" style="border-collapse: collapse; margin-top: 10px;">';
+          html +=
+            '<thead><tr><th style="padding: 4px 8px;">輸入法</th><th style="padding: 4px 8px;">字根</th></tr></thead>';
+          html += '<tbody>';
+          html += resuilt
+            .map((item) => {
+              return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
+            })
+            .join('');
+          html += '</tbody></table>';
+        }
       }
+      resultElement.innerHTML = html;
     }
 
     document.getElementById('lookup_input').onkeydown = (event) => {

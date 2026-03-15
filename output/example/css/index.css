@@ -442,3 +442,23 @@ div#feature_user_data textarea {
   font-size: 20px;
   width: 200px;
 }
+
+#feature_lookup,
+#feature_table_help {
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 0;
+  max-height: 90%;
+}
+
+#lookup_result {
+  font-size: 10pt;
+}
+
+#lookup_result h3 {
+  margin-top: 10px;
+}
+
+#lookup_result table {
+  margin-bottom: 10px;
+}
