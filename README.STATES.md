@@ -45,12 +45,11 @@ stateDiagram-v2
     fork_state --> TooltipOnlyState: Reverse lookup result
     fork_state --> EmptyState: Default
 
-    AssociatedPhrasesState --> CommittingState: Select candidate
+    AssociatedPhrasesState --> CommittingState: Select candidate / Enter / Space
     AssociatedPhrasesState --> BasicInputtingState: Radical key
-    AssociatedPhrasesState --> EmptyState: Esc / Enter
+    AssociatedPhrasesState --> EmptyState: Esc / Backspace
 
     TooltipOnlyState --> EmptyState: Any key
-    TooltipOnlyState --> BasicInputtingState: Radical key
 ```
 
 ## Input Table Types and State Transitions

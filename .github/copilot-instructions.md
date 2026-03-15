@@ -16,7 +16,9 @@
 - **Homophone selection states**: `SelectingHomophoneReadingsState` and `SelectingHomophoneWordState` are entered from `KeyHandler` when the backtick key triggers a BPMF homophone lookup. ESC/backspace should exit back to the prior state.
 - **Platform-specific shims**: ChromeOS and PIME entrypoints (`src/chromeos_ime.ts`, `src/pime.ts`, `src/pime_keys.ts`) should stay thin and call into the shared `InputController`.
   - The ChromeOS extension (`src/chromeos_ime.ts`) also implements a context menu feature. When text is selected or an editable area is focused, a 'lookup' option appears. Activating this option performs a reverse radical lookup using the `InputTableManager` and sends the result to the content script.
-- **Input Table Types**: `InputTableType` (defined in `src/data/InputTableWrapper.ts`) distinguishes between `Regular`, `Bopomofo`, and `Wsl` (吳守禮/Wu Shou-li) tables. Bopomofo-based tables use `BopomofoSyllable` or `BopomofoWslSyllable` for radical processing and require specialized handling in `KeyHandler` for syllable composition and candidate lookup.
+  - Help pages for Chrome OS and PIME are provided in `output/chromeos/help/index.html` and `output/pime/help.html` respectively.
+  - The Web example uses SimpleKeyboard for a virtual on-screen keyboard (`output/example/index.js`).
+- **Input Table Types**: `InputTableType` (defined in `src/data/InputTableWrapper.ts`) distinguishes between `Regular`, `Bopomofo`, and `Wsl` (吳守禮/Wu Shou-li) tables. Bopomofo-based tables use `BopomofoSyllable` or `BopomofoWslSyllable` for radical processing and require specialized handling in `KeyHandler` for syllable composition and candidate lookup. BasicInputtingState uses different properties in `Wsl` and `Bopomofo` than non-Bopomofo tables (where candidates represent syllables rather than input sequences directly).
 
 ## Coding conventions
 
