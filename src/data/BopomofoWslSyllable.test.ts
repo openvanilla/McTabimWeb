@@ -41,7 +41,7 @@ describe('BopomofoWslSyllable', () => {
 
     syllable = BopomofoWslSyllable.fromKeys('$');
     expect(syllable.tone).toBe('$');
-    expect(syllable.reading).toBe('ㄅ, ㄉ, ㄍ, ㄏ');
+    expect(syllable.reading).toBe('(ㄅ,ㄉ,ㄍ,ㄏ)');
 
     syllable = BopomofoWslSyllable.fromKeys('1u83');
     expect(syllable.consonant).toBe('1');
@@ -87,6 +87,6 @@ describe('BopomofoWslSyllable', () => {
     expect(syllable.reading).toBe('ㄅㄧㄚ˪');
 
     syllable = BopomofoWslSyllable.fromKeys('!U*$');
-    expect(syllable.reading).toBe('ㆠㆪㆩㄅ, ㄉ, ㄍ, ㄏ');
+    expect(syllable.reading).toBe('ㆠㆪㆩ(ㄅ,ㄉ,ㄍ,ㄏ)');
   });
 });
