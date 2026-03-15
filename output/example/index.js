@@ -1,6 +1,6 @@
 let example = (function () {
   function toggle_feature(id) {
-    let features = ['feature_input', 'feature_user_data', 'feature_table_help'];
+    let features = ['feature_input', 'feature_user_data', 'feature_lookup', 'feature_table_help'];
     for (let feature of features) {
       document.getElementById(feature).style.display = 'none';
     }
@@ -11,6 +11,8 @@ let example = (function () {
       document.title = prefix + '輸入功能';
     } else if (id === 'feature_user_data') {
       document.title = prefix + '自訂符號表管理';
+    } else if (id === 'feature_lookup') {
+      document.title = prefix + '字根反查';
     } else if (id === 'feature_table_help') {
       document.title = prefix + '輸入法表格說明';
     }
@@ -492,10 +494,18 @@ let example = (function () {
       };
 
       if (!that.isCtrl) {
+        console.log(names);
         for (const key in names) {
           if (key === '`') {
             continue;
           }
+          // console.log(key, that.isShift, that.isLock);
+          // if (!(that.isShift || !that.isLock)) {
+          //   if (key.toUpperCase() === key) {
+          //     console.log('is uppper');
+          //     continue;
+          //   }
+          // }
           display[key] = names[key];
         }
       }
@@ -734,6 +744,42 @@ let example = (function () {
       }
       document.getElementById('text_area').focus();
       return false;
+    };
+
+    function lookUp() {
+      const text = document.getElementById('lookup_input').value.trim();
+      if (text.length === 0) {
+        return;
+      }
+      const manager = inputMethod.tableManager;
+      const resuilt = manager.reverseLookupForRadicals(text);
+      const resultElement = document.getElementById('lookup_result');
+
+      if (resuilt.length === 0) {
+        resultElement.innerText = '找不到對應的字根';
+      } else {
+        let html = '<table border="1" style="border-collapse: collapse; margin-top: 10px;">';
+        html +=
+          '<thead><tr><th style="padding: 4px 8px;">輸入法</th><th style="padding: 4px 8px;">字根</th></tr></thead>';
+        html += '<tbody>';
+        html += resuilt
+          .map((item) => {
+            return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
+          })
+          .join('');
+        html += '</tbody></table>';
+        resultElement.innerHTML = html;
+      }
+    }
+
+    document.getElementById('lookup_input').onkeydown = (event) => {
+      if (event.key === 'Enter') {
+        lookUp();
+      }
+    };
+
+    document.getElementById('lookup_button').onclick = () => {
+      lookUp();
     };
 
     // IndexedDB logic for saving text area content.

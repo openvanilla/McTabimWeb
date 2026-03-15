@@ -10,7 +10,7 @@ describe('BopomofoWslSyllable', () => {
 
     syllable = BopomofoWslSyllable.fromKeys('u');
     expect(syllable.consonant).toBe(undefined);
-    expect(syllable.middleVowel).toBe('u');
+    expect(syllable.middleVowel).toEqual(['u']);
     expect(syllable.finalVowel).toBe(undefined);
     expect(syllable.tone).toBe(undefined);
 
@@ -32,7 +32,7 @@ describe('BopomofoWslSyllable', () => {
     expect(syllable.reading).toBe('ㆠ');
 
     syllable = BopomofoWslSyllable.fromKeys('U');
-    expect(syllable.middleVowel).toBe('U');
+    expect(syllable.middleVowel).toEqual(['U']);
     expect(syllable.reading).toBe('ㆪ');
 
     syllable = BopomofoWslSyllable.fromKeys('*');
@@ -45,7 +45,7 @@ describe('BopomofoWslSyllable', () => {
 
     syllable = BopomofoWslSyllable.fromKeys('1u83');
     expect(syllable.consonant).toBe('1');
-    expect(syllable.middleVowel).toBe('u');
+    expect(syllable.middleVowel).toEqual(['u']);
     expect(syllable.finalVowel).toBe('8');
     expect(syllable.tone).toBe('3');
   });

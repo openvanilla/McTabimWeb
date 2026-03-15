@@ -21,6 +21,7 @@ export class BopomofoWslSyllable {
     ['e', 'ㄍ'],
     ['E', 'ㆣ'],
     ['d', 'ㄎ'],
+    ['\\', 'ㄫ'],
     ['c', 'ㄏ'],
     ['C', 'ㄬ'],
     ['r', 'ㄐ'],
@@ -71,7 +72,6 @@ export class BopomofoWslSyllable {
     ['-', 'ㄦ'],
     ['=', 'ㆦ'],
     ['+', 'ㆧ'],
-    ['\\', 'ㄫ'],
     ['|', 'ㆭ'],
     ['[', 'ㆰ'],
     [']', 'ㆱ'],
@@ -101,7 +101,7 @@ export class BopomofoWslSyllable {
 
   private constructor(
     public consonant?: string | undefined,
-    public middleVowel?: string | undefined,
+    public middleVowel?: string[] | undefined,
     public finalVowel?: string | undefined,
     public tone?: string | undefined,
   ) {}
@@ -113,20 +113,24 @@ export class BopomofoWslSyllable {
    */
   static fromKeys(keys: string) {
     let consonant: string | undefined = undefined;
-    let middleVowel: string | undefined = undefined;
+    let middleVowel: string[] | undefined = undefined;
     let finalVowel: string | undefined = undefined;
     let tone: string | undefined = undefined;
     for (const char of keys) {
       if (BopomofoWslSyllable.consonants.has(char)) {
         consonant = char;
       } else if (BopomofoWslSyllable.middleVowels.has(char)) {
-        middleVowel = char;
+        if (middleVowel === undefined) {
+          middleVowel = [];
+        }
+        middleVowel.push(char);
       } else if (BopomofoWslSyllable.finalVowels.has(char)) {
         finalVowel = char;
       } else if (BopomofoWslSyllable.tones.has(char)) {
         tone = char;
       }
     }
+
     return new BopomofoWslSyllable(consonant, middleVowel, finalVowel, tone);
   }
 
@@ -163,7 +167,9 @@ export class BopomofoWslSyllable {
       output += this.consonant;
     }
     if (this.middleVowel) {
-      output += this.middleVowel;
+      for (const middleVowel of this.middleVowel) {
+        output += middleVowel;
+      }
     }
     if (this.finalVowel) {
       output += this.finalVowel;
@@ -183,7 +189,9 @@ export class BopomofoWslSyllable {
       output += BopomofoWslSyllable.consonants.get(this.consonant);
     }
     if (this.middleVowel) {
-      output += BopomofoWslSyllable.middleVowels.get(this.middleVowel);
+      for (const middleVowel of this.middleVowel) {
+        output += BopomofoWslSyllable.middleVowels.get(middleVowel);
+      }
     }
     if (this.finalVowel) {
       output += BopomofoWslSyllable.finalVowels.get(this.finalVowel);

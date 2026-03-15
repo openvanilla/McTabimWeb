@@ -289,7 +289,7 @@ div#feature_user_data textarea {
 
 .hg-button[data-skbtn='{ctrl}'] {
   flex-grow: 1 !important;
-  max-width: 80px; 
+  max-width: 80px;
 }
 
 .hg-button-active {
@@ -436,4 +436,9 @@ div#feature_user_data textarea {
     border: 2px solid #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
+}
+
+#lookup_input {
+  font-size: 20px;
+  width: 200px;
 }
