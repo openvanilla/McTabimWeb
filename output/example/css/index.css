@@ -432,3 +432,7 @@ td {
   background-color: #007bff !important;
   color: white !important;
 }
+
+#input-table-select {
+  font-size: 18pt;
+}
