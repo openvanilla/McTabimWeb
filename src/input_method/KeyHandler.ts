@@ -363,7 +363,8 @@ export class KeyHandler {
               const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
               this.handleCandidate(state, selectedCandidate, stateCallback);
               return true;
-            } else if (key.name === KeyName.SPACE) {
+            }
+            if (key.name === KeyName.SPACE) {
               // page down
               const candidatesPerPage = state.selectionKeys.length;
               const newIndex = Math.min(
@@ -444,6 +445,12 @@ export class KeyHandler {
 
           const selectedCandidate = candidates[index];
           this.handleCandidate(state, selectedCandidate, stateCallback);
+          return true;
+        } else if (
+          table.settings.type === InputTableType.Bopomofo ||
+          table.settings.type === InputTableType.Wsl
+        ) {
+          errorCallback();
           return true;
         }
       }

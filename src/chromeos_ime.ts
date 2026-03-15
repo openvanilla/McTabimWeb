@@ -555,6 +555,7 @@ chrome.input?.ime.onCandidateClicked.addListener((engineID, candidateID, button)
 
 chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
   if (name.search('mctabim-select-table-') === 0) {
+    console.log('mctabim-select-table-', name);
     const id = name.split('-').pop();
     InputTableManager.getInstance().setInputTableById(id || '');
     chromeMcTabim.settings.selectedInputMethodId = id || '';
