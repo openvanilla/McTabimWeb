@@ -60,7 +60,7 @@ export class KeyHandler {
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
     readonly onSettingChanged: (settings: Settings) => void,
-  ) {}
+  ) { }
 
   /**
    * Handles the selection of a candidate.
@@ -90,8 +90,11 @@ export class KeyHandler {
     const tooltip = (() => {
       if (this.onRequestSettings().reverseRadicalLookupEnabled) {
         const radicalsArray = this.onRequestTable().reverseLookupForRadicals(commitString);
-        const joined = radicalsArray.join(', ');
+        let joined = radicalsArray.join(', ');
         if (joined.length > 0) {
+          if (joined.length > 10) {
+            joined = joined.substring(0, 10) + '...';
+          }
           return `字根反查: ${joined}`;
         }
       }
@@ -334,8 +337,19 @@ export class KeyHandler {
     ///  Inputting State
     if (state instanceof InputtingState) {
       if (key.name === KeyName.RETURN || key.name === KeyName.SPACE) {
-        if (key.name === KeyName.RETURN && state instanceof AssociatedPhrasesState) {
-          stateCallback(new EmptyState('reset after pressing enter in associated phrases state'));
+        if (state instanceof AssociatedPhrasesState) {
+          if (key.name === KeyName.RETURN) {
+            if (state.candidates.length > 0 && key.name === KeyName.RETURN) {
+              const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
+              this.handleCandidate(state, selectedCandidate, stateCallback);
+              return true;
+            }
+          }
+          else if (key.name === KeyName.SPACE) {
+            const newState = new CommittingState(" ");
+            stateCallback(newState);
+            return true;
+          }
           return true;
         }
 
@@ -344,10 +358,24 @@ export class KeyHandler {
           (table.settings.type === InputTableType.Bopomofo ||
             table.settings.type === InputTableType.Wsl)
         ) {
-          if (state.candidates.length > 0 && key.name === KeyName.RETURN) {
-            const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
-            this.handleCandidate(state, selectedCandidate, stateCallback);
-            return true;
+          if (state.candidates.length > 0) {
+            if (key.name === KeyName.RETURN) {
+              const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
+              this.handleCandidate(state, selectedCandidate, stateCallback);
+              return true;
+            } else if (key.name === KeyName.SPACE) {
+              // page down
+              const candidatesPerPage = state.selectionKeys.length;
+              const newIndex = Math.min(
+                ((state.selectedCandidateIndex ?? 0) / candidatesPerPage + 1) * candidatesPerPage,
+                state.candidates.length - 1,
+              );
+              const newState = state.copyWithArgs({
+                selectedCandidateIndex: newIndex,
+              });
+              stateCallback(newState);
+              return true;
+            }
           }
 
           const syllable = (() => {
@@ -826,7 +854,7 @@ export class KeyHandler {
           const candidatesPerPage = state.selectionKeys.length;
           const newIndex = Math.max(
             Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1) *
-              candidatesPerPage,
+            candidatesPerPage,
             0,
           );
           const newState = state.copyWithArgs({

@@ -215,8 +215,7 @@ class ChromeMcTabim {
     const selectedId = this.settings.selectedInputMethodId || 0;
     const inputTables = InputTableManager.getInstance().tables;
     let selectedTableSet = false;
-
-    const inputTableMenus: chrome.input.ime.MenuItem[] = [];
+    let inputTableMenus: chrome.input.ime.MenuItem[] = [];
 
     for (let i = 0; i < inputTables.length; i++) {
       const table = inputTables[i];
