@@ -1,6 +1,6 @@
 let example = (function () {
   function toggle_feature(id) {
-    let features = ['feature_input', 'feature_user_data'];
+    let features = ['feature_input', 'feature_user_data', 'feature_table_help'];
     for (let feature of features) {
       document.getElementById(feature).style.display = 'none';
     }
@@ -11,6 +11,8 @@ let example = (function () {
       document.title = prefix + '輸入功能';
     } else if (id === 'feature_user_data') {
       document.title = prefix + '自訂符號表管理';
+    } else if (id === 'feature_table_help') {
+      document.title = prefix + '輸入法表格說明';
     }
   }
 

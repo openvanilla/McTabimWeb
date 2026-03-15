@@ -14,34 +14,6 @@ body {
   font-size: 14pt;
 }
 
-.navi {
-  font-size: 11pt;
-  -moz-user-select: -moz-none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.navi a {
-  color: #999;
-  text-decoration: none;
-}
-
-.navi a:hover {
-  color: #900;
-  text-decoration: none;
-}
-
-a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
 /* Typography */
 h1 {
   font-size: 24pt;
@@ -68,6 +40,20 @@ li {
   margin-bottom: 5px;
 }
 
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+td {
+  margin: 0;
+  border: 0;
+}
+
 /* Layout */
 .main {
   max-width: 1320px;
@@ -87,6 +73,11 @@ li {
   overflow: auto !important;
 }
 
+.left h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
 .right {
   width: 100%;
   overflow: auto !important;
@@ -97,8 +88,27 @@ li {
   user-select: none;
 }
 
-/* Components */
-/* Forms */
+/* Navigation */
+.navi {
+  font-size: 11pt;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.navi a {
+  color: #999;
+  text-decoration: none;
+}
+
+.navi a:hover {
+  color: #900;
+  text-decoration: none;
+}
+
+/* Form Elements */
 textarea {
   width: 100%;
   height: 100%;
@@ -117,6 +127,7 @@ textarea#text_area {
   color: #000;
   font-size: 14pt;
   line-height: 16pt;
+  resize: none;
 }
 
 textarea#text_area::placeholder {
@@ -138,6 +149,10 @@ textarea#text_area:focus ~ * #edit_area,
   font-size: 12pt;
   width: 100%;
   margin-bottom: 1rem;
+}
+
+#input-table-select {
+  font-size: 18pt;
 }
 
 details summary {
@@ -163,6 +178,39 @@ details td input[type='radio'] {
   margin-bottom: 10px;
   padding: 6px 12px;
   font-size: 12pt;
+}
+
+/* Edit Area and Features */
+#edit_area {
+  display: flex;
+  flex-direction: column;
+  border: 2px dashed #000;
+  height: 100%;
+  overflow: auto !important;
+}
+
+div#feature_input {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  height: 100%;
+}
+
+div#feature_user_data {
+  display: none;
+}
+
+div#feature_user_data textarea {
+  font-family: monospace;
+  font-size: 12pt;
+  line-height: 14pt;
+  height: 200px;
+  color: #000;
+  background-color: #fff;
+  border: 2px solid #000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Input Method UI */
@@ -230,74 +278,26 @@ details td input[type='radio'] {
   background-color: lightcyan;
 }
 
-/* Other UI Elements */
-#loading {
-  position: absolute;
-  top: 0;
-  left: 20px;
-  color: #fff;
-  background-color: #000;
-  padding: 10px;
-  display: block;
+/* Virtual Keyboard UI */
+.simple-keyboard {
+  min-height: 230px;
 }
 
-.credit {
-  font-size: 10pt;
-  height: 20px;
-}
-
-.page_info {
-  font-size: 10pt;
-  text-align: right;
-  color: #666;
-}
-
-.page_info td {
-  padding-top: 20px;
-}
-
-#edit_area {
-  display: flex;
-  flex-direction: column;
-  border: 2px dashed #000;
-  height: 100%;
-  overflow: auto !important;
-}
-
-div#feature_input {
-  -moz-user-select: -moz-none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  height: 100%;
-}
-
-div#feature_user_data {
-  display: none;
-}
-
-div#feature_user_data textarea {
-  font-family: monospace;
-  font-size: 12pt;
-  line-height: 14pt;
-  height: 200px;
+.hg-button {
   color: #000;
-  background-color: #fff;
-  border: 2px solid #000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.left h2 {
-  margin-top: 20px;
-  margin-bottom: 10px;
+.hg-button[data-skbtn='{ctrl}'] {
+  flex-grow: 1 !important;
+  max-width: 80px; 
 }
 
-td {
-  margin: 0;
-  border: 0;
+.hg-button-active {
+  background-color: #007bff !important;
+  color: white !important;
 }
 
+/* Status Area */
 .status_area {
   display: flex;
   justify-content: space-between;
@@ -328,6 +328,32 @@ td {
 #menu_visible a {
   text-decoration: none;
   color: #666;
+}
+
+/* Other UI Elements */
+#loading {
+  position: absolute;
+  top: 0;
+  left: 20px;
+  color: #fff;
+  background-color: #000;
+  padding: 10px;
+  display: block;
+}
+
+.credit {
+  font-size: 10pt;
+  height: 20px;
+}
+
+.page_info {
+  font-size: 10pt;
+  text-align: right;
+  color: #666;
+}
+
+.page_info td {
+  padding-top: 20px;
 }
 
 /* Media Queries */
@@ -377,8 +403,12 @@ td {
     background-color: #333;
   }
 
-  #edit_area {
-    border: 2px dashed #c8c8c8;
+  textarea#text_area {
+    color: #fff;
+  }
+
+  textarea#text_area::placeholder {
+    color: #ccc;
   }
 
   #edit_area {
@@ -390,19 +420,12 @@ td {
     border: 2px solid #86c25e;
   }
 
-  textarea#text_area::placeholder {
-    color: #ccc;
-  }
-
-  textarea#text_area {
-    color: #fff;
-  }
-
   #composing_buffer p {
     background-color: #444;
     border: 1px solid #ccc;
     color: #ffffff;
   }
+
   .cursor {
     color: rgb(255, 68, 68);
   }
@@ -413,26 +436,4 @@ td {
     border: 2px solid #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
-}
-
-.hg-button {
-  color: #000;
-}
-
-.simple-keyboard {
-  min-height: 230px;
-}
-
-.hg-button[data-skbtn='{ctrl}'] {
-  flex-grow: 1 !important;
-  max-width: 80px; /* 或者設定一個最大寬度，讓它看起來像一般按鍵 */
-}
-
-.hg-button-active {
-  background-color: #007bff !important;
-  color: white !important;
-}
-
-#input-table-select {
-  font-size: 18pt;
 }
