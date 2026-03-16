@@ -40,6 +40,45 @@ describe('InputTableWrapper', () => {
     it('returns empty array for non-existing radicals', () => {
       expect(wrapper.lookupForCandidate('z')).toEqual([]);
     });
+
+    it('returns wildcard candidates using only same-length keys', () => {
+      const candidates = wrapper.lookupForCandidate('a*');
+      expect(candidates).toHaveLength(1);
+      expect(candidates[0].displayText).toBe('嗎');
+    });
+
+    it('reuses cached wildcard results for repeated queries', () => {
+      const first = wrapper.lookupForCandidate('a*');
+      const second = wrapper.lookupForCandidate('a*');
+      expect(second).toBe(first);
+    });
+
+    it('evicts old wildcard cache entries when exceeding the limit', () => {
+      const table = {
+        chardefs: Object.fromEntries(
+          Array.from({ length: 140 }, (_, index) => [
+            `a${index.toString().padStart(3, '0')}`,
+            [`字${index}`],
+          ]),
+        ),
+        cname: 'test',
+        ename: 'test',
+        cincount: null,
+        privateuse: {},
+        keynames: { a: 'ㄅ' },
+        selkey: '1234567890',
+      };
+      const localWrapper = new InputTableWrapper('test', JSON.stringify(table), settings);
+
+      const oldest = localWrapper.lookupForCandidate('*000');
+      for (let i = 1; i <= 128; i++) {
+        localWrapper.lookupForCandidate(`*${i.toString().padStart(3, '0')}`);
+      }
+      const refreshed = localWrapper.lookupForCandidate('*000');
+
+      expect(refreshed).not.toBe(oldest);
+      expect(refreshed).toEqual(oldest);
+    });
   });
 
   describe('lookUpForDisplayedKeyName', () => {
@@ -79,7 +118,7 @@ describe('InputTableWrapper', () => {
     expect(JSON.parse(mockTable).chardefs).toEqual(originalChardefs);
   });
 
-  it('does not mutate input objects', () => {
+  it('does not mutate input objects for wildcard lookups', () => {
     const parsedTable = JSON.parse(mockTable);
     const originalChardefs = JSON.parse(JSON.stringify(parsedTable.chardefs));
     const result = wrapper.lookupForCandidate('a*');

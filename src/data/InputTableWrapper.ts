@@ -17,7 +17,10 @@ export interface InputTableSettings {
  * reverse lookup and candidate lookup.
  */
 export class InputTableWrapper {
+  private static readonly WILDCARD_CACHE_LIMIT = 128;
   private reverseLookUpTable_: { [key: string]: string[] } | undefined = undefined;
+  private keysByLength_: Map<number, string[]> | undefined = undefined;
+  private wildcardCandidateCache_: Map<string, Candidate[]> | undefined = undefined;
 
   /**
    * Creates a new InputTableWrapper instance.
@@ -45,6 +48,52 @@ export class InputTableWrapper {
       }
     }
     return this.table_;
+  }
+
+  private get keysByLength(): Map<number, string[]> {
+    if (!this.keysByLength_) {
+      this.keysByLength_ = new Map<number, string[]>();
+      for (const key of Object.keys(this.table.chardefs)) {
+        const bucket = this.keysByLength_.get(key.length) ?? [];
+        bucket.push(key);
+        this.keysByLength_.set(key.length, bucket);
+      }
+    }
+    return this.keysByLength_;
+  }
+
+  private get wildcardCandidateCache(): Map<string, Candidate[]> {
+    if (!this.wildcardCandidateCache_) {
+      this.wildcardCandidateCache_ = new Map<string, Candidate[]>();
+    }
+    return this.wildcardCandidateCache_;
+  }
+
+  private wildcardMatch(pattern: string, key: string): boolean {
+    if (pattern.length !== key.length) {
+      return false;
+    }
+    for (let i = 0; i < pattern.length; i++) {
+      if (pattern[i] !== '*' && pattern[i] !== key[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private setWildcardCache(key: string, candidates: Candidate[]): Candidate[] {
+    const cache = this.wildcardCandidateCache;
+    if (cache.has(key)) {
+      cache.delete(key);
+    }
+    cache.set(key, candidates);
+    if (cache.size > InputTableWrapper.WILDCARD_CACHE_LIMIT) {
+      const oldestKey = cache.keys().next().value;
+      if (oldestKey !== undefined) {
+        cache.delete(oldestKey);
+      }
+    }
+    return candidates;
   }
 
   private buildReverseLookUpTable__(): void {
@@ -108,20 +157,22 @@ export class InputTableWrapper {
 
   lookupForCandidate(radicals: string): Candidate[] | [] {
     if (radicals.includes('*')) {
-      // Support wildcard '*' in radicals: match any single character at '*'
-      // Build a regex: replace '*' with '.', escape other regex chars
-      const pattern = radicals.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.');
-      const regex = new RegExp(`^${pattern}$`);
+      const cached = this.wildcardCandidateCache.get(radicals);
+      if (cached) {
+        return cached;
+      }
+
       const candidates: Candidate[] = [];
-      for (const key in this.table.chardefs) {
-        if (regex.test(key)) {
+      const bucket = this.keysByLength.get(radicals.length) ?? [];
+      for (const key of bucket) {
+        if (this.wildcardMatch(radicals, key)) {
           const founds = this.table.chardefs[key];
           for (const found of founds) {
             candidates.push(new Candidate(found, ''));
           }
         }
       }
-      return candidates;
+      return this.setWildcardCache(radicals, candidates);
     }
 
     const founds = this.table.chardefs[radicals];
