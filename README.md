@@ -1,7 +1,7 @@
 # McTabimWeb 小麥他命輸入法 Web/Chrome OS/PIME 版本
 
 ![Static Badge](https://img.shields.io/badge/platform-web-green)
-![ChromeOS](https://img.shields.io/badge/platform-chome_os-yellow) ![Static Badge](https://img.shields.io/badge/platform-windows-blue) [![CI](https://github.com/openvanilla/McTabimWeb/actions/workflows/ci.yml/badge.svg)](https://github.com/openvanilla/McTabimWeb/actions/workflows/ci.yml) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/openvanilla/McTabimWeb)
+![ChromeOS](https://img.shields.io/badge/platform-chome_os-yellow) ![Static Badge](https://img.shields.io/badge/platform-windows-blue) [![CI](https://github.com/openvanilla/McTabimWeb/actions/workflows/ci.yml/badge.svg)](https://github.com/openvanilla/McTabimWeb/actions/workflows/ci.yml) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/openvanilla/McTabimWeb) [![codecov](https://codecov.io/github/openvanilla/McTabimWeb/graph/badge.svg?token=AYMEtERjWM)](https://codecov.io/github/openvanilla/McTabimWeb)
 
 小麥他命輸入法（MacTabimWeb）是一套基於網頁技術打造的表格類中文輸入法，支援倉頡、速成、大易、行列等表格類輸入法。可以嵌入到網頁中，也可以在 Chrome OS、Windows 上的 PIME 輸入法框架中執行。
 
