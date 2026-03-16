@@ -9,6 +9,8 @@ import {
   InputState,
   InputtingState,
   MenuState,
+  NumberInputtingState,
+  SelectingHomophoneReadingsState,
   SelectingHomophoneWordState,
   SettingsState,
   SymbolCategoryState,
@@ -476,6 +478,26 @@ describe('Test Associated Phrases', () => {
     );
     expect(handled).toBe(true);
     expect(committed).toBe(true);
+  });
+
+  it('should commit a space in AssociatedPhrasesState on SPACE', () => {
+    const state = new AssociatedPhrasesState({
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      exactSelectionKeys: KeyHandler.ASSOCIATED_PHRASES_SELECTION_KEYS,
+      candidates: [new Candidate('聯想1', '')],
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('', KeyName.SPACE),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(CommittingState);
+    expect((states[0] as CommittingState).commitString).toBe(' ');
   });
 
   it('should exit AssociatedPhrasesState on BACKSPACE', () => {
@@ -1003,6 +1025,279 @@ describe('KeyHandler edge cases', () => {
     expect((states[0] as BasicInputtingState).displayedRadicals.length).toBeGreaterThan(0);
     expect((states[0] as BasicInputtingState).candidates).toEqual([]);
   });
+
+  it('pages through bopomofo candidates with SPACE', () => {
+    const table = {
+      table: {
+        keynames: { '1': 'ㄅ', u: 'ㄧ', '8': 'ㄚ' },
+        selkey: '12',
+      },
+      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
+      lookupForCandidate: jest.fn(() => []),
+      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+    } as any;
+    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const state = new BasicInputtingState({
+      radicals: '1u8',
+      displayedRadicals: ['ㄅ', 'ㄧ', 'ㄚ'],
+      selectionKeys: '12',
+      candidates: [
+        new Candidate('甲', ''),
+        new Candidate('乙', ''),
+        new Candidate('丙', ''),
+      ],
+      selectedCandidateIndex: 0,
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('', KeyName.SPACE),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(BasicInputtingState);
+    expect((states[0] as BasicInputtingState).selectedCandidateIndex).toBe(2);
+  });
+
+  it('resolves bopomofo candidates on RETURN when the syllable has not been looked up yet', () => {
+    const lookedUpCandidates = [new Candidate('吧', '')];
+    const table = {
+      table: {
+        keynames: { '1': 'ㄅ', '8': 'ㄚ' },
+        selkey: '123',
+      },
+      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
+      lookupForCandidate: jest.fn((radicals: string) =>
+        radicals === '18' ? lookedUpCandidates : [],
+      ),
+      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+    } as any;
+    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const state = new BasicInputtingState({
+      radicals: '18',
+      displayedRadicals: ['ㄅ', 'ㄚ'],
+      selectionKeys: '123',
+      candidates: [],
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('', KeyName.RETURN),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(table.lookupForCandidate).toHaveBeenCalledWith('18');
+    expect(states[0]).toBeInstanceOf(BasicInputtingState);
+    expect((states[0] as BasicInputtingState).candidates).toEqual(lookedUpCandidates);
+  });
+
+  it('clears invalid bopomofo input on error when clearOnErrors is enabled', () => {
+    const table = {
+      table: {
+        keynames: { '1': 'ㄅ', '3': 'ˇ' },
+        selkey: '123',
+      },
+      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
+      lookupForCandidate: jest.fn(() => []),
+      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+    } as any;
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings({ clearOnErrors: true }),
+      jest.fn(),
+    );
+    const state = new BasicInputtingState({
+      radicals: '13',
+      displayedRadicals: ['ㄅ', 'ˇ'],
+      selectionKeys: '123',
+      candidates: [],
+    });
+    const states: InputState[] = [];
+    const errorCallback = jest.fn();
+
+    const handled = keyHandler.handle(
+      new Key('', KeyName.RETURN),
+      state,
+      (newState) => states.push(newState),
+      errorCallback,
+    );
+
+    expect(handled).toBe(true);
+    expect(errorCallback).toHaveBeenCalled();
+    expect(states[0]).toBeInstanceOf(EmptyState);
+  });
+
+  it('resets bopomofo state with candidates on ESC through candidate selection handling', () => {
+    const table = {
+      table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
+      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
+      lookupForCandidate: jest.fn(() => []),
+      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+    } as any;
+    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const state = new BasicInputtingState({
+      radicals: '1',
+      displayedRadicals: ['ㄅ'],
+      selectionKeys: '123',
+      candidates: [new Candidate('ㄅ', '')],
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      Key.namedKey(KeyName.ESC),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(EmptyState);
+  });
+
+  it('extends number input and regenerates candidates', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new NumberInputtingState({
+      radicals: '12',
+      selectionKeys: '123',
+      exactSelectionKeys: 'abc',
+      candidates: [new Candidate('十二', '')],
+      candidateAnnotation: '數字',
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('3', KeyName.UNKNOWN),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(NumberInputtingState);
+    expect((states[0] as NumberInputtingState).radicals).toBe('123');
+    expect((states[0] as NumberInputtingState).candidates.length).toBeGreaterThan(0);
+  });
+
+  it('errors when number input exceeds the maximum supported length', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new NumberInputtingState({
+      radicals: '1'.repeat(20),
+      selectionKeys: '123',
+      exactSelectionKeys: 'abc',
+      candidates: [],
+      candidateAnnotation: '數字',
+    });
+    const errorCallback = jest.fn();
+
+    const handled = keyHandler.handle(
+      new Key('2', KeyName.UNKNOWN),
+      state,
+      jest.fn(),
+      errorCallback,
+    );
+
+    expect(handled).toBe(true);
+    expect(errorCallback).toHaveBeenCalled();
+  });
+
+  it('backspaces symbol input to the previous radicals and candidates', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new SymbolInputtingState({
+      radicals: '0a',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [new Candidate('①', '')],
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      Key.namedKey(KeyName.BACKSPACE),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(SymbolInputtingState);
+    expect((states[0] as SymbolInputtingState).radicals).toBe('0');
+  });
+
+  it('backspaces number input and regenerates numeric candidates', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new NumberInputtingState({
+      radicals: '12',
+      selectionKeys: '123',
+      exactSelectionKeys: 'abc',
+      candidates: [new Candidate('十二', '')],
+      candidateAnnotation: '數字',
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      Key.namedKey(KeyName.BACKSPACE),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(NumberInputtingState);
+    expect((states[0] as NumberInputtingState).radicals).toBe('1');
+    expect((states[0] as NumberInputtingState).candidates.length).toBeGreaterThan(0);
+  });
+
+  it('backspaces regular input and refreshes displayed radicals and candidates', () => {
+    const table = {
+      table: { keynames: { a: 'A', b: 'B' }, selkey: '123' },
+      settings: { maxRadicals: 5, type: InputTableType.Regular },
+      lookupForCandidate: jest.fn((radicals: string) =>
+        radicals === 'a' ? [new Candidate('甲', '')] : [],
+      ),
+      lookUpForDisplayedKeyName: jest.fn((key: string) => key.toUpperCase()),
+    } as any;
+    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const state = new BasicInputtingState({
+      radicals: 'ab',
+      displayedRadicals: ['A', 'B'],
+      selectionKeys: '123',
+      candidates: [new Candidate('乙', '')],
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      Key.namedKey(KeyName.BACKSPACE),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(table.lookupForCandidate).toHaveBeenCalledWith('a');
+    expect(states[0]).toBeInstanceOf(BasicInputtingState);
+    expect((states[0] as BasicInputtingState).displayedRadicals).toEqual(['A']);
+  });
 });
 
 describe('Test Homophone Selection', () => {
@@ -1174,6 +1469,40 @@ describe('Test Homophone Selection', () => {
       displayedRadicals: ['A'],
       selectionKeys: '1234567890',
       candidates: [new Candidate('重', '')],
+    });
+
+    const stateCallback = jest.fn();
+    const handled = keyHandler.handle(
+      Key.namedKey(KeyName.BACKSPACE),
+      state,
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(stateCallback).toHaveBeenCalledWith(prevState);
+  });
+
+  it('should return to previous state on BACKSPACE in SelectingHomophoneReadingsState', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+
+    const prevState = new BasicInputtingState({
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('中', '')],
+    });
+
+    const state = new SelectingHomophoneReadingsState({
+      previousState: prevState,
+      radicals: 'a',
+      displayedRadicals: ['A'],
+      selectionKeys: '1234567890',
+      candidates: [new Candidate('ㄓㄨㄥ', '')],
     });
 
     const stateCallback = jest.fn();
