@@ -796,7 +796,7 @@ module.exports = {
         id: PimeMcTabimCommand.OpenOptions,
       });
       menu.push({});
-      menu.push({ text: '小麥他命輸入法 0.4.0' });
+      menu.push({ text: '小麥他命輸入法 0.4.1' });
 
       const response = Object.assign({}, responseTemplate, { return: menu });
       return response;
