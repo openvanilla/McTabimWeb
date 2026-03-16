@@ -77,7 +77,7 @@ npm run build
 
 用瀏覽器打開 output/example/index.html 就可以使用了。
 
-您也可以透過參考 output/example/index.html 裡頭的方式，將小麥族語輸入法，嵌入到您的網頁中。
+您也可以透過參考 output/example/index.html 裡頭的方式，將小麥他命輸入法，嵌入到您的網頁中。
 
 ### Chrome OS 版
 
@@ -103,13 +103,9 @@ npm install
 npm run build:pime
 ```
 
-然後將 `output/pime` 目錄下的所有檔案複製到 PIME 安裝目錄下的 `node\input_methods\mcfoxim` 目錄中（通常是 `C:\Program Files (x86)\PIME\node\input_methods\mcfoxim`），您會需要用到系統管理員權限。第一次使用時，請在這個目錄中，執行一次 `run_register_ime.bat`，將小麥族語輸入法註冊到 Windows 系統中。接著重新啟動 PIME 啟動器（PIME Launcher），就可以在輸入法清單中選擇小麥族語輸入法了。
+然後將 `output/pime` 目錄下的所有檔案複製到 PIME 安裝目錄下的 `node\input_methods\mcfoxim` 目錄中（通常是 `C:\Program Files (x86)\PIME\node\input_methods\mcfoxim`），您會需要用到系統管理員權限。第一次使用時，請在這個目錄中，執行一次 `run_register_ime.bat`，將小麥他命輸入法註冊到 Windows 系統中。接著重新啟動 PIME 啟動器（PIME Launcher），就可以在輸入法清單中選擇小麥他命輸入法了。
 
-如果在系統清單中，沒有看到小麥族語輸入法，請進入 Windows 的系統設定中，確認「語言」設定中已經加入了小麥族語輸入法。## 支援平台
-
-- Web 平台
-- Chrome OS
-- Windows (透過 [PIME 輸入法框架](https://github.com/EasyIME/))
+如果在系統清單中，沒有看到小麥他命輸入法，請進入 Windows 的系統設定中，確認「語言」設定中已經加入了小麥他命輸入法。
 
 ## 社群公約
 

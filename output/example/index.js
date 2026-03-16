@@ -1,11 +1,5 @@
-let example = (function () {
-  const FEATURE_IDS = [
-    'feature_input',
-    'feature_user_data',
-    'feature_lookup',
-    'feature_table_help',
-  ];
-  const FEATURE_TITLES = {
+(function () {
+  const FEATURES = {
     feature_input: '輸入功能',
     feature_user_data: '自訂符號表管理',
     feature_lookup: '字根反查',
@@ -21,13 +15,11 @@ let example = (function () {
     $('text_area').focus();
   };
 
-  let composingBuffer = '';
-
   function toggleFeature(id) {
-    for (const featureId of FEATURE_IDS) {
+    for (const featureId of Object.keys(FEATURES)) {
       $(featureId).style.display = featureId === id ? 'block' : 'none';
     }
-    document.title = TITLE_PREFIX + (FEATURE_TITLES[id] ?? FEATURE_TITLES.feature_input);
+    document.title = TITLE_PREFIX + (FEATURES[id] ?? FEATURES.feature_input);
     if (id === 'feature_input') {
       focusTextArea();
     }
@@ -659,13 +651,14 @@ let example = (function () {
       $('user_data_symbol_area').focus();
     };
 
-    $('load_user_data_foreign_language_button').onclick =
-      $('save_user_data_foreign_language_button').onclick = () => {
-        foreignLanguageUserData.data = $('user_data_foreign_language_area').value;
-        foreignLanguageUserData.applyToInputMethod();
-        foreignLanguageUserData.save();
-        $('user_data_foreign_language_area').focus();
-      };
+    $('load_user_data_foreign_language_button').onclick = $(
+      'save_user_data_foreign_language_button',
+    ).onclick = () => {
+      foreignLanguageUserData.data = $('user_data_foreign_language_area').value;
+      foreignLanguageUserData.applyToInputMethod();
+      foreignLanguageUserData.save();
+      $('user_data_foreign_language_area').focus();
+    };
   }
 
   function bindFullscreenButton() {
@@ -712,7 +705,9 @@ let example = (function () {
       }
       const resultHtml = text
         .split('')
-        .map((char) => renderLookupResult(char, inputMethod.tableManager.reverseLookupForRadicals(char)))
+        .map((char) =>
+          renderLookupResult(char, inputMethod.tableManager.reverseLookupForRadicals(char)),
+        )
         .join('');
       $('lookup_result').innerHTML = resultHtml;
     }
@@ -769,7 +764,10 @@ let example = (function () {
       }
       return new Promise((resolve, reject) => {
         try {
-          const request = db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME).get(CONTENT_KEY);
+          const request = db
+            .transaction([STORE_NAME], 'readonly')
+            .objectStore(STORE_NAME)
+            .get(CONTENT_KEY);
           request.onsuccess = () => resolve(request.result);
           request.onerror = (event) => reject(event.target.error);
         } catch (error) {
@@ -838,5 +836,4 @@ let example = (function () {
   };
 
   window.example = api;
-  return api;
 })();
