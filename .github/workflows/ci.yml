@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [20.x, 24.x]
     steps:
       - uses: actions/checkout@v6
       - name: Use Node.js ${{ matrix.node-version }}
@@ -53,3 +53,10 @@ jobs:
           github.event.pull_request.head.repo.fork == false &&
           matrix.node-version == '20.x'
         uses: ArtiomTr/jest-coverage-report-action@v2
+      - name: Upload coverage reports to Codecov
+        if: >
+          matrix.node-version == '20.x' && 
+          github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
