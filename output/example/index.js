@@ -1,390 +1,357 @@
 let example = (function () {
-  function toggle_feature(id) {
-    let features = ['feature_input', 'feature_user_data', 'feature_lookup', 'feature_table_help'];
-    for (let feature of features) {
-      document.getElementById(feature).style.display = 'none';
+  const FEATURE_IDS = [
+    'feature_input',
+    'feature_user_data',
+    'feature_lookup',
+    'feature_table_help',
+  ];
+  const FEATURE_TITLES = {
+    feature_input: '輸入功能',
+    feature_user_data: '自訂符號表管理',
+    feature_lookup: '字根反查',
+    feature_table_help: '輸入法表格說明',
+  };
+  const TITLE_PREFIX = 'McTabIM 小麥他命輸入法 - ';
+
+  const $ = (id) => document.getElementById(id);
+  const setVisibility = (id, visible) => {
+    $(id).style.visibility = visible ? 'visible' : 'hidden';
+  };
+  const focusTextArea = () => {
+    $('text_area').focus();
+  };
+
+  let composingBuffer = '';
+
+  function toggleFeature(id) {
+    for (const featureId of FEATURE_IDS) {
+      $(featureId).style.display = featureId === id ? 'block' : 'none';
     }
-    document.getElementById(id).style.display = 'block';
-    const prefix = 'McTabIM 小麥他命輸入法 - ';
+    document.title = TITLE_PREFIX + (FEATURE_TITLES[id] ?? FEATURE_TITLES.feature_input);
     if (id === 'feature_input') {
-      document.getElementById('text_area').focus();
-      document.title = prefix + '輸入功能';
-    } else if (id === 'feature_user_data') {
-      document.title = prefix + '自訂符號表管理';
-    } else if (id === 'feature_lookup') {
-      document.title = prefix + '字根反查';
-    } else if (id === 'feature_table_help') {
-      document.title = prefix + '輸入法表格說明';
+      focusTextArea();
     }
   }
 
-  const ui = (function () {
-    let that = {};
-    that.beep = () => {
+  function insertTextAtSelection(text) {
+    const textArea = $('text_area');
+    const selectionStart = textArea.selectionStart;
+    const selectionEnd = textArea.selectionEnd;
+    const currentText = textArea.value;
+    const head = currentText.substring(0, selectionStart);
+    const tail = currentText.substring(selectionEnd);
+
+    textArea.value = head + text + tail;
+    const cursorPosition = head.length + text.length;
+    textArea.setSelectionRange(cursorPosition, cursorPosition);
+  }
+
+  function removeTextBeforeSelection() {
+    const textArea = $('text_area');
+    const selectionStart = textArea.selectionStart;
+    const selectionEnd = textArea.selectionEnd;
+    const currentText = textArea.value;
+    const head = currentText.substring(0, selectionStart);
+    const tail = currentText.substring(selectionEnd);
+
+    textArea.value = head.substring(0, head.length - 1) + tail;
+    const cursorPosition = Math.max(0, head.length - 1);
+    textArea.setSelectionRange(cursorPosition, cursorPosition);
+  }
+
+  function buildComposingBufferHtml(state) {
+    const buffer = state.composingBuffer;
+    if (!buffer.length) {
+      composingBuffer = '';
+      return '';
+    }
+
+    let html = '<p>';
+    let plainText = '';
+    let index = 0;
+    for (const item of buffer) {
+      if (item.style === 'highlighted') {
+        html += '<span class="marking">';
+      }
+      plainText += item.text;
+      for (const char of item.text) {
+        if (index === state.cursorIndex) {
+          html += "<span class='cursor'>|</span>";
+        }
+        html += char;
+        index++;
+      }
+      if (item.style === 'highlighted') {
+        html += '</span>';
+      }
+    }
+    if (index === state.cursorIndex) {
+      html += "<span class='cursor'>|</span>";
+    }
+    html += '</p>';
+    composingBuffer = plainText;
+    return html;
+  }
+
+  function buildCandidatesHtml(state) {
+    if (!state.candidates.length) {
+      return '';
+    }
+
+    let html = '<table>';
+    for (const candidate of state.candidates) {
+      html += candidate.selected ? '<tr class="highlighted_candidate">' : '<tr>';
+      html += `<td class="keycap">${candidate.keyCap}</td>`;
+      html += `<td class="candidate">${candidate.candidate.displayText}</td>`;
+      html += `<td class="description">${candidate.candidate.description}</td>`;
+      html += '</tr>';
+    }
+    html += '<tr class="page_info">';
+    html += `<td colspan="2">${state.candidateAnnotation ?? ''}</td>`;
+    html += `<td colspan="1">${state.candidatePageIndex + 1} / ${state.candidatePageCount}</td>`;
+    html += '</tr>';
+    html += '</table>';
+    return html;
+  }
+
+  function positionFunctionPanel() {
+    const textArea = $('text_area');
+    const functionDiv = $('function');
+    const rect = textArea.getBoundingClientRect();
+    const textAreaStyle = window.getComputedStyle(textArea);
+    const lineHeight = parseInt(textAreaStyle.lineHeight, 10) || 20;
+
+    const mirror = document.createElement('div');
+    const mirroredStyles = [
+      'fontFamily',
+      'fontSize',
+      'fontWeight',
+      'letterSpacing',
+      'overflowWrap',
+      'whiteSpace',
+      'lineHeight',
+      'padding',
+      'border',
+      'boxSizing',
+      'width',
+    ];
+    for (const style of mirroredStyles) {
+      mirror.style[style] = textAreaStyle[style];
+    }
+    mirror.style.position = 'absolute';
+    mirror.style.visibility = 'hidden';
+    mirror.style.whiteSpace = 'pre-wrap';
+    mirror.style.overflowWrap = 'break-word';
+
+    const caretSpan = document.createElement('span');
+    caretSpan.id = 'caret-span';
+    caretSpan.textContent = '|';
+    mirror.textContent = textArea.value.substring(0, textArea.selectionStart);
+    mirror.appendChild(caretSpan);
+
+    document.body.appendChild(mirror);
+    const caretRect = caretSpan.getBoundingClientRect();
+    const mirrorRect = mirror.getBoundingClientRect();
+    document.body.removeChild(mirror);
+
+    const relativeTop = caretRect.top - mirrorRect.top;
+    const relativeLeft = caretRect.left - mirrorRect.left;
+    functionDiv.style.position = 'absolute';
+    functionDiv.style.top = `${rect.top + relativeTop + lineHeight - textArea.scrollTop}px`;
+    functionDiv.style.left = `${rect.left + relativeLeft - textArea.scrollLeft}px`;
+  }
+
+  const ui = (() => {
+    const api = {};
+
+    api.beep = () => {
       const snd = new Audio(
         'data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=',
       );
       snd.play();
     };
 
-    that.reset = () => {
-      document.getElementById('function').style.visibility = 'hidden';
-      document.getElementById('candidates').style.visibility = 'hidden';
-      let renderText = '';
-      // renderText += "<span class='cursor'>|</span>";
-      document.getElementById('composing_buffer').innerHTML = renderText;
-      document.getElementById('candidates').innerHTML = '';
-      composingBuffer = '';
-      document.getElementById('tooltip').innerText = '';
-      document.getElementById('tooltip').style.visibility = 'hidden';
-      const caretSpan = document.getElementById('caret-span');
+    api.reset = () => {
+      setVisibility('function', false);
+      setVisibility('candidates', false);
+      $('composing_buffer').innerHTML = '';
+      $('candidates').innerHTML = '';
+      $('tooltip').innerText = '';
+      setVisibility('tooltip', false);
+      const caretSpan = $('caret-span');
       if (caretSpan) {
         caretSpan.remove();
       }
-    };
-
-    that.commitString = (string) => {
-      var selectionStart = document.getElementById('text_area').selectionStart;
-      var selectionEnd = document.getElementById('text_area').selectionEnd;
-      var text = document.getElementById('text_area').value;
-      var head = text.substring(0, selectionStart);
-      var tail = text.substring(selectionEnd);
-      document.getElementById('text_area').value = head + string + tail;
-      let cursorPosition = head.length + string.length;
-      document.getElementById('text_area').setSelectionRange(cursorPosition, cursorPosition);
       composingBuffer = '';
     };
 
-    that.backspace = () => {
-      var selectionStart = document.getElementById('text_area').selectionStart;
-      var selectionEnd = document.getElementById('text_area').selectionEnd;
-      var text = document.getElementById('text_area').value;
-      var head = text.substring(0, selectionStart);
-      var tail = text.substring(selectionEnd);
-      document.getElementById('text_area').value = head.substring(0, head.length - 1) + tail;
-      let cursorPosition = head.length - 1;
-      document.getElementById('text_area').setSelectionRange(cursorPosition, cursorPosition);
+    api.commitString = (text) => {
+      insertTextAtSelection(text);
       composingBuffer = '';
     };
 
-    that.updateByAlphabetMode = () => {
-      document.getElementById('status').innerHTML = globalUi.alphabetMode
+    api.backspace = () => {
+      removeTextBeforeSelection();
+      composingBuffer = '';
+    };
+
+    api.updateByAlphabetMode = () => {
+      $('status').innerHTML = globalUi.alphabetMode
         ? '<a href="" onclick="example.globalUi.enterChineseMode(); return false;">【英文】</a>'
         : '<a href="" onclick="example.globalUi.enterAlphabetMode(); return false;">【中文】</a>';
     };
 
-    that.updateByKeyboardVisible = () => {
-      document.getElementById('keyboard').style.height = '30%';
+    api.updateByKeyboardVisible = () => {
+      $('keyboard').style.height = '30%';
     };
 
-    that.update = (string) => {
-      that.updateByAlphabetMode();
-      let state = JSON.parse(string);
-      {
-        let buffer = state.composingBuffer;
-        if (buffer.length === 0) {
-          document.getElementById('composing_buffer').innerHTML = '';
-          document.getElementById('composing_buffer').style.visibility = 'hidden';
-        } else {
-          let renderText = '<p>';
-          let plainText = '';
-          let i = 0;
-          for (let item of buffer) {
-            if (item.style === 'highlighted') {
-              renderText += '<span class="marking">';
-            }
-            let text = item.text;
-            plainText += text;
-            for (let c of text) {
-              if (i === state.cursorIndex) {
-                renderText += "<span class='cursor'>|</span>";
-              }
-              renderText += c;
-              i++;
-            }
-            if (item.style === 'highlighted') {
-              renderText += '</span>';
-            }
-          }
-          if (i === state.cursorIndex) {
-            renderText += "<span class='cursor'>|</span>";
-          }
-          renderText += '</p>';
-          document.getElementById('composing_buffer').innerHTML = renderText;
-          composingBuffer = plainText;
-          document.getElementById('composing_buffer').style.visibility = 'visible';
-        }
-      }
+    api.update = (jsonString) => {
+      api.updateByAlphabetMode();
+      const state = JSON.parse(jsonString);
+      const composingBufferElement = $('composing_buffer');
+      const candidatesElement = $('candidates');
+      const tooltipElement = $('tooltip');
 
-      if (state.candidates.length) {
-        let s = '<table>';
-        for (let candidate of state.candidates) {
-          if (candidate.selected) {
-            s += '<tr class="highlighted_candidate"> ';
-          } else {
-            s += '<tr>';
-          }
-          s += '<td class="keycap">';
-          s += candidate.keyCap;
-          s += '</td>';
-          s += '<td class="candidate">';
-          s += candidate.candidate.displayText;
-          s += '</td>';
-          s += '<td class="description">';
-          s += candidate.candidate.description;
-          s += '</td>';
-          s += '</tr>';
-        }
-        const annotation = state.candidateAnnotation ?? '';
-        s += '<tr class="page_info"> ';
-        s += '<td colspan="2">';
-        s += annotation;
-        s += '</td>';
-        s += '<td colspan="1">';
-        s += '' + (state.candidatePageIndex + 1) + ' / ' + state.candidatePageCount;
-        s += '</td>';
-        s += '</tr>';
-        s += '</table>';
+      const composingHtml = buildComposingBufferHtml(state);
+      composingBufferElement.innerHTML = composingHtml;
+      setVisibility('composing_buffer', Boolean(composingHtml));
 
-        document.getElementById('candidates').innerHTML = s;
-      }
+      candidatesElement.innerHTML = buildCandidatesHtml(state);
+      setVisibility('candidates', state.candidates.length > 0);
 
-      document.getElementById('candidates').style.visibility = state.candidates.length
-        ? 'visible'
-        : 'hidden';
+      tooltipElement.innerText = state.tooltip ?? '';
+      setVisibility('tooltip', Boolean(state.tooltip && state.tooltip.length > 0));
 
-      if (state.tooltip && state.tooltip.length > 0) {
-        document.getElementById('tooltip').innerText = state.tooltip;
-        document.getElementById('tooltip').style.visibility = 'visible';
-      } else {
-        document.getElementById('tooltip').innerText = '';
-        document.getElementById('tooltip').style.visibility = 'hidden';
-      }
-
-      document.getElementById('function').style.visibility = 'visible';
-      const textArea = document.getElementById('text_area');
-      const functionDiv = document.getElementById('function');
-      const rect = textArea.getBoundingClientRect();
-      const textAreaStyle = window.getComputedStyle(textArea);
-      const lineHeight = parseInt(textAreaStyle.lineHeight) || 20;
-
-      // Create a temporary mirror div to measure actual caret position
-      const mirror = document.createElement('div');
-      const styles = [
-        'fontFamily',
-        'fontSize',
-        'fontWeight',
-        'letterSpacing',
-        'overflowWrap',
-        'whiteSpace',
-        'lineHeight',
-        'padding',
-        'border',
-        'boxSizing',
-        'width',
-      ];
-      styles.forEach((style) => {
-        mirror.style[style] = textAreaStyle[style];
-      });
-      mirror.style.position = 'absolute';
-      mirror.style.visibility = 'hidden';
-      mirror.style.whiteSpace = 'pre-wrap';
-      mirror.style.overflowWrap = 'break-word';
-
-      const caretPos = textArea.selectionStart;
-      const textBeforeCaret = textArea.value.substring(0, caretPos);
-      mirror.textContent = textBeforeCaret;
-
-      const caretSpan = document.createElement('span');
-      caretSpan.id = 'caret-span';
-      caretSpan.textContent = '|';
-      mirror.appendChild(caretSpan);
-
-      document.body.appendChild(mirror);
-
-      const caretRect = caretSpan.getBoundingClientRect();
-      const mirrorRect = mirror.getBoundingClientRect();
-
-      const relativeTop = caretRect.top - mirrorRect.top;
-      const relativeLeft = caretRect.left - mirrorRect.left;
-
-      document.body.removeChild(mirror);
-
-      // Account for textarea scroll position
-      const scrollTop = textArea.scrollTop;
-      const scrollLeft = textArea.scrollLeft;
-
-      functionDiv.style.position = 'absolute';
-      functionDiv.style.top = rect.top + relativeTop + lineHeight - scrollTop + 'px';
-      functionDiv.style.left = rect.left + relativeLeft - scrollLeft + 'px';
+      setVisibility('function', true);
+      positionFunctionPanel();
     };
 
-    return that;
+    return api;
   })();
 
   const globalUi = (() => {
-    let that = {};
-    that.alphabetMode = false;
-    that.keyboardVisible = false;
-
-    that.enterAlphabetMode = () => {
-      that.alphabetMode = true;
-      ui.updateByAlphabetMode();
-      inputMethod.controller.reset();
-      document.getElementById('text_area').focus();
+    const api = {
+      alphabetMode: false,
+      keyboardVisible: false,
     };
 
-    that.enterChineseMode = () => {
-      that.alphabetMode = false;
+    api.enterAlphabetMode = () => {
+      api.alphabetMode = true;
       ui.updateByAlphabetMode();
       inputMethod.controller.reset();
-      document.getElementById('text_area').focus();
+      focusTextArea();
     };
 
-    that.toggleKeyboard = () => {
-      that.keyboardVisible = !that.keyboardVisible;
+    api.enterChineseMode = () => {
+      api.alphabetMode = false;
+      ui.updateByAlphabetMode();
+      inputMethod.controller.reset();
+      focusTextArea();
+    };
+
+    api.toggleKeyboard = () => {
+      api.keyboardVisible = !api.keyboardVisible;
       ui.updateByKeyboardVisible();
     };
 
-    return that;
+    return api;
   })();
 
-  const symbolTableUserData = (() => {
-    let that = {};
-    that.data = '';
-    that.load = () => {
-      var saved = window.localStorage.getItem('symbolTableUserData');
-      if (saved) {
-        that.data = saved;
-      } else {
-        that.data = inputMethod.tableManager.customSymbolTable.sourceData;
-      }
+  function createUserDataStore(storageKey, defaultDataGetter, textAreaId, apply) {
+    return {
+      data: '',
+      load() {
+        const saved = window.localStorage.getItem(storageKey);
+        this.data = saved ?? defaultDataGetter();
+      },
+      save() {
+        window.localStorage.setItem(storageKey, this.data);
+      },
+      applyToUi() {
+        $(textAreaId).value = this.data;
+      },
+      applyToInputMethod() {
+        apply(this.data);
+      },
     };
-    that.save = () => {
-      window.localStorage.setItem('symbolTableUserData', that.data);
-    };
-    that.applyToUi = () => {
-      document.getElementById('user_data_symbol_area').value = that.data;
-    };
-    that.applyToInputMethod = () => {
-      inputMethod.tableManager.customSymbolTable.sourceData = that.data;
-    };
-    return that;
-  })();
-
-  const foreignLanguageUserData = (() => {
-    let that = {};
-    that.data = '';
-    that.load = () => {
-      var saved = window.localStorage.getItem('foreignLanguageUserData');
-      if (saved) {
-        that.data = saved;
-      } else {
-        that.data = inputMethod.tableManager.foreignLanguage.sourceData;
-      }
-    };
-    that.save = () => {
-      window.localStorage.setItem('foreignLanguageUserData', that.data);
-    };
-    that.applyToUi = () => {
-      document.getElementById('user_data_foreign_language_area').value = that.data;
-    };
-    that.applyToInputMethod = () => {
-      inputMethod.tableManager.foreignLanguage.sourceData = that.data;
-    };
-    return that;
-  })();
+  }
 
   const settings = (() => {
-    let that = {};
-    that.defaultSettings = {
-      selectedInputMethodId: 'checj',
-      inputSettings: {
-        chineseConversionEnabled: false,
-        associatedPhrasesEnabled: false,
-        shiftPunctuationForSymbolsEnabled: true,
-        shiftLetterForSymbolsEnabled: true,
-        wildcardMatchingEnabled: false,
-        clearOnErrors: false,
-        beepOnErrors: false,
-        reverseRadicalLookupEnabled: false,
-        homophoneLookupEnabled: true,
-      },
-    };
-    that.settings = {
-      selectedInputMethodId: 'checj',
-      inputSettings: {
-        chineseConversionEnabled: false,
-        associatedPhrasesEnabled: false,
-        shiftPunctuationForSymbolsEnabled: true,
-        shiftLetterForSymbolsEnabled: true,
-        wildcardMatchingEnabled: false,
-        clearOnErrors: false,
-        beepOnErrors: false,
-        reverseRadicalLookupEnabled: false,
-        homophoneLookupEnabled: true,
-      },
-    };
-    that.load = () => {
-      var saved = window.localStorage.getItem('settings');
-      if (saved) {
-        that.settings = JSON.parse(saved);
-      } else {
-        that.settings = that.defaultSettings;
+    const cloneSettings = (value) => {
+      if (typeof structuredClone === 'function') {
+        return structuredClone(value);
       }
+      return JSON.parse(JSON.stringify(value));
     };
-    that.save = () => {
-      window.localStorage.setItem('settings', JSON.stringify(that.settings));
+
+    const defaultSettings = {
+      selectedInputMethodId: 'checj',
+      inputSettings: {
+        chineseConversionEnabled: false,
+        associatedPhrasesEnabled: false,
+        shiftPunctuationForSymbolsEnabled: true,
+        shiftLetterForSymbolsEnabled: true,
+        wildcardMatchingEnabled: false,
+        clearOnErrors: false,
+        beepOnErrors: false,
+        reverseRadicalLookupEnabled: false,
+        homophoneLookupEnabled: true,
+      },
     };
-    that.applyToInputMethod = () => {
-      const selectedId = that.settings.selectedId;
+
+    const api = {
+      defaultSettings,
+      settings: cloneSettings(defaultSettings),
+    };
+
+    api.load = () => {
+      const saved = window.localStorage.getItem('settings');
+      api.settings = saved ? JSON.parse(saved) : cloneSettings(defaultSettings);
+    };
+
+    api.save = () => {
+      window.localStorage.setItem('settings', JSON.stringify(api.settings));
+    };
+
+    api.applyToInputMethod = () => {
+      const selectedId = api.settings.selectedId ?? api.settings.selectedInputMethodId;
       if (selectedId) {
         inputMethod.tableManager.setInputTableById(selectedId);
       }
-      const inputSettings = that.settings.inputSettings;
-      inputMethod.controller.settings = inputSettings;
+      inputMethod.controller.settings = api.settings.inputSettings;
       inputMethod.controller.reset();
     };
-    that.applyToUi = () => {
-      const selectedId = that.settings.selectedId;
-      const select = document.getElementById('input-table-select');
+
+    api.applyToUi = () => {
+      const selectedId = api.settings.selectedId ?? api.settings.selectedInputMethodId;
       if (selectedId) {
-        select.value = selectedId;
-      }
-      const inputSettings = that.settings.inputSettings;
-      document.getElementById('associated_phrases_enabled').checked =
-        inputSettings.associatedPhrasesEnabled;
-
-      const chineseConversionEnabled = that.settings.inputSettings.chineseConversionEnabled;
-      if (chineseConversionEnabled) {
-        document.getElementById('chinese_convert_simp').checked = true;
-      } else {
-        document.getElementById('chinese_convert_trad').checked = true;
+        $('input-table-select').value = selectedId;
       }
 
-      document.getElementById('shift_punctuation_for_symbols_enabled').checked =
+      const inputSettings = api.settings.inputSettings;
+      $('associated_phrases_enabled').checked = inputSettings.associatedPhrasesEnabled;
+      $('chinese_convert_simp').checked = inputSettings.chineseConversionEnabled;
+      $('chinese_convert_trad').checked = !inputSettings.chineseConversionEnabled;
+      $('shift_punctuation_for_symbols_enabled').checked =
         inputSettings.shiftPunctuationForSymbolsEnabled;
-      document.getElementById('shift_letter_for_symbols_enabled').checked =
-        inputSettings.shiftLetterForSymbolsEnabled;
-      document.getElementById('clean_on_error').checked = inputSettings.clearOnErrors;
-      document.getElementById('beep_on_error').checked = inputSettings.beepOnErrors;
-      document.getElementById('wildcard_matching_enabled').checked =
-        inputSettings.wildcardMatchingEnabled;
-      document.getElementById('reverse_radical_lookup_enabled').checked =
-        inputSettings.reverseRadicalLookupEnabled;
-      document.getElementById('homophone_lookup_enabled').checked =
-        inputSettings.homophoneLookupEnabled;
+      $('shift_letter_for_symbols_enabled').checked = inputSettings.shiftLetterForSymbolsEnabled;
+      $('clean_on_error').checked = inputSettings.clearOnErrors;
+      $('beep_on_error').checked = inputSettings.beepOnErrors;
+      $('wildcard_matching_enabled').checked = inputSettings.wildcardMatchingEnabled;
+      $('reverse_radical_lookup_enabled').checked = inputSettings.reverseRadicalLookupEnabled;
+      $('homophone_lookup_enabled').checked = inputSettings.homophoneLookupEnabled;
     };
-    return that;
+
+    return api;
   })();
 
   const inputMethod = (() => {
     const { InputController, InputTableManager } = window.mctabim;
-    let that = {};
-    that.controller = (() => {
-      let controller = new InputController(ui);
+    const api = {};
+
+    api.controller = (() => {
+      const controller = new InputController(ui);
       controller.onSettingChanged = (newSettings) => {
-        console.log('onSettingChanged');
         settings.settings.inputSettings = newSettings;
         settings.save();
         settings.applyToUi();
@@ -395,94 +362,132 @@ let example = (function () {
       };
       return controller;
     })();
-    that.tableManager = InputTableManager.getInstance();
-    that.populateInputMethodTableSelect = () => {
-      const tables = that.tableManager.tables;
-      const selectedIndexValue = that.tableManager.selectedIndexValue;
-      const select = document.getElementById('input-table-select');
+
+    api.tableManager = InputTableManager.getInstance();
+
+    api.populateInputMethodTableSelect = () => {
+      const tables = api.tableManager.tables;
+      const select = $('input-table-select');
       select.innerHTML = '';
-      for (const table of tables) {
+
+      for (const [id, name] of tables) {
         const option = document.createElement('option');
-        option.value = table[0];
-        option.textContent = table[1];
-        if (tables.indexOf(table) === selectedIndexValue) {
-          option.selected = true;
-        }
+        option.value = id;
+        option.textContent = name;
         select.appendChild(option);
       }
-      // console.log('Selected table id:', manager.currentTable);
-      select.value = that.tableManager.currentTable.id;
+
+      select.value = api.tableManager.currentTable.id;
       select.addEventListener('change', (event) => {
-        let value = event.target.value;
-        settings.settings.selectedId = value;
+        settings.settings.selectedId = event.target.value;
         settings.save();
         settings.applyToInputMethod();
         screenKeyboard.loadLayout();
-        document.getElementById('text_area').focus();
+        focusTextArea();
       });
     };
-    that.populateInputMethodTableSelect();
-    return that;
+
+    api.populateInputMethodTableSelect();
+    return api;
   })();
 
+  const symbolTableUserData = createUserDataStore(
+    'symbolTableUserData',
+    () => inputMethod.tableManager.customSymbolTable.sourceData,
+    'user_data_symbol_area',
+    (value) => {
+      inputMethod.tableManager.customSymbolTable.sourceData = value;
+    },
+  );
+
+  const foreignLanguageUserData = createUserDataStore(
+    'foreignLanguageUserData',
+    () => inputMethod.tableManager.foreignLanguage.sourceData,
+    'user_data_foreign_language_area',
+    (value) => {
+      inputMethod.tableManager.foreignLanguage.sourceData = value;
+    },
+  );
+
   const screenKeyboard = (() => {
-    const that = {};
-    that.isLock = false;
-    that.isShift = false;
-    that.isCtrl = false;
+    const api = {
+      isLock: false,
+      isShift: false,
+      isCtrl: false,
+    };
 
     const Keyboard = window.SimpleKeyboard.default;
     const keyboard = new Keyboard({
-      onKeyPress: (button) => onKeyPress(button),
+      onKeyPress: (button) => handleKeyPress(button),
     });
 
-    function onKeyPress(button) {
-      console.log('Button pressed', button);
+    const defaultLayout = [
+      '` 1 2 3 4 5 6 7 8 9 0 - = {bksp}',
+      '{tab} q w e r t y u i o p [ ] \\',
+      "{lock} a s d f g h j k l ; ' {enter}",
+      '{shift} z x c v b n m , . / {shift}',
+      '{ctrl} {space}',
+    ];
+    const shiftLayout = [
+      '~ ! @ # $ % ^ & * ( ) _ + {bksp}',
+      '{tab} Q W E R T Y U I O P { } |',
+      '{lock} A S D F G H J K L : " {enter}',
+      '{shift} Z X C V B N M < > ? {shift}',
+      '{ctrl} {space}',
+    ];
+
+    function handleModifierButton(button) {
       if (button === '{lock}') {
-        that.isLock = !that.isLock;
-        that.loadLayout();
-        return;
+        api.isLock = !api.isLock;
       } else if (button === '{shift}') {
-        that.isShift = !that.isShift;
-        that.loadLayout();
-        return;
+        api.isShift = !api.isShift;
       } else if (button === '{ctrl}') {
-        that.isCtrl = !that.isCtrl;
-        that.loadLayout();
-        return;
+        api.isCtrl = !api.isCtrl;
+      } else {
+        return false;
       }
-      const result = inputMethod.controller.handleSimpleKeyboardEvent(
-        button,
-        that.isShift || that.isLock,
-        that.isCtrl,
-      );
-      const textArea = document.getElementById('text_area');
-      textArea.focus();
-      if (that.isShift) {
-        that.isShift = false;
-        that.loadLayout();
-      }
-      if (that.isCtrl) {
-        that.isCtrl = false;
-        that.loadLayout();
-      }
-      if (!result) {
-        if (button === '{enter}') {
-          ui.commitString('\n');
-        } else if (button === '{space}') {
-          ui.commitString(' ');
-        } else if (button === '{bksp}') {
-          ui.backspace();
-        }
-      }
-      // textArea.focus();
+      api.loadLayout();
+      return true;
     }
 
-    function loadLayout() {
-      const { InputTableManager } = window.mctabim;
-      const manager = InputTableManager.getInstance();
-      const names = manager.currentTable.table.keynames;
+    function handleFallbackButton(button) {
+      if (button === '{enter}') {
+        ui.commitString('\n');
+      } else if (button === '{space}') {
+        ui.commitString(' ');
+      } else if (button === '{bksp}') {
+        ui.backspace();
+      }
+    }
 
+    function handleKeyPress(button) {
+      if (handleModifierButton(button)) {
+        return;
+      }
+
+      const handled = inputMethod.controller.handleSimpleKeyboardEvent(
+        button,
+        api.isShift || api.isLock,
+        api.isCtrl,
+      );
+      focusTextArea();
+
+      if (api.isShift) {
+        api.isShift = false;
+        api.loadLayout();
+      }
+      if (api.isCtrl) {
+        api.isCtrl = false;
+        api.loadLayout();
+      }
+      if (!handled) {
+        handleFallbackButton(button);
+      }
+    }
+
+    function buildKeyboardDisplay() {
+      const manager = inputMethod.tableManager;
+      const names = manager.currentTable.table.keynames;
       const display = {
         '{tab}': '⇥',
         '{lock}': 'Lock',
@@ -493,90 +498,116 @@ let example = (function () {
         '{ctrl}': '⌃',
       };
 
-      if (!that.isCtrl) {
-        console.log(names);
+      if (!api.isCtrl) {
         for (const key in names) {
-          if (key === '`') {
-            continue;
-          }
-          display[key] = names[key];
-        }
-      }
-      if (that.isShift || that.isLock) {
-        let inputSetings = settings.settings.inputSettings;
-        if (inputSetings.shiftPunctuationForSymbolsEnabled) {
-          const symbols = manager.shiftPunctuationsSymbols;
-          for (const key in symbols) {
-            if (display[key] === undefined) display[key] = symbols[key];
-          }
-        }
-        if (inputSetings.shiftLetterForSymbolsEnabled) {
-          const symbols = manager.shiftLetterSymbols;
-          for (const key in symbols) {
-            if (display[key] === undefined) display[key] = symbols[key];
+          if (key !== '`') {
+            display[key] = names[key];
           }
         }
       }
 
-      let defaultLayout = [
-        '` 1 2 3 4 5 6 7 8 9 0 - = {bksp}',
-        '{tab} q w e r t y u i o p [ ] \\',
-        "{lock} a s d f g h j k l ; ' {enter}",
-        '{shift} z x c v b n m , . / {shift}',
-        '{ctrl} {space}',
-      ];
-      let shiftLayout = [
-        '~ ! @ # $ % ^ & * ( ) _ + {bksp}',
-        '{tab} Q W E R T Y U I O P { } |',
-        '{lock} A S D F G H J K L : " {enter}',
-        '{shift} Z X C V B N M < > ? {shift}',
-        '{ctrl} {space}',
-      ];
-      let layout = that.isShift || that.isLock ? shiftLayout : defaultLayout;
-
-      const buttonTheme = [];
-      if (that.isLock) {
-        buttonTheme.push({
-          class: 'hg-button-active',
-          buttons: '{lock}',
-        });
-      }
-      if (that.isShift) {
-        buttonTheme.push({
-          class: 'hg-button-active',
-          buttons: '{shift}',
-        });
-      }
-      if (that.isCtrl) {
-        buttonTheme.push({
-          class: 'hg-button-active',
-          buttons: '{ctrl}',
-        });
+      if (api.isShift || api.isLock) {
+        const inputSettings = settings.settings.inputSettings;
+        if (inputSettings.shiftPunctuationForSymbolsEnabled) {
+          for (const key in manager.shiftPunctuationsSymbols) {
+            if (display[key] === undefined) {
+              display[key] = manager.shiftPunctuationsSymbols[key];
+            }
+          }
+        }
+        if (inputSettings.shiftLetterForSymbolsEnabled) {
+          for (const key in manager.shiftLetterSymbols) {
+            if (display[key] === undefined) {
+              display[key] = manager.shiftLetterSymbols[key];
+            }
+          }
+        }
       }
 
-      keyboard.setOptions({
-        display: display,
-        layout: {
-          default: layout,
-        },
-        buttonTheme: buttonTheme,
-      });
+      return display;
     }
 
-    that.loadLayout = loadLayout;
-    return that;
+    function buildButtonTheme() {
+      const buttonTheme = [];
+      if (api.isLock) {
+        buttonTheme.push({ class: 'hg-button-active', buttons: '{lock}' });
+      }
+      if (api.isShift) {
+        buttonTheme.push({ class: 'hg-button-active', buttons: '{shift}' });
+      }
+      if (api.isCtrl) {
+        buttonTheme.push({ class: 'hg-button-active', buttons: '{ctrl}' });
+      }
+      return buttonTheme;
+    }
+
+    api.loadLayout = () => {
+      keyboard.setOptions({
+        display: buildKeyboardDisplay(),
+        layout: {
+          default: api.isShift || api.isLock ? shiftLayout : defaultLayout,
+        },
+        buttonTheme: buildButtonTheme(),
+      });
+    };
+
+    return api;
   })();
 
-  (() => {
-    ui.updateByAlphabetMode();
-    const textarea = document.getElementById('text_area');
+  function syncSettingCheckbox(settingKey, { reloadKeyboard = false } = {}) {
+    return (event) => {
+      settings.settings.inputSettings[settingKey] = event.target.checked;
+      settings.save();
+      settings.applyToInputMethod();
+      if (reloadKeyboard) {
+        screenKeyboard.loadLayout();
+      }
+      focusTextArea();
+    };
+  }
+
+  function bindSettingsControls() {
+    $('chinese_convert_trad').onchange = () => {
+      settings.settings.inputSettings.chineseConversionEnabled = false;
+      settings.save();
+      settings.applyToInputMethod();
+      focusTextArea();
+    };
+
+    $('chinese_convert_simp').onchange = () => {
+      settings.settings.inputSettings.chineseConversionEnabled = true;
+      settings.save();
+      settings.applyToInputMethod();
+      focusTextArea();
+    };
+
+    $('associated_phrases_enabled').onchange = syncSettingCheckbox('associatedPhrasesEnabled');
+    $('shift_punctuation_for_symbols_enabled').onchange = syncSettingCheckbox(
+      'shiftPunctuationForSymbolsEnabled',
+      { reloadKeyboard: true },
+    );
+    $('shift_letter_for_symbols_enabled').onchange = syncSettingCheckbox(
+      'shiftLetterForSymbolsEnabled',
+      { reloadKeyboard: true },
+    );
+    $('wildcard_matching_enabled').onchange = syncSettingCheckbox('wildcardMatchingEnabled');
+    $('reverse_radical_lookup_enabled').onchange = syncSettingCheckbox(
+      'reverseRadicalLookupEnabled',
+    );
+    $('homophone_lookup_enabled').onchange = syncSettingCheckbox('homophoneLookupEnabled');
+    $('clean_on_error').onchange = syncSettingCheckbox('clearOnErrors');
+    $('beep_on_error').onchange = syncSettingCheckbox('beepOnErrors');
+  }
+
+  function bindTextAreaEvents() {
+    const textarea = $('text_area');
     let shiftKeyIsPressed = false;
+
     textarea.addEventListener('keyup', (event) => {
       if (event.key === 'Shift' && shiftKeyIsPressed) {
         globalUi.alphabetMode = !globalUi.alphabetMode;
         ui.updateByAlphabetMode();
         inputMethod.controller.reset();
-        return;
       }
     });
 
@@ -591,296 +622,221 @@ let example = (function () {
         return;
       }
 
-      let accepted = inputMethod.controller.handleKeyboardEvent(event);
+      const accepted = inputMethod.controller.handleKeyboardEvent(event);
       if (accepted) {
         event.preventDefault();
       }
     });
+  }
 
-    // textarea.addEventListener('blur', () => {
-    //   inputMethod.controller.reset();
-    //   ui.reset();
-    // });
-
-    document.getElementById('chinese_convert_trad').onchange = function (event) {
-      settings.settings.inputSettings.chineseConversionEnabled = false;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('chinese_convert_simp').onchange = function (event) {
-      settings.settings.inputSettings.chineseConversionEnabled = true;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('associated_phrases_enabled').onchange = (event) => {
-      settings.settings.inputSettings.associatedPhrasesEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('shift_punctuation_for_symbols_enabled').onchange = (event) => {
-      settings.settings.inputSettings.shiftPunctuationForSymbolsEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      screenKeyboard.loadLayout();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('shift_letter_for_symbols_enabled').onchange = (event) => {
-      settings.settings.inputSettings.shiftLetterForSymbolsEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      screenKeyboard.loadLayout();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('wildcard_matching_enabled').onchange = (event) => {
-      settings.settings.inputSettings.wildcardMatchingEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('reverse_radical_lookup_enabled').onchange = (event) => {
-      settings.settings.inputSettings.reverseRadicalLookupEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('homophone_lookup_enabled').onchange = (event) => {
-      settings.settings.inputSettings.homophoneLookupEnabled = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('clean_on_error').onchange = (event) => {
-      settings.settings.inputSettings.clearOnErrors = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
-    document.getElementById('beep_on_error').onchange = (event) => {
-      settings.settings.inputSettings.beepOnErrors = event.target.checked;
-      settings.save();
-      settings.applyToInputMethod();
-      document.getElementById('text_area').focus();
-    };
+  function initializeFeatureRouting() {
     window.addEventListener('hashchange', () => {
-      let hash = window.location.hash;
-      toggle_feature(hash.substring(1));
+      toggleFeature(window.location.hash.substring(1));
     });
 
-    let hash = window.location.hash;
-    if (hash.length > 1) {
-      toggle_feature(hash.substring(1));
+    if (window.location.hash.length > 1) {
+      toggleFeature(window.location.hash.substring(1));
     } else {
-      toggle_feature('feature_input');
+      toggleFeature('feature_input');
     }
+  }
 
-    settings.load();
-    settings.applyToUi();
-    settings.applyToInputMethod();
+  function initializeUserDataStores() {
     symbolTableUserData.load();
     symbolTableUserData.applyToUi();
     symbolTableUserData.applyToInputMethod();
+
     foreignLanguageUserData.load();
     foreignLanguageUserData.applyToUi();
     foreignLanguageUserData.applyToInputMethod();
-    screenKeyboard.loadLayout();
+  }
 
-    document.getElementById('loading').innerText = '載入完畢！';
-    setTimeout(function () {
-      document.getElementById('loading').style.display = 'none';
-    }, 2000);
-
-    document.getElementById('load_user_data_button').onclick = () => {
-      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
+  function bindUserDataButtons() {
+    $('load_user_data_button').onclick = $('save_user_data_button').onclick = () => {
+      symbolTableUserData.data = $('user_data_symbol_area').value;
       symbolTableUserData.applyToInputMethod();
       symbolTableUserData.save();
-      document.getElementById('user_data_symbol_area').focus();
+      $('user_data_symbol_area').focus();
     };
 
-    document.getElementById('save_user_data_button').onclick = () => {
-      symbolTableUserData.data = document.getElementById('user_data_symbol_area').value;
-      symbolTableUserData.applyToInputMethod();
-      symbolTableUserData.save();
-      document.getElementById('user_data_symbol_area').focus();
-    };
+    $('load_user_data_foreign_language_button').onclick =
+      $('save_user_data_foreign_language_button').onclick = () => {
+        foreignLanguageUserData.data = $('user_data_foreign_language_area').value;
+        foreignLanguageUserData.applyToInputMethod();
+        foreignLanguageUserData.save();
+        $('user_data_foreign_language_area').focus();
+      };
+  }
 
-    document.getElementById('load_user_data_foreign_language_button').onclick = () => {
-      foreignLanguageUserData.data = document.getElementById(
-        'user_data_foreign_language_area',
-      ).value;
-      foreignLanguageUserData.applyToInputMethod();
-      foreignLanguageUserData.save();
-      document.getElementById('user_data_foreign_language_area').focus();
-    };
-
-    document.getElementById('save_user_data_foreign_language_button').onclick = () => {
-      foreignLanguageUserData.data = document.getElementById(
-        'user_data_foreign_language_area',
-      ).value;
-      foreignLanguageUserData.applyToInputMethod();
-      foreignLanguageUserData.save();
-      document.getElementById('user_data_foreign_language_area').focus();
-    };
-
-    document.getElementById('fullscreen').onclick = (event) => {
-      const elem = document.getElementById('edit_area');
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
+  function bindFullscreenButton() {
+    $('fullscreen').onclick = () => {
+      const editArea = $('edit_area');
+      if (editArea.requestFullscreen) {
+        editArea.requestFullscreen();
+      } else if (editArea.msRequestFullscreen) {
+        editArea.msRequestFullscreen();
+      } else if (editArea.mozRequestFullScreen) {
+        editArea.mozRequestFullScreen();
+      } else if (editArea.webkitRequestFullscreen) {
+        editArea.webkitRequestFullscreen();
       }
-      document.getElementById('text_area').focus();
+      focusTextArea();
       return false;
     };
+  }
 
-    function lookUp() {
-      const text = document.getElementById('lookup_input').value.trim();
-      if (text.length === 0) {
-        return;
-      }
-      const resultElement = document.getElementById('lookup_result');
-      const manager = inputMethod.tableManager;
-
-      const chars = text.split('');
-      let html = '';
-
-      for (let char of chars) {
-        const resuilt = manager.reverseLookupForRadicals(char);
-        html += `<h3>${char}</h3>`;
-        if (resuilt.length === 0) {
-          html += '<p>找不到對應的字根</p>';
-        } else {
-          html += '<table border="1" style="border-collapse: collapse; margin-top: 10px;">';
-          html +=
-            '<thead><tr><th style="padding: 4px 8px;">輸入法</th><th style="padding: 4px 8px;">字根</th></tr></thead>';
-          html += '<tbody>';
-          html += resuilt
-            .map((item) => {
-              return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
-            })
-            .join('');
-          html += '</tbody></table>';
-        }
-      }
-      resultElement.innerHTML = html;
+  function renderLookupResult(character, entries) {
+    if (!entries.length) {
+      return `<h3>${character}</h3><p>找不到對應的字根</p>`;
     }
 
-    document.getElementById('lookup_input').onkeydown = (event) => {
+    return [
+      `<h3>${character}</h3>`,
+      '<table border="1" style="border-collapse: collapse; margin-top: 10px;">',
+      '<thead><tr><th style="padding: 4px 8px;">輸入法</th><th style="padding: 4px 8px;">字根</th></tr></thead>',
+      '<tbody>',
+      entries
+        .map((item) => {
+          return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
+        })
+        .join(''),
+      '</tbody></table>',
+    ].join('');
+  }
+
+  function bindLookupControls() {
+    function lookUp() {
+      const text = $('lookup_input').value.trim();
+      if (!text.length) {
+        return;
+      }
+      const resultHtml = text
+        .split('')
+        .map((char) => renderLookupResult(char, inputMethod.tableManager.reverseLookupForRadicals(char)))
+        .join('');
+      $('lookup_result').innerHTML = resultHtml;
+    }
+
+    $('lookup_input').onkeydown = (event) => {
       if (event.key === 'Enter') {
         lookUp();
       }
     };
+    $('lookup_button').onclick = lookUp;
+  }
 
-    document.getElementById('lookup_button').onclick = () => {
-      lookUp();
-    };
+  function initializeIndexedDbAutosave() {
+    const DB_NAME = 'McTabimUserData';
+    const STORE_NAME = 'textAreaContent';
+    const CONTENT_KEY = 'main_text_area';
+    let db = null;
 
-    // IndexedDB logic for saving text area content.
-    (() => {
-      const DB_NAME = 'McTabimUserData';
-      const STORE_NAME = 'textAreaContent';
-      const CONTENT_KEY = 'main_text_area';
-      let db = null;
-
-      function openDB() {
-        return new Promise((resolve, reject) => {
-          const request = indexedDB.open(DB_NAME, 1);
-          request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-              db.createObjectStore(STORE_NAME);
-            }
-          };
-          request.onsuccess = (event) => {
-            db = event.target.result;
-            resolve(db);
-          };
-          request.onerror = (event) => {
-            console.error('IndexedDB error:', event.target.error);
-            reject(event.target.error);
-          };
-        });
-      }
-
-      function saveContent(content) {
-        if (!db) return;
-        try {
-          const transaction = db.transaction([STORE_NAME], 'readwrite');
-          const store = transaction.objectStore(STORE_NAME);
-          store.put(content, CONTENT_KEY);
-        } catch (e) {
-          console.error('Failed to save content to IndexedDB', e);
-        }
-      }
-
-      function loadContent() {
-        if (!db) return Promise.resolve(null);
-        return new Promise((resolve, reject) => {
-          try {
-            const transaction = db.transaction([STORE_NAME], 'readonly');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.get(CONTENT_KEY);
-            request.onsuccess = () => {
-              resolve(request.result);
-            };
-            request.onerror = (event) => {
-              reject(event.target.error);
-            };
-          } catch (e) {
-            console.error('Failed to load content from IndexedDB', e);
-            reject(e);
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (event) => {
+          const database = event.target.result;
+          if (!database.objectStoreNames.contains(STORE_NAME)) {
+            database.createObjectStore(STORE_NAME);
           }
-        });
-      }
+        };
+        request.onsuccess = (event) => {
+          db = event.target.result;
+          resolve(db);
+        };
+        request.onerror = (event) => {
+          console.error('IndexedDB error:', event.target.error);
+          reject(event.target.error);
+        };
+      });
+    }
 
-      const textArea = document.getElementById('text_area');
-      if (!textArea) {
-        console.error('Text area not found');
+    function saveContent(content) {
+      if (!db) {
         return;
       }
+      try {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        transaction.objectStore(STORE_NAME).put(content, CONTENT_KEY);
+      } catch (error) {
+        console.error('Failed to save content to IndexedDB', error);
+      }
+    }
 
-      openDB()
-        .then(() => {
-          loadContent()
-            .then((savedContent) => {
-              if (typeof savedContent === 'string') {
-                textArea.value = savedContent;
-              }
-            })
-            .catch((err) => {
-              console.error('Failed to load content:', err);
-            });
-        })
-        .catch((err) => {
-          console.error('Failed to open DB:', err);
-        });
-
-      let debounceTimeout;
-      textArea.addEventListener('input', () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-          saveContent(textArea.value);
-        }, 500);
+    function loadContent() {
+      if (!db) {
+        return Promise.resolve(null);
+      }
+      return new Promise((resolve, reject) => {
+        try {
+          const request = db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME).get(CONTENT_KEY);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = (event) => reject(event.target.error);
+        } catch (error) {
+          console.error('Failed to load content from IndexedDB', error);
+          reject(error);
+        }
       });
-    })();
+    }
 
-    document.getElementById('text_area').focus();
+    const textArea = $('text_area');
+    openDb()
+      .then(() => loadContent())
+      .then((savedContent) => {
+        if (typeof savedContent === 'string') {
+          textArea.value = savedContent;
+        }
+      })
+      .catch((error) => {
+        console.error('IndexedDB init/load failed:', error);
+      });
+
+    let debounceTimeout;
+    textArea.addEventListener('input', () => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+        saveContent(textArea.value);
+      }, 500);
+    });
+  }
+
+  function finalizeLoading() {
+    $('loading').innerText = '載入完畢！';
+    setTimeout(() => {
+      $('loading').style.display = 'none';
+    }, 2000);
+  }
+
+  (function initialize() {
+    ui.updateByAlphabetMode();
+    bindTextAreaEvents();
+    bindSettingsControls();
+    initializeFeatureRouting();
+
+    settings.load();
+    settings.applyToUi();
+    settings.applyToInputMethod();
+
+    initializeUserDataStores();
+    screenKeyboard.loadLayout();
+    bindUserDataButtons();
+    bindFullscreenButton();
+    bindLookupControls();
+    initializeIndexedDbAutosave();
+    finalizeLoading();
+    focusTextArea();
   })();
 
-  let example = {};
-  example.ui = ui;
-  example.globalUi = globalUi;
-  example.inputMethod = inputMethod;
-  example.settings = settings;
-  example.symbolTableUserData = symbolTableUserData;
-  example.foreignLanguageUserData = foreignLanguageUserData;
-  example.keyboard = screenKeyboard;
-  window.example = example;
-  return example;
+  const api = {
+    ui,
+    globalUi,
+    inputMethod,
+    settings,
+    symbolTableUserData,
+    foreignLanguageUserData,
+    keyboard: screenKeyboard,
+  };
+
+  window.example = api;
+  return api;
 })();

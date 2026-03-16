@@ -63,6 +63,13 @@ describe('InputTableManager', () => {
     expect(tables[0][0]).toBe('checj');
   });
 
+  it('should memoize table metadata between repeated reads', () => {
+    const manager = InputTableManager.getInstance();
+    const first = manager.tables;
+    const second = manager.tables;
+    expect(second).toBe(first);
+  });
+
   it('should return symbolTable with chardefs and keynames', () => {
     const manager = InputTableManager.getInstance();
     const symbolTable = manager.symbolTable;

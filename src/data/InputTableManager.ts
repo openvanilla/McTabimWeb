@@ -52,6 +52,7 @@ export class RadicalLookupEntry {
 export class InputTableManager {
   private static instance: InputTableManager;
   private internalIndex_: number = 0;
+  private tablesMetadata_: [string, string][] | undefined = undefined;
 
   private constructor() {}
 
@@ -179,7 +180,10 @@ export class InputTableManager {
    * Returns all available input tables as an array of tuples `[id, cname][]`.
    */
   get tables(): [string, string][] {
-    return this.tables_.map((table) => [table.id, table.table.cname]);
+    if (!this.tablesMetadata_) {
+      this.tablesMetadata_ = this.tables_.map((table) => [table.id, table.table.cname]);
+    }
+    return this.tablesMetadata_;
   }
 
   private readonly tables_: Array<InputTableWrapper> = [
