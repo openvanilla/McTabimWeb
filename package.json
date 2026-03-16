@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "chinese_convert": "^1.0.8",
-    "dayjs": "^1.11.19"
+    "dayjs": "^1.11.20"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.37",
