@@ -438,10 +438,19 @@ export class KeyHandler {
         const selectedCandidate = candidates[index];
         this.handleCandidate(state, selectedCandidate, stateCallback);
         return true;
-      } else if (
+      }
+      else if (
         table.settings.type === InputTableType.Bopomofo ||
         table.settings.type === InputTableType.Wsl
       ) {
+        if (key.name === KeyName.ESC) {
+          stateCallback(new EmptyState('reset from ESC key'));
+          return true;
+        }
+        if (key.name === KeyName.BACKSPACE) {
+          stateCallback(new EmptyState('reset from BACKSPACE key'));
+          return true;
+        }
         errorCallback();
         return true;
       }
