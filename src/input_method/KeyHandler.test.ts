@@ -33,7 +33,7 @@ describe('Test KeyHandler', () => {
         homophoneLookupEnabled: true,
       };
     },
-    (settings) => {},
+    (settings) => { },
   );
   it('test a in cj', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
@@ -383,7 +383,7 @@ describe('Test Associated Phrases', () => {
         homophoneLookupEnabled: true,
       };
     },
-    (settings) => {},
+    (settings) => { },
   );
   it('should enter AssociatedPhrasesState after committing if associatedPhrasesEnabled', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
@@ -450,7 +450,7 @@ describe('Test Associated Phrases', () => {
     spy.mockRestore();
   });
 
-  it('should exit AssociatedPhrasesState on RETURN', () => {
+  it('should commit selected candidate in AssociatedPhrasesState on RETURN', () => {
     // Simulate entering AssociatedPhrasesState
     const state = new AssociatedPhrasesState({
       selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
@@ -458,20 +458,22 @@ describe('Test Associated Phrases', () => {
       candidates: [new Candidate('聯想1', ''), new Candidate('聯想2', '')],
     });
     const keyReturn = new Key('', KeyName.RETURN);
-    let called = false;
+    let committed = false;
     const handled = keyHandler.handle(
       keyReturn,
       state,
       (newState) => {
-        expect(newState).toBeInstanceOf(EmptyState);
-        called = true;
+        if (newState instanceof CommittingState) {
+          expect(newState.commitString).toBe('聯想1');
+          committed = true;
+        }
       },
       () => {
         throw new Error('Should not call errorCallback');
       },
     );
     expect(handled).toBe(true);
-    expect(called).toBe(true);
+    expect(committed).toBe(true);
   });
 
   it('should exit AssociatedPhrasesState on BACKSPACE', () => {
@@ -519,7 +521,7 @@ describe('Test Associated Phrases', () => {
         reverseRadicalLookupEnabled: false,
         homophoneLookupEnabled: true,
       }),
-      () => {},
+      () => { },
     );
     const handleCandidateSpy = jest.spyOn(keyHandler2, 'handleCandidate');
     const handled = keyHandler2.handle(

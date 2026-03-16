@@ -215,8 +215,7 @@ class ChromeMcTabim {
     const selectedId = this.settings.selectedInputMethodId || 0;
     const inputTables = InputTableManager.getInstance().tables;
     let selectedTableSet = false;
-
-    const inputTableMenus: chrome.input.ime.MenuItem[] = [];
+    let inputTableMenus: chrome.input.ime.MenuItem[] = [];
 
     for (let i = 0; i < inputTables.length; i++) {
       const table = inputTables[i];
@@ -556,6 +555,7 @@ chrome.input?.ime.onCandidateClicked.addListener((engineID, candidateID, button)
 
 chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
   if (name.search('mctabim-select-table-') === 0) {
+    console.log('mctabim-select-table-', name);
     const id = name.split('-').pop();
     InputTableManager.getInstance().setInputTableById(id || '');
     chromeMcTabim.settings.selectedInputMethodId = id || '';
