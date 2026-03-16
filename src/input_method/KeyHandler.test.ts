@@ -1,8 +1,10 @@
 import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
+import { InputTableType } from '../data/InputTableWrapper';
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
   CommittingState,
+  CtrlSymbolInputtingState,
   EmptyState,
   InputState,
   InputtingState,
@@ -875,6 +877,131 @@ describe('KeyHandler edge cases', () => {
     );
     expect(handled).toBe(false);
     expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(EmptyState);
+  });
+
+  it('resets tooltip-only state when an unrelated printable key is pressed', () => {
+    const keyHandler = new KeyHandler(
+      () => createStubTable() as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const stateCallback = jest.fn();
+
+    const handled = keyHandler.handle(
+      new Key('?', KeyName.UNKNOWN),
+      new TooltipOnlyState('tip'),
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(false);
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(EmptyState);
+  });
+
+  it('starts ctrl symbol input with shifted ctrl mappings', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const stateCallback = jest.fn();
+
+    const handled = keyHandler.handle(
+      new Key('1', KeyName.UNKNOWN, true, true),
+      new EmptyState(),
+      stateCallback,
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(stateCallback.mock.calls[0][0]).toBeInstanceOf(CtrlSymbolInputtingState);
+    expect((stateCallback.mock.calls[0][0] as CtrlSymbolInputtingState).radicals).toBe('!');
+  });
+
+  it('commits the previous ctrl symbol before opening the next ctrl symbol list', () => {
+    InputTableManager.getInstance().setInputTableById('cj5');
+    const keyHandler = new KeyHandler(
+      () => InputTableManager.getInstance().currentTable,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new CtrlSymbolInputtingState({
+      radicals: '1',
+      selectionKeys: KeyHandler.COMMON_SELECTION_KEYS,
+      candidates: [new Candidate('①', '')],
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('2', KeyName.UNKNOWN, false, true),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(CommittingState);
+    expect((states[0] as CommittingState).commitString).toBe('①');
+    expect(states[1]).toBeInstanceOf(CtrlSymbolInputtingState);
+  });
+
+  it('builds bopomofo displayed radicals from the phonetic table', () => {
+    const keyHandler = new KeyHandler(
+      () =>
+        ({
+          table: {
+            keynames: { '1': 'ㄅ' },
+          },
+          settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
+          lookupForCandidate: jest.fn(() => []),
+          lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+        }) as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('1', KeyName.UNKNOWN),
+      new EmptyState(),
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(BasicInputtingState);
+    expect((states[0] as BasicInputtingState).displayedRadicals).toEqual(['ㄅ']);
+    expect((states[0] as BasicInputtingState).candidates).toEqual([]);
+  });
+
+  it('builds wsl displayed radicals from the WSL table', () => {
+    const keyHandler = new KeyHandler(
+      () =>
+        ({
+          table: {
+            keynames: { '!': 'ㆠ' },
+          },
+          settings: { maxRadicals: 4, type: InputTableType.Wsl },
+          lookupForCandidate: jest.fn(() => []),
+          lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+        }) as any,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('!', KeyName.UNKNOWN),
+      new EmptyState(),
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(BasicInputtingState);
+    expect((states[0] as BasicInputtingState).displayedRadicals.length).toBeGreaterThan(0);
+    expect((states[0] as BasicInputtingState).candidates).toEqual([]);
   });
 });
 

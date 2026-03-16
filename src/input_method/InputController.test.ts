@@ -1,6 +1,6 @@
-import { Candidate } from '../data';
+import { Candidate, MenuCandidate } from '../data';
 import { InputController } from './InputController';
-import { BasicInputtingState, EmptyState } from './InputState';
+import { BasicInputtingState, EmptyState, TooltipOnlyState } from './InputState';
 import { InputUI } from './InputUI';
 import { Key } from './Key';
 import { KeyHandler } from './KeyHandler';
@@ -158,6 +158,47 @@ describe('InputController', () => {
       expect(ui.reset).not.toHaveBeenCalled();
       expect(handled).toBe(true);
     });
+
+    it('should call onError when beepOnErrors is enabled and the key handler reports an error', () => {
+      const onError = jest.fn();
+      controller.onError = onError;
+      controller.settings = { ...controller.settings, beepOnErrors: true };
+      mockKeyHandler.handle.mockImplementation((_key, _state, _stateCallback, errorCallback) => {
+        errorCallback();
+        return true;
+      });
+
+      const handled = controller.handle(new Key('a'));
+
+      expect(handled).toBe(true);
+      expect(onError).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call onError when beepOnErrors is disabled', () => {
+      const onError = jest.fn();
+      controller.onError = onError;
+      mockKeyHandler.handle.mockImplementation((_key, _state, _stateCallback, errorCallback) => {
+        errorCallback();
+        return true;
+      });
+
+      controller.handle(new Key('a'));
+
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('should handle simple keyboard events through KeyMapping', () => {
+      const expectedKey = KeyMapping.keyFromSimpleKeyboardEvent('{shift}', true, false);
+
+      controller.handleSimpleKeyboardEvent('{shift}', true, false);
+
+      expect(mockKeyHandler.handle).toHaveBeenCalledWith(
+        expect.objectContaining({ ascii: expectedKey.ascii, name: expectedKey.name }),
+        expect.any(Object),
+        expect.any(Function),
+        expect.any(Function),
+      );
+    });
   });
 
   describe('candidate selection', () => {
@@ -204,6 +245,76 @@ describe('InputController', () => {
       expect(ui.commitString).not.toHaveBeenCalled();
       expect(ui.reset).not.toHaveBeenCalled();
       expect(controller.state).toBe(emptyState);
+    });
+
+    it('should enter the menu candidate next state when selecting a menu candidate', () => {
+      const nextState = new TooltipOnlyState('menu tooltip');
+      const menuCandidate = new MenuCandidate('選單', '', () => nextState);
+      const inputtingState = new BasicInputtingState({
+        radicals: 'a',
+        displayedRadicals: ['a'],
+        selectionKeys: '1',
+        candidates: [menuCandidate],
+      });
+      (controller as any).state_ = inputtingState;
+
+      controller.selectCandidateAtIndex(0);
+
+      expect(ui.commitString).not.toHaveBeenCalled();
+      expect(ui.reset).toHaveBeenCalledTimes(1);
+      expect(ui.update).toHaveBeenCalledTimes(1);
+      expect(controller.state).toBe(nextState);
+    });
+  });
+
+  describe('state builder integration', () => {
+    it('should update the UI when entering an InputtingState', () => {
+      const newState = new BasicInputtingState({
+        radicals: 'a',
+        displayedRadicals: ['A'],
+        selectionKeys: '123',
+        candidates: [new Candidate('中', '')],
+      });
+
+      (controller as any).enterState(new EmptyState(), newState);
+
+      expect(ui.reset).toHaveBeenCalledTimes(1);
+      expect(ui.update).toHaveBeenCalledTimes(1);
+      expect(typeof (ui.update as jest.Mock).mock.calls[0][0]).toBe('string');
+      expect(controller.state).toBe(newState);
+    });
+
+    it('should update the UI when entering a TooltipOnlyState', () => {
+      const newState = new TooltipOnlyState('tip');
+
+      (controller as any).enterState(new EmptyState(), newState);
+
+      expect(ui.reset).toHaveBeenCalledTimes(1);
+      expect(ui.update).toHaveBeenCalledTimes(1);
+      expect(typeof (ui.update as jest.Mock).mock.calls[0][0]).toBe('string');
+      expect(controller.state).toBe(newState);
+    });
+  });
+
+  describe('default key handler wiring', () => {
+    it('should propagate setting changes from the default key handler', () => {
+      const localUi = {
+        reset: jest.fn(),
+        update: jest.fn(),
+        commitString: jest.fn(),
+      } as unknown as InputUI;
+      const localController = new InputController(localUi);
+      const onSettingChanged = jest.fn();
+      const newSettings: Settings = {
+        ...localController.settings,
+        chineseConversionEnabled: true,
+      };
+      localController.onSettingChanged = onSettingChanged;
+
+      ((localController as any).keyHandler_ as KeyHandler).onSettingChanged(newSettings);
+
+      expect(localController.settings).toEqual(newSettings);
+      expect(onSettingChanged).toHaveBeenCalledWith(newSettings);
     });
   });
 });
