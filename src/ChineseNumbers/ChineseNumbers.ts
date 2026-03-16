@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright (c) 2022 and onwards The McBopomofo Authors.
+ * Copyright (c) 2026 and onwards The McTabim Authors.
  * This code is released under the MIT license.
  * SPDX-License-Identifier: MIT
  */

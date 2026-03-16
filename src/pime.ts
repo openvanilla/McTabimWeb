@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright (c) 2025 and onwards The McTabIM Authors.
+ * Copyright (c) 2026 and onwards The McTabim Authors.
  * This code is released under the MIT license.
  * SPDX-License-Identifier: MIT
  * The main entrance of the IME for ChromeOS.
@@ -10,13 +10,13 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { text } from 'stream/consumers';
 
 import { InputTableManager } from './data';
 import { InputController } from './input_method';
 import { EmptyState } from './input_method/InputState';
 import { InputUI } from './input_method/InputUI';
 import { KeyFromKeyboardEvent, VK_Keys } from './pime_keys';
-import { text } from 'stream/consumers';
 
 interface Settings {
   candidateFontSize: number;
@@ -111,12 +111,12 @@ class PimeMcTabim {
   settings: Settings = defaultSettings;
   constructor() {
     this.inputController = new InputController(this.makeUI(this));
-    this.inputController.onError = () => {};
+    this.inputController.onError = () => { };
     this.inputController.onSettingChanged = (newSettings) => {
       this.settings.inputSettings = newSettings;
       this.writeSettings();
     };
-    this.loadSettings(() => {});
+    this.loadSettings(() => { });
   }
 
   /** Resets the UI state before handling a key. */
@@ -227,7 +227,7 @@ class PimeMcTabim {
       try {
         const text = data.toString();
         InputTableManager.getInstance().customSymbolTable.sourceData = text;
-      } catch {}
+      } catch { }
     });
   }
 
@@ -487,7 +487,7 @@ try {
 
   fs.watch(pimeMcTabim.userSettingsPath, (event, filename) => {
     if (filename) {
-      pimeMcTabim.loadSettings(() => {});
+      pimeMcTabim.loadSettings(() => { });
     }
   });
 } catch (e) {
