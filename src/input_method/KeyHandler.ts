@@ -60,7 +60,7 @@ export class KeyHandler {
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
     readonly onSettingChanged: (settings: Settings) => void,
-  ) { }
+  ) {}
 
   /**
    * Handles the selection of a candidate.
@@ -145,16 +145,32 @@ export class KeyHandler {
   private handleCtrlPressed(
     key: Key,
     state: InputState,
-    stateCallback: (state: InputState) => void
+    stateCallback: (state: InputState) => void,
   ): boolean | undefined {
     const ctrlKeySymbols = InputTableManager.getInstance().ctrlKeySymbols;
     let ascii = key.ascii.toLowerCase();
     if (key.shiftPressed) {
       const map: { [key: string]: string } = {
-        '1': '!', '2': '@', '3': '#', '4': '$', '5': '%',
-        '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
-        '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|',
-        ';': ':', "'": '"', ',': '<', '.': '>', '/': '?',
+        '1': '!',
+        '2': '@',
+        '3': '#',
+        '4': '$',
+        '5': '%',
+        '6': '^',
+        '7': '&',
+        '8': '*',
+        '9': '(',
+        '0': ')',
+        '-': '_',
+        '=': '+',
+        '[': '{',
+        ']': '}',
+        '\\': '|',
+        ';': ':',
+        "'": '"',
+        ',': '<',
+        '.': '>',
+        '/': '?',
       };
       if (map.hasOwnProperty(ascii)) {
         ascii = map[ascii];
@@ -187,7 +203,7 @@ export class KeyHandler {
     key: Key,
     state: AssociatedPhrasesState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const selectionKeys = state.exactSelectionKeys;
     if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
@@ -213,7 +229,7 @@ export class KeyHandler {
     key: Key,
     state: EmptyState | AssociatedPhrasesState | TooltipOnlyState | CommittingState,
     inputKeys: string[],
-    stateCallback: (state: InputState) => void
+    stateCallback: (state: InputState) => void,
   ): boolean | undefined {
     const settings = this.onRequestSettings();
     const table = this.onRequestTable();
@@ -317,7 +333,7 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const table = this.onRequestTable();
 
@@ -328,9 +344,8 @@ export class KeyHandler {
           this.handleCandidate(state, selectedCandidate, stateCallback);
           return true;
         }
-      }
-      else if (key.name === KeyName.SPACE) {
-        const newState = new CommittingState(" ");
+      } else if (key.name === KeyName.SPACE) {
+        const newState = new CommittingState(' ');
         stateCallback(newState);
         return true;
       }
@@ -411,7 +426,7 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const table = this.onRequestTable();
 
@@ -438,10 +453,10 @@ export class KeyHandler {
         const selectedCandidate = candidates[index];
         this.handleCandidate(state, selectedCandidate, stateCallback);
         return true;
-      }
-      else if (
-        table.settings.type === InputTableType.Bopomofo ||
-        table.settings.type === InputTableType.Wsl
+      } else if (
+        state instanceof BasicInputtingState &&
+        (table.settings.type === InputTableType.Bopomofo ||
+          table.settings.type === InputTableType.Wsl)
       ) {
         if (key.name === KeyName.ESC) {
           stateCallback(new EmptyState('reset from ESC key'));
@@ -451,8 +466,10 @@ export class KeyHandler {
           stateCallback(new EmptyState('reset from BACKSPACE key'));
           return true;
         }
-        errorCallback();
-        return true;
+        if (key.ascii.length === 1) {
+          errorCallback();
+          return true;
+        }
       }
     }
     return undefined;
@@ -463,7 +480,7 @@ export class KeyHandler {
     state: InputtingState,
     inputKeys: string[],
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const table = this.onRequestTable();
 
@@ -630,10 +647,7 @@ export class KeyHandler {
         }
 
         let currentDisplayed = state.displayedRadicals;
-        if (
-          state instanceof AssociatedPhrasesState ||
-          state instanceof CtrlSymbolInputtingState
-        ) {
+        if (state instanceof AssociatedPhrasesState || state instanceof CtrlSymbolInputtingState) {
           joined = chr;
           currentDisplayed = [];
         }
@@ -668,8 +682,7 @@ export class KeyHandler {
           let bpmfRadical = bpmfReadings[0][1];
           let displayedReading = bpmfReadings[0][0];
 
-          let words =
-            InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmfRadical);
+          let words = InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmfRadical);
 
           let newState = new SelectingHomophoneWordState({
             displayedBpmf: displayedReading,
@@ -722,14 +735,12 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean {
     const table = this.onRequestTable();
 
     if (state instanceof AssociatedPhrasesState) {
-      stateCallback(
-        new EmptyState('reset after pressing backspace in associated phrases state'),
-      );
+      stateCallback(new EmptyState('reset after pressing backspace in associated phrases state'));
       return true;
     } else if (state instanceof SymbolCategoryState) {
       stateCallback(state.previousState);
@@ -823,7 +834,7 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     if (key.name === KeyName.UP) {
       if (state.candidates.length > 0) {
@@ -879,7 +890,7 @@ export class KeyHandler {
         const candidatesPerPage = state.selectionKeys.length;
         const newIndex = Math.max(
           Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1) *
-          candidatesPerPage,
+            candidatesPerPage,
           0,
         );
         const newState = state.copyWithArgs({
