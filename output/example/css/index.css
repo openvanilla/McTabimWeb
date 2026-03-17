@@ -35,8 +35,7 @@ body {
   margin: 0;
   background: var(--page-background);
   color: var(--text-primary);
-  font-family: "Iansui", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei",
-    system-ui, sans-serif;
+  font-family: 'Iansui', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
   font-size: 14pt;
   line-height: 1.55;
   overflow: auto;
@@ -237,28 +236,28 @@ td {
 }
 
 .right summary::before {
-  content: "+";
+  content: '+';
   display: inline-block;
   width: 1.2em;
   color: var(--text-secondary);
 }
 
 .right details[open] summary::before {
-  content: "−";
+  content: '−';
 }
 
 select,
 button,
-input[type="button"],
-input[type="text"],
+input[type='button'],
+input[type='text'],
 textarea {
   font: inherit;
 }
 
 .right select,
 button,
-input[type="button"],
-input[type="text"] {
+input[type='button'],
+input[type='text'] {
   min-height: 2.4rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
@@ -277,17 +276,17 @@ input[type="text"] {
 }
 
 button,
-input[type="button"] {
+input[type='button'] {
   cursor: pointer;
 }
 
 button:hover,
-input[type="button"]:hover {
+input[type='button']:hover {
   background: var(--surface-muted);
 }
 
-input[type="checkbox"],
-input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   accent-color: var(--accent);
 }
 
@@ -323,7 +322,7 @@ div#feature_user_data {
 
 div#feature_user_data textarea {
   min-height: 12rem;
-  font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  font-family: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
   font-size: 12pt;
   line-height: 1.5;
 }
@@ -384,8 +383,7 @@ textarea#text_area {
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text-primary);
-  font-family: "Iansui", "Noto Sans TC",
-    "PingFang TC", sans-serif;
+  font-family: 'Iansui', 'Noto Sans TC', 'PingFang TC', sans-serif;
   font-size: 18px;
   line-height: 1.2em;
   ime-mode: disabled;
@@ -499,7 +497,7 @@ textarea#text_area:focus ~ * #edit_area,
 .simple-keyboard {
   min-height: 230px;
   margin-top: var(--spacing-2);
-  padding: var(--spacing-2);
+  padding: 0;
   background: var(--surface-muted);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -520,7 +518,7 @@ textarea#text_area:focus ~ * #edit_area,
   font-size: 12pt;
 }
 
-.hg-button[data-skbtn="{ctrl}"] {
+.hg-button[data-skbtn='{ctrl}'] {
   flex-grow: 1 !important;
   max-width: 80px;
 }
