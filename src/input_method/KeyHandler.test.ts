@@ -1,5 +1,12 @@
-import { Candidate, InputTableManager, InputTableWrapper, MenuCandidate } from '../data';
-import { InputTableType } from '../data/InputTableWrapper';
+import {
+  BopomofoInputTableWrapper,
+  BopomofoSyllable,
+  Candidate,
+  GeneralInputTableWrapper,
+  InputTableManager,
+  MenuCandidate,
+  WslInputTableWrapper,
+} from '../data';
 import {
   AssociatedPhrasesState,
   BasicInputtingState,
@@ -20,6 +27,20 @@ import {
 import { Key, KeyName } from './Key';
 import { KeyHandler } from './KeyHandler';
 import { Settings } from './Settings';
+
+const createMockBopomofoTable = (overrides: Record<string, unknown> = {}) =>
+  ({
+    table: {
+      keynames: {},
+      selkey: '123',
+    },
+    settings: { maxRadicals: 4 },
+    isPhoneticTable: true,
+    createSyllable: (keys: string) => BopomofoSyllable.fromKeys(keys),
+    lookupForCandidate: jest.fn(() => []),
+    lookUpForDisplayedKeyName: jest.fn((key: string) => key),
+    ...overrides,
+  }) as any;
 
 describe('Test KeyHandler', () => {
   const keyHandler = new KeyHandler(
@@ -42,7 +63,7 @@ describe('Test KeyHandler', () => {
   it('test a in cj', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     jest.spyOn(InputTableManager.getInstance(), 'currentTable', 'get').mockReturnValue(
-      new InputTableWrapper(
+      new GeneralInputTableWrapper(
         'cj5',
         JSON.stringify({
           keynames: { a: 'A', z: 'Z' },
@@ -990,14 +1011,19 @@ describe('KeyHandler edge cases', () => {
   it('builds bopomofo displayed radicals from the phonetic table', () => {
     const keyHandler = new KeyHandler(
       () =>
-        ({
-          table: {
+        new BopomofoInputTableWrapper(
+          'bpmf',
+          JSON.stringify({
+            chardefs: {},
+            cname: 'bpmf',
+            ename: 'bpmf',
+            cincount: null,
+            privateuse: {},
             keynames: { '1': 'ㄅ' },
-          },
-          settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-          lookupForCandidate: jest.fn(() => []),
-          lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-        }) as any,
+            selkey: '1234567890',
+          }),
+          { maxRadicals: 4 },
+        ),
       () => buildSettings(),
       jest.fn(),
     );
@@ -1019,14 +1045,19 @@ describe('KeyHandler edge cases', () => {
   it('builds wsl displayed radicals from the WSL table', () => {
     const keyHandler = new KeyHandler(
       () =>
-        ({
-          table: {
+        new WslInputTableWrapper(
+          'wsl',
+          JSON.stringify({
+            chardefs: {},
+            cname: 'wsl',
+            ename: 'wsl',
+            cincount: null,
+            privateuse: {},
             keynames: { '!': 'ㆠ' },
-          },
-          settings: { maxRadicals: 4, type: InputTableType.Wsl },
-          lookupForCandidate: jest.fn(() => []),
-          lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-        }) as any,
+            selkey: '1234567890',
+          }),
+          { maxRadicals: 4 },
+        ),
       () => buildSettings(),
       jest.fn(),
     );
@@ -1046,15 +1077,12 @@ describe('KeyHandler edge cases', () => {
   });
 
   it('pages through bopomofo candidates with SPACE', () => {
-    const table = {
+    const table = createMockBopomofoTable({
       table: {
         keynames: { '1': 'ㄅ', u: 'ㄧ', '8': 'ㄚ' },
         selkey: '12',
       },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-      lookupForCandidate: jest.fn(() => []),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
     const state = new BasicInputtingState({
       radicals: '1u8',
@@ -1083,17 +1111,15 @@ describe('KeyHandler edge cases', () => {
 
   it('resolves bopomofo candidates on RETURN when the syllable has not been looked up yet', () => {
     const lookedUpCandidates = [new Candidate('吧', '')];
-    const table = {
+    const table = createMockBopomofoTable({
       table: {
         keynames: { '1': 'ㄅ', '8': 'ㄚ' },
         selkey: '123',
       },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
       lookupForCandidate: jest.fn((radicals: string) =>
         radicals === '18' ? lookedUpCandidates : [],
       ),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
     const state = new BasicInputtingState({
       radicals: '18',
@@ -1117,15 +1143,12 @@ describe('KeyHandler edge cases', () => {
   });
 
   it('clears invalid bopomofo input on error when clearOnErrors is enabled', () => {
-    const table = {
+    const table = createMockBopomofoTable({
       table: {
         keynames: { '1': 'ㄅ', '3': 'ˇ' },
         selkey: '123',
       },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-      lookupForCandidate: jest.fn(() => []),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(
       () => table,
       () => buildSettings({ clearOnErrors: true }),
@@ -1153,12 +1176,9 @@ describe('KeyHandler edge cases', () => {
   });
 
   it('resets bopomofo state with candidates on ESC through candidate selection handling', () => {
-    const table = {
+    const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-      lookupForCandidate: jest.fn(() => []),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
     const state = new BasicInputtingState({
       radicals: '1',
@@ -1180,12 +1200,9 @@ describe('KeyHandler edge cases', () => {
   });
 
   it('resets bopomofo state with candidates on BACKSPACE through candidate selection handling', () => {
-    const table = {
+    const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-      lookupForCandidate: jest.fn(() => []),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
     const state = new BasicInputtingState({
       radicals: '1',
@@ -1207,12 +1224,9 @@ describe('KeyHandler edge cases', () => {
   });
 
   it('reports an error for non-selection keys in bopomofo candidate mode', () => {
-    const table = {
+    const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-      lookupForCandidate: jest.fn(() => []),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
     const state = new BasicInputtingState({
       radicals: '1',
@@ -1371,7 +1385,7 @@ describe('KeyHandler edge cases', () => {
   it('backspaces regular input and refreshes displayed radicals and candidates', () => {
     const table = {
       table: { keynames: { a: 'A', b: 'B' }, selkey: '123' },
-      settings: { maxRadicals: 5, type: InputTableType.Regular },
+      settings: { maxRadicals: 5 },
       lookupForCandidate: jest.fn((radicals: string) =>
         radicals === 'a' ? [new Candidate('甲', '')] : [],
       ),
@@ -1452,12 +1466,9 @@ describe('KeyHandler edge cases', () => {
   });
 
   it('backspaces bopomofo radicals and rebuilds the displayed syllable', () => {
-    const table = {
+    const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ', '8': 'ㄚ' }, selkey: '123' },
-      settings: { maxRadicals: 4, type: InputTableType.Bopomofo },
-      lookupForCandidate: jest.fn(() => []),
-      lookUpForDisplayedKeyName: jest.fn((key: string) => key),
-    } as any;
+    });
     const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
     const state = new BasicInputtingState({
       radicals: '18',
@@ -1514,7 +1525,7 @@ describe('KeyHandler edge cases', () => {
   it('resets regular input on RETURN when clearOnErrors is enabled and no candidates exist', () => {
     const table = {
       table: { keynames: { a: 'A' }, selkey: '123' },
-      settings: { maxRadicals: 5, type: InputTableType.Regular },
+      settings: { maxRadicals: 5 },
       lookupForCandidate: jest.fn(() => []),
       lookUpForDisplayedKeyName: jest.fn((key: string) => key.toUpperCase()),
     } as any;
@@ -1547,7 +1558,7 @@ describe('KeyHandler edge cases', () => {
   it('accepts wildcard input when wildcardMatchingEnabled is on', () => {
     const table = {
       table: { keynames: { a: 'A' }, selkey: '123' },
-      settings: { maxRadicals: 5, type: InputTableType.Regular },
+      settings: { maxRadicals: 5 },
       lookupForCandidate: jest.fn((radicals: string) => [new Candidate(radicals, '')]),
       lookUpForDisplayedKeyName: jest.fn((key: string) => key.toUpperCase()),
     } as any;

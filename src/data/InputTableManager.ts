@@ -16,7 +16,12 @@ import wsl from './cin/wsl.json?raw';
 import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
-import { InputTableType, InputTableWrapper } from './InputTableWrapper';
+import {
+  BopomofoInputTableWrapper,
+  GeneralInputTableWrapper,
+  WslInputTableWrapper,
+} from './InputTableWrapper';
+import type { InputTableWrapper } from './InputTableWrapper';
 import ctrlSymbols from './symbols/dsymbols.json';
 import shiftPunctuations from './symbols/fsymbols.json';
 import symbols from './symbols/msymbols.json';
@@ -187,20 +192,20 @@ export class InputTableManager {
   }
 
   private readonly tables_: Array<InputTableWrapper> = [
-    new InputTableWrapper('checj', checj, { maxRadicals: 5 }),
-    new InputTableWrapper('cj5', cj5, { maxRadicals: 5 }),
-    new InputTableWrapper('simplex', simplex, { maxRadicals: 2 }),
-    new InputTableWrapper('simplex5', simplex5, { maxRadicals: 2 }),
-    new InputTableWrapper('dayi3', dayi3, { maxRadicals: 3 }),
-    new InputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
-    new InputTableWrapper('array30', array30, { maxRadicals: 4 }, [
+    new GeneralInputTableWrapper('checj', checj, { maxRadicals: 5 }),
+    new GeneralInputTableWrapper('cj5', cj5, { maxRadicals: 5 }),
+    new GeneralInputTableWrapper('simplex', simplex, { maxRadicals: 2 }),
+    new GeneralInputTableWrapper('simplex5', simplex5, { maxRadicals: 2 }),
+    new GeneralInputTableWrapper('dayi3', dayi3, { maxRadicals: 3 }),
+    new GeneralInputTableWrapper('dayi4', dayi4, { maxRadicals: 4 }),
+    new GeneralInputTableWrapper('array30', array30, { maxRadicals: 4 }, [
       arrayphrase,
       arrayshortcode,
       arraySpecial,
     ]),
-    new InputTableWrapper('array40', array40, { maxRadicals: 4 }),
+    new GeneralInputTableWrapper('array40', array40, { maxRadicals: 4 }),
     this.bmpfTable,
-    new InputTableWrapper('wsl', wsl, { maxRadicals: 4, type: InputTableType.Wsl }),
+    new WslInputTableWrapper('wsl', wsl, { maxRadicals: 4 }),
   ];
 
   /**
@@ -250,9 +255,8 @@ export class InputTableManager {
   private bmpfTable_: InputTableWrapper | undefined = undefined;
   private get bmpfTable(): InputTableWrapper {
     if (!this.bmpfTable_) {
-      this.bmpfTable_ = new InputTableWrapper('bpmf', bpmf, {
+      this.bmpfTable_ = new BopomofoInputTableWrapper('bpmf', bpmf, {
         maxRadicals: 4,
-        type: InputTableType.Bopomofo,
       });
     }
     return this.bmpfTable_;

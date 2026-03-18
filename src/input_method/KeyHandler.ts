@@ -1,12 +1,9 @@
 import {
-  BopomofoSyllable,
-  BopomofoWslSyllable,
   Candidate,
   InputTableManager,
-  InputTableWrapper,
   MenuCandidate,
 } from '../data';
-import { InputTableType } from '../data/InputTableWrapper';
+import type { InputTableWrapper } from '../data';
 import NumberInputHelper from './HelperNumberInput';
 import {
   AssociatedPhrasesState,
@@ -250,18 +247,11 @@ export class KeyHandler {
       /// Enter radical inputting state
       const radical = key.ascii;
       const displayedRadicals = (() => {
-        switch (table.settings.type) {
-          case InputTableType.Bopomofo: {
-            const syllable = BopomofoSyllable.fromKeys(radical);
-            return syllable.reading.split('');
-          }
-          case InputTableType.Wsl: {
-            const syllable = BopomofoWslSyllable.fromKeys(radical);
-            return syllable.reading.split('');
-          }
-          default:
-            return [table.lookUpForDisplayedKeyName(radical) || radical];
+        const syllable = table.createSyllable(radical);
+        if (syllable) {
+          return syllable.reading.split('');
         }
+        return [table.lookUpForDisplayedKeyName(radical) || radical];
       })();
       let selectionKeys = table.table.selkey;
       if (selectionKeys === undefined || selectionKeys.length === 0) {
@@ -269,10 +259,7 @@ export class KeyHandler {
       }
 
       const candidates = (() => {
-        if (
-          table.settings.type === InputTableType.Bopomofo ||
-          table.settings.type === InputTableType.Wsl
-        ) {
+        if (table.isPhoneticTable) {
           return [];
         } else {
           return table.lookupForCandidate(radical) || [];
@@ -354,8 +341,7 @@ export class KeyHandler {
 
     if (
       state instanceof BasicInputtingState &&
-      (table.settings.type === InputTableType.Bopomofo ||
-        table.settings.type === InputTableType.Wsl)
+      table.isPhoneticTable
     ) {
       if (state.candidates.length > 0) {
         if (key.name === KeyName.RETURN) {
@@ -378,13 +364,7 @@ export class KeyHandler {
         }
       }
 
-      const syllable = (() => {
-        if (table.settings.type === InputTableType.Bopomofo) {
-          return BopomofoSyllable.fromKeys(state.radicals);
-        } else if (table.settings.type === InputTableType.Wsl) {
-          return BopomofoWslSyllable.fromKeys(state.radicals);
-        }
-      })();
+      const syllable = table.createSyllable(state.radicals);
       if (syllable === undefined) {
         return true;
       }
@@ -455,8 +435,7 @@ export class KeyHandler {
         return true;
       } else if (
         state instanceof BasicInputtingState &&
-        (table.settings.type === InputTableType.Bopomofo ||
-          table.settings.type === InputTableType.Wsl)
+        table.isPhoneticTable
       ) {
         if (key.name === KeyName.ESC) {
           stateCallback(new EmptyState('reset from ESC key'));
@@ -592,7 +571,7 @@ export class KeyHandler {
         }
 
         if (
-          (table.settings.type === undefined || table.settings.type === InputTableType.Regular) &&
+          !table.isPhoneticTable &&
           state.radicals.length >= table.settings.maxRadicals
         ) {
           errorCallback();
@@ -604,16 +583,9 @@ export class KeyHandler {
 
         if (
           state instanceof BasicInputtingState &&
-          (table.settings.type === InputTableType.Bopomofo ||
-            table.settings.type === InputTableType.Wsl)
+          table.isPhoneticTable
         ) {
-          const newSyllable = (() => {
-            if (table.settings.type === InputTableType.Bopomofo) {
-              return BopomofoSyllable.fromKeys(joined);
-            } else if (table.settings.type === InputTableType.Wsl) {
-              return BopomofoWslSyllable.fromKeys(joined);
-            }
-          })();
+          const newSyllable = table.createSyllable(joined);
           if (newSyllable === undefined) {
             return true;
           }
@@ -669,7 +641,7 @@ export class KeyHandler {
     if (state instanceof BasicInputtingState) {
       let useHomophone =
         key.ascii === '`' &&
-        (table.settings.type === undefined || table.settings.type === InputTableType.Regular) &&
+        !table.isPhoneticTable &&
         this.onRequestSettings().homophoneLookupEnabled &&
         state.candidates.length > 0;
 
@@ -791,17 +763,8 @@ export class KeyHandler {
       return true;
     }
     if (state instanceof BasicInputtingState) {
-      if (
-        table.settings.type === InputTableType.Bopomofo ||
-        table.settings.type === InputTableType.Wsl
-      ) {
-        const newSyllable = (() => {
-          if (table.settings.type === InputTableType.Bopomofo) {
-            return BopomofoSyllable.fromKeys(newRadicals);
-          } else if (table.settings.type === InputTableType.Wsl) {
-            return BopomofoWslSyllable.fromKeys(newRadicals);
-          }
-        })();
+      if (table.isPhoneticTable) {
+        const newSyllable = table.createSyllable(newRadicals);
         if (newSyllable === undefined) {
           return true;
         }

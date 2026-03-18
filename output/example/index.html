@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://unpkg.com/simple-keyboard@latest/build/css/index.css">
     <meta name="description" content="McTabIM - 小麥他命輸入法網頁版本">
-    <meta name="keywords" content="小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabIM,McTabIM,McTabim,Web Input Method">
+    <meta name="keywords" content="網頁輸入法,小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabIM,McTabIM,McTabim,Web Input Method">
     <meta name="author" content="McTabIM Authors">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f3ee">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171613">
     <link rel="icon" href="favicon.ico">
     <meta property="og:title" content="McTabIM - 小麥他命輸入法網頁版本">
     <meta property="og:description" content="McTabIM - 小麥他命輸入法網頁版本，直接在網頁中使用倉頡、速成、大易、行列、注音、吳守臺語注音等輸入法。無須額外安裝輸入法">
@@ -63,40 +64,34 @@
                 </select>
                 <details open>
                     <summary> 設定 </summary>
-                    <table>
-                        <tr>
-                            <td class="option_title">簡繁轉換：</td>
-                            <td>
-                                <input type="radio" name="chinese_convert" value="trad" id="chinese_convert_trad"
-                                    checked="checked"><label for="chinese_convert_trad">繁體中文</label><br>
-                                <input type="radio" name="chinese_convert" value="simp" id="chinese_convert_simp"><label
-                                    for="chinese_convert_simp">簡體中文</label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>輸入選項：</td>
-                            <td>
-                                <input type="checkbox" id="associated_phrases_enabled" checked="checked"><label
-                                    for="associated_phrases_enabled">啟用聯想詞</label><br>
-                                <input type="checkbox" id="shift_punctuation_for_symbols_enabled"
-                                    checked="checked"><label for="shift_punctuation_for_symbols_enabled">Shift
-                                    + 標點輸入全形符號</label><br>
-                                <input type="checkbox" id="shift_letter_for_symbols_enabled" checked="checked"><label
-                                    for="shift_letter_for_symbols_enabled">Shift +
-                                    字母輸入全形符號</label><br>
-                                <input type="checkbox" id="clean_on_error"><label
-                                    for="clean_on_error">輸入錯誤時清除輸入緩衝區</label><br>
-                                <input type="checkbox" id="beep_on_error"><label
-                                    for="beep_on_error">輸入錯誤時發出提示音</label><br>
-                                <input type="checkbox" id="wildcard_matching_enabled"><label
-                                    for="wildcard_matching_enabled">啟用萬用字元 (字根 + *)</label><br>
-                                <input type="checkbox" id="reverse_radical_lookup_enabled"><label
-                                    for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
-                                <input type="checkbox" id="homophone_lookup_enabled"><label
-                                    for="homophone_lookup_enabled">啟用同音字反查 (字根 + `)</label><br>
-                            </td>
-                        </tr>
-                    </table>
+                    <p>簡繁轉換：</p>
+                    <div class="setting_group">
+                        <input type="radio" name="chinese_convert" value="trad" id="chinese_convert_trad"
+                            checked="checked"><label for="chinese_convert_trad">繁體中文</label><br>
+                        <input type="radio" name="chinese_convert" value="simp" id="chinese_convert_simp"><label
+                            for="chinese_convert_simp">簡體中文</label>
+                    </div>
+                    <p>輸入選項：</p>
+                    <div class="setting_group">
+                        <input type="checkbox" id="associated_phrases_enabled" checked="checked"><label
+                            for="associated_phrases_enabled">啟用聯想詞</label><br>
+                        <input type="checkbox" id="shift_punctuation_for_symbols_enabled" checked="checked"><label
+                            for="shift_punctuation_for_symbols_enabled">Shift
+                            + 標點輸入全形符號</label><br>
+                        <input type="checkbox" id="shift_letter_for_symbols_enabled" checked="checked"><label
+                            for="shift_letter_for_symbols_enabled">Shift +
+                            字母輸入全形符號</label><br>
+                        <input type="checkbox" id="clean_on_error"><label for="clean_on_error">輸入錯誤時清除輸入緩衝區</label><br>
+                        <input type="checkbox" id="beep_on_error"><label for="beep_on_error">輸入錯誤時發出提示音</label><br>
+                        <input type="checkbox" id="wildcard_matching_enabled"><label
+                            for="wildcard_matching_enabled">啟用萬用字元
+                            (字根 + *)</label><br>
+                        <input type="checkbox" id="reverse_radical_lookup_enabled"><label
+                            for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
+                        <input type="checkbox" id="homophone_lookup_enabled"><label
+                            for="homophone_lookup_enabled">啟用同音字反查
+                            (字根 + `)</label>
+                    </div>
                 </details>
 
                 <details open>

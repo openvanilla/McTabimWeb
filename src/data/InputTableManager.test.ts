@@ -1,4 +1,5 @@
 import { InputTableManager } from './InputTableManager';
+import { BopomofoInputTableWrapper, WslInputTableWrapper } from './InputTableWrapper';
 
 describe('InputTableManager', () => {
   it('should return the same instance (singleton)', () => {
@@ -125,5 +126,15 @@ describe('InputTableManager', () => {
     const manager = InputTableManager.getInstance();
     const readings = manager.lookupBpmfReadings('中');
     expect(Array.isArray(readings)).toBe(true);
+  });
+
+  it('uses phonetic wrapper subclasses for bpmf and wsl tables', () => {
+    const manager = InputTableManager.getInstance();
+
+    manager.setInputTableById('bpmf');
+    expect(manager.currentTable).toBeInstanceOf(BopomofoInputTableWrapper);
+
+    manager.setInputTableById('wsl');
+    expect(manager.currentTable).toBeInstanceOf(WslInputTableWrapper);
   });
 });
