@@ -39,6 +39,8 @@
 
 ## Documentation expectations
 
+- The canonical Copilot guidance lives in `.github/copilot-instructions.md`.
+- `GEMINI.md` and `AGENT.md` are link-only entrypoints. Update the canonical file instead of treating those files as independent documentation.
 - Update this file when introducing new subsystems so Copilot understands how to wire things together.
 - Prefer concise prose and actionable bullet points that tell Copilot _what to favor or avoid_ rather than lengthy narratives.
 
