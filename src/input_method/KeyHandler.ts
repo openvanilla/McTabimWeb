@@ -1,9 +1,5 @@
-import {
-  Candidate,
-  InputTableManager,
-  MenuCandidate,
-} from '../data';
 import type { InputTableWrapper } from '../data';
+import { Candidate, InputTableManager, MenuCandidate } from '../data';
 import NumberInputHelper from './HelperNumberInput';
 import {
   AssociatedPhrasesState,
@@ -74,6 +70,7 @@ export class KeyHandler {
     selectedCandidate: Candidate,
     stateCallback: (state: InputState) => void,
     allowAssociatedPhrases: boolean = true,
+    nextKey: Key | undefined = undefined,
   ): void {
     if (selectedCandidate instanceof MenuCandidate) {
       const newState = selectedCandidate.nextState();
@@ -81,8 +78,12 @@ export class KeyHandler {
       return;
     }
     const commitString = selectedCandidate.displayText;
-    const newState = new CommittingState(commitString);
+    const newState = new CommittingState(commitString, nextKey);
     stateCallback(newState);
+
+    if (nextKey) {
+      return;
+    }
 
     const tooltip = (() => {
       if (this.onRequestSettings().reverseRadicalLookupEnabled) {
@@ -339,10 +340,7 @@ export class KeyHandler {
       return true;
     }
 
-    if (
-      state instanceof BasicInputtingState &&
-      table.isPhoneticTable
-    ) {
+    if (state instanceof BasicInputtingState && table.isPhoneticTable) {
       if (state.candidates.length > 0) {
         if (key.name === KeyName.RETURN) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
@@ -433,10 +431,7 @@ export class KeyHandler {
         const selectedCandidate = candidates[index];
         this.handleCandidate(state, selectedCandidate, stateCallback);
         return true;
-      } else if (
-        state instanceof BasicInputtingState &&
-        table.isPhoneticTable
-      ) {
+      } else if (state instanceof BasicInputtingState && table.isPhoneticTable) {
         if (key.name === KeyName.ESC) {
           stateCallback(new EmptyState('reset from ESC key'));
           return true;
@@ -446,7 +441,18 @@ export class KeyHandler {
           return true;
         }
         if (key.ascii.length === 1) {
-          errorCallback();
+          const candidates = state.candidatesInCurrentPage;
+          if (candidates === undefined || candidates.length === 0) {
+            errorCallback();
+            return true;
+          }
+          const index = state.selectedCandidateIndex ?? 0;
+          if (index > candidates.length - 1) {
+            errorCallback();
+            return true;
+          }
+          const selectedCandidate = candidates[index];
+          this.handleCandidate(state, selectedCandidate, stateCallback, true, key);
           return true;
         }
       }
@@ -570,10 +576,7 @@ export class KeyHandler {
           selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         }
 
-        if (
-          !table.isPhoneticTable &&
-          state.radicals.length >= table.settings.maxRadicals
-        ) {
+        if (!table.isPhoneticTable && state.radicals.length >= table.settings.maxRadicals) {
           errorCallback();
           return true;
         }
@@ -581,10 +584,7 @@ export class KeyHandler {
         const chr = key.ascii;
         let joined = state.radicals + chr;
 
-        if (
-          state instanceof BasicInputtingState &&
-          table.isPhoneticTable
-        ) {
+        if (state instanceof BasicInputtingState && table.isPhoneticTable) {
           const newSyllable = table.createSyllable(joined);
           if (newSyllable === undefined) {
             return true;

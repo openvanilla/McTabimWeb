@@ -90,10 +90,7 @@ export class InputController {
    * @param keyHandler - An optional `KeyHandler` for handling key events.
    *                     If not provided, a default `KeyHandler` is instantiated.
    */
-  constructor(
-    private ui_: InputUI,
-    keyHandler?: KeyHandler,
-  ) {
+  constructor(private ui_: InputUI, keyHandler?: KeyHandler) {
     this.keyHandler_ =
       keyHandler ??
       new KeyHandler(
@@ -183,6 +180,10 @@ export class InputController {
       this.handleEmptyState(oldState, newState);
     } else if (newState instanceof CommittingState) {
       this.handleCommittingState(oldState, newState);
+      const nextKey = newState.nextKey;
+      if (nextKey) {
+        this.handle(nextKey);
+      }
     } else if (newState instanceof InputtingState) {
       this.handleInputtingState(oldState, newState);
     } else if (newState instanceof TooltipOnlyState) {
