@@ -1,7 +1,7 @@
-import { Candidate } from './Candidate';
 import { BopomofoSyllable } from './BopomofoSyllable';
-import { InputTable } from './InputTable';
 import { BopomofoWslSyllable } from './BopomofoWslSyllable';
+import { Candidate } from './Candidate';
+import { InputTable } from './InputTable';
 
 export interface InputTableSettings {
   maxRadicals: number;

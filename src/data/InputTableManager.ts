@@ -16,12 +16,12 @@ import wsl from './cin/wsl.json?raw';
 import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
 import { ForeignLanguage } from './ForeignLanguage';
+import type { InputTableWrapper } from './InputTableWrapper';
 import {
   BopomofoInputTableWrapper,
   GeneralInputTableWrapper,
   WslInputTableWrapper,
 } from './InputTableWrapper';
-import type { InputTableWrapper } from './InputTableWrapper';
 import ctrlSymbols from './symbols/dsymbols.json';
 import shiftPunctuations from './symbols/fsymbols.json';
 import symbols from './symbols/msymbols.json';

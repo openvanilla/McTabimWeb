@@ -1,12 +1,12 @@
 import { Candidate } from './Candidate';
 import { InputTable } from './InputTable';
+import type { InputTableWrapper } from './InputTableWrapper';
 import {
   BopomofoInputTableWrapper,
   GeneralInputTableWrapper,
   InputTableSettings,
   WslInputTableWrapper,
 } from './InputTableWrapper';
-import type { InputTableWrapper } from './InputTableWrapper';
 
 const mockTable = `{
   "chardefs": {
