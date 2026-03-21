@@ -12,12 +12,7 @@
     const relativeLeft = caretRect.left - mirrorRect.left;
 
     return {
-      top:
-        textAreaRect.top -
-        containerRect.top +
-        relativeTop +
-        lineHeight -
-        scrollTop,
+      top: textAreaRect.top - containerRect.top + relativeTop + lineHeight - scrollTop,
       left: textAreaRect.left - containerRect.left + relativeLeft - scrollLeft,
     };
   };
@@ -620,22 +615,28 @@
   function bindTextAreaEvents() {
     const textarea = $('text_area');
     const warning = $('ime_warning');
-    const imeCompositionGuard = window.imeCompositionGuard;
+    // const imeCompositionGuard = window.imeCompositionGuard;
     let shiftKeyIsPressed = false;
     let isComposing = false;
 
     textarea.addEventListener('compositionstart', () => {
       isComposing = true;
-      imeCompositionGuard.showImeWarning(warning);
+      const warning = $('ime_warning');
+      if (warning) {
+        warning.style.display = 'block';
+      }
     });
 
     textarea.addEventListener('compositionend', () => {
       isComposing = false;
-      imeCompositionGuard.hideImeWarning(warning);
+      const warning = $('ime_warning');
+      if (warning) {
+        warning.style.display = 'none';
+      }
     });
 
     textarea.addEventListener('keyup', (event) => {
-      if (imeCompositionGuard.shouldSkipKeyboardEvent(isComposing, event)) {
+      if (isComposing || event.isComposing) {
         return;
       }
 
@@ -647,7 +648,7 @@
     });
 
     textarea.addEventListener('keydown', (event) => {
-      if (imeCompositionGuard.shouldSkipKeyboardEvent(isComposing, event)) {
+      if (isComposing || event.isComposing || event.keyCode === 229) {
         return;
       }
 
@@ -737,7 +738,9 @@
       '<tbody>',
       entries
         .map((item) => {
-          return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
+          return `<tr><td style="padding: 4px 8px;">${
+            item.inputTableName
+          }</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
         })
         .join(''),
       '</tbody></table>',
