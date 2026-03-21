@@ -78,12 +78,7 @@ export class KeyHandler {
       return;
     }
     const commitString = selectedCandidate.displayText;
-    const newState = new CommittingState(commitString, nextKey);
-    stateCallback(newState);
-
-    if (nextKey) {
-      return;
-    }
+    // if (allowAssociatedPhrases) {
 
     const tooltip = (() => {
       if (this.onRequestSettings().reverseRadicalLookupEnabled) {
@@ -100,6 +95,9 @@ export class KeyHandler {
     })();
 
     if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
+      const newState = new CommittingState(commitString, undefined);
+      stateCallback(newState);
+
       const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
       if (phrases && phrases.length > 0) {
         const selectionKeys = state.selectionKeys;
@@ -122,9 +120,13 @@ export class KeyHandler {
         });
         stateCallback(associatedPhrasesState);
       }
-    } else if (tooltip) {
-      const newState = new TooltipOnlyState(tooltip);
+    } else {
+      const newState = new CommittingState(commitString, nextKey);
       stateCallback(newState);
+      if (tooltip && !nextKey) {
+        const newState = new TooltipOnlyState(tooltip);
+        stateCallback(newState);
+      }
     }
   }
 
