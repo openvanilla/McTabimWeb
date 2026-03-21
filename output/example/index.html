@@ -44,6 +44,10 @@
                     </div>
                     <textarea placeholder="請在此直接使用英數鍵盤打字" id="text_area" rows="10" cols="50" title="輸入區"
                         autocapitalize="off"></textarea>
+                    <div id="ime_warning"
+                        style="display: none; background-color: #ffeb3b; color: #d84315; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-weight: bold;">
+                        ⚠️ 偵測到系統輸入法介入，請暫時關閉您的系統輸入法，直接使用英數鍵盤打字。
+                    </div>
                     <div class="simple-keyboard" id="keyboard"> </div>
                     <div class="function" id="function">
                         <div class="composing_buffer" id="composing_buffer"></div>
@@ -221,6 +225,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-keyboard/3.8.84/index.js"
     integrity="sha512-7yqZlyJktAkpzg+ARxg3IwkgZ4hPzP7MBE5XK1kA5UASQUiI8v9uVJTGyC82k3/SVcyi/uInOtsHGhQrG2fqQQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="imeCompositionGuard.js"></script>
 <script src="bundle.js"></script>
 <script src="index.js"></script>
 <script>

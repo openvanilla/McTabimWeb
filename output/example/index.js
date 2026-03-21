@@ -619,9 +619,26 @@
 
   function bindTextAreaEvents() {
     const textarea = $('text_area');
+    const warning = $('ime_warning');
+    const imeCompositionGuard = window.imeCompositionGuard;
     let shiftKeyIsPressed = false;
+    let isComposing = false;
+
+    textarea.addEventListener('compositionstart', () => {
+      isComposing = true;
+      imeCompositionGuard.showImeWarning(warning);
+    });
+
+    textarea.addEventListener('compositionend', () => {
+      isComposing = false;
+      imeCompositionGuard.hideImeWarning(warning);
+    });
 
     textarea.addEventListener('keyup', (event) => {
+      if (imeCompositionGuard.shouldSkipKeyboardEvent(isComposing, event)) {
+        return;
+      }
+
       if (event.key === 'Shift' && shiftKeyIsPressed) {
         globalUi.alphabetMode = !globalUi.alphabetMode;
         ui.updateByAlphabetMode();
@@ -630,6 +647,10 @@
     });
 
     textarea.addEventListener('keydown', (event) => {
+      if (imeCompositionGuard.shouldSkipKeyboardEvent(isComposing, event)) {
+        return;
+      }
+
       if (event.metaKey || event.altKey) {
         inputMethod.controller.reset();
         return;
