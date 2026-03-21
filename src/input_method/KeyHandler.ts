@@ -64,6 +64,16 @@ export class KeyHandler {
    *     new state.
    * @param {boolean} [allowAssociatedPhrases=true] - Whether to allow
    *     associated phrases to be displayed.
+   * @param {Key} [nextKey=undefined] - Optional key to be processed immediately
+   *     after committing. Only used when allowAssociatedPhrases is false.
+   *     Enables seamless continuous input by passing the key to
+   *     CommittingState.
+   *
+   * Note: The next key parameter is designed for the phonetic tables, where
+   * pressing a radical key while candidates are displayed should commit the
+   * current selection and immediately process the next key without showing
+   * associated phrases. In other states, or when allowAssociatedPhrases is
+   * true, the nextKey is ignored and the flow proceeds as usual.
    */
   handleCandidate(
     state: InputtingState,
@@ -78,8 +88,18 @@ export class KeyHandler {
       return;
     }
     const commitString = selectedCandidate.displayText;
-    // if (allowAssociatedPhrases) {
+    const newState = new CommittingState(commitString, nextKey);
+    stateCallback(newState);
 
+    // if next key appears, it means a user does not like to choose a candidate
+    // from the list but to input another combination. In this case we commit
+    // the current candidate and immediately process the next key without
+    // showing associated phrases.
+    //
+    // This is particularly useful for phonetic tables.
+    if (nextKey) {
+      return;
+    }
     const tooltip = (() => {
       if (this.onRequestSettings().reverseRadicalLookupEnabled) {
         const radicalsArray = this.onRequestTable().reverseLookupForRadicals(commitString);
@@ -95,8 +115,7 @@ export class KeyHandler {
     })();
 
     if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
-      const newState = new CommittingState(commitString, undefined);
-      stateCallback(newState);
+      // Commit immediately without nextKey so associated phrases can be displayed
 
       const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
       if (phrases && phrases.length > 0) {
@@ -120,13 +139,9 @@ export class KeyHandler {
         });
         stateCallback(associatedPhrasesState);
       }
-    } else {
-      const newState = new CommittingState(commitString, nextKey);
+    } else if (tooltip && !nextKey) {
+      const newState = new TooltipOnlyState(tooltip);
       stateCallback(newState);
-      if (tooltip && !nextKey) {
-        const newState = new TooltipOnlyState(tooltip);
-        stateCallback(newState);
-      }
     }
   }
 

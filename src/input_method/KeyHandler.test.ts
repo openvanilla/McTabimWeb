@@ -40,7 +40,7 @@ const createMockBopomofoTable = (overrides: Record<string, unknown> = {}) =>
     lookupForCandidate: jest.fn(() => []),
     lookUpForDisplayedKeyName: jest.fn((key: string) => key),
     ...overrides,
-  }) as any;
+  } as any);
 
 describe('Test KeyHandler', () => {
   const keyHandler = new KeyHandler(
@@ -58,7 +58,7 @@ describe('Test KeyHandler', () => {
         homophoneLookupEnabled: true,
       };
     },
-    (settings) => { },
+    (settings) => {},
   );
   it('test a in cj', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
@@ -408,7 +408,7 @@ describe('Test Associated Phrases', () => {
         homophoneLookupEnabled: true,
       };
     },
-    (settings) => { },
+    (settings) => {},
   );
   it('should enter AssociatedPhrasesState after committing if associatedPhrasesEnabled', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
@@ -529,12 +529,7 @@ describe('Test Associated Phrases', () => {
     });
     const stateCallback = jest.fn();
 
-    const handled = keyHandler.handle(
-      new Key('', KeyName.RETURN),
-      state,
-      stateCallback,
-      jest.fn(),
-    );
+    const handled = keyHandler.handle(new Key('', KeyName.RETURN), state, stateCallback, jest.fn());
 
     expect(handled).toBe(true);
     expect(stateCallback).not.toHaveBeenCalled();
@@ -585,7 +580,7 @@ describe('Test Associated Phrases', () => {
         reverseRadicalLookupEnabled: false,
         homophoneLookupEnabled: true,
       }),
-      () => { },
+      () => {},
     );
     const handleCandidateSpy = jest.spyOn(keyHandler2, 'handleCandidate');
     const handled = keyHandler2.handle(
@@ -1083,16 +1078,16 @@ describe('KeyHandler edge cases', () => {
         selkey: '12',
       },
     });
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: '1u8',
       displayedRadicals: ['ㄅ', 'ㄧ', 'ㄚ'],
       selectionKeys: '12',
-      candidates: [
-        new Candidate('甲', ''),
-        new Candidate('乙', ''),
-        new Candidate('丙', ''),
-      ],
+      candidates: [new Candidate('甲', ''), new Candidate('乙', ''), new Candidate('丙', '')],
       selectedCandidateIndex: 0,
     });
     const states: InputState[] = [];
@@ -1120,7 +1115,11 @@ describe('KeyHandler edge cases', () => {
         radicals === '18' ? lookedUpCandidates : [],
       ),
     });
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: '18',
       displayedRadicals: ['ㄅ', 'ㄚ'],
@@ -1179,7 +1178,11 @@ describe('KeyHandler edge cases', () => {
     const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
     });
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: '1',
       displayedRadicals: ['ㄅ'],
@@ -1203,7 +1206,11 @@ describe('KeyHandler edge cases', () => {
     const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
     });
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: '1',
       displayedRadicals: ['ㄅ'],
@@ -1227,7 +1234,11 @@ describe('KeyHandler edge cases', () => {
     const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ' }, selkey: '123' },
     });
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: '1',
       displayedRadicals: ['ㄅ'],
@@ -1391,7 +1402,11 @@ describe('KeyHandler edge cases', () => {
       ),
       lookUpForDisplayedKeyName: jest.fn((key: string) => key.toUpperCase()),
     } as any;
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: 'ab',
       displayedRadicals: ['A', 'B'],
@@ -1469,7 +1484,11 @@ describe('KeyHandler edge cases', () => {
     const table = createMockBopomofoTable({
       table: { keynames: { '1': 'ㄅ', '8': 'ㄚ' }, selkey: '123' },
     });
-    const keyHandler = new KeyHandler(() => table, () => buildSettings(), jest.fn());
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
     const state = new BasicInputtingState({
       radicals: '18',
       displayedRadicals: ['ㄅ', 'ㄚ'],
@@ -1604,12 +1623,7 @@ describe('KeyHandler edge cases', () => {
 
     for (const keyName of [KeyName.UP, KeyName.DOWN, KeyName.PAGE_DOWN, KeyName.PAGE_UP]) {
       const errorCallback = jest.fn();
-      const handled = keyHandler.handle(
-        Key.namedKey(keyName),
-        state,
-        jest.fn(),
-        errorCallback,
-      );
+      const handled = keyHandler.handle(Key.namedKey(keyName), state, jest.fn(), errorCallback);
       expect(handled).toBe(true);
       expect(errorCallback).toHaveBeenCalled();
     }
@@ -1629,12 +1643,7 @@ describe('KeyHandler edge cases', () => {
       candidates: [new Candidate('甲', '')],
     });
 
-    const handled = keyHandler.handle(
-      new Key('?', KeyName.UNKNOWN),
-      state,
-      jest.fn(),
-      jest.fn(),
-    );
+    const handled = keyHandler.handle(new Key('?', KeyName.UNKNOWN), state, jest.fn(), jest.fn());
 
     expect(handled).toBe(true);
   });

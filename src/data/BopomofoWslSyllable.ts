@@ -46,7 +46,7 @@ export class BopomofoWslSyllable {
     ['j', 'ㄨ'],
     ['J', 'ㆫ'],
     ['`', 'ㆨ'],
-    // ['m', 'ㄩ'],
+    ['m', 'ㄩ'],
   ]);
 
   /**
