@@ -50,6 +50,9 @@ export class CommittingState extends InputState {
     super();
   }
   toString(): string {
+    if (this.nextKey === undefined) {
+      return `CommittingState(commitString='${this.commitString}')`;
+    }
     return `CommittingState(commitString='${this.commitString}', nextKey='${this.nextKey}')`;
   }
 }

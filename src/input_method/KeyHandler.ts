@@ -441,6 +441,10 @@ export class KeyHandler {
           return true;
         }
         if (key.ascii.length === 1) {
+          if (!Object.keys(table.table?.keynames || {}).includes(key.ascii)) {
+            errorCallback();
+            return true;
+          }
           const candidates = state.candidatesInCurrentPage;
           if (candidates === undefined || candidates.length === 0) {
             errorCallback();

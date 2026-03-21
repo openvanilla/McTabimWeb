@@ -1,4 +1,23 @@
 import { BopomofoWslSyllable } from './BopomofoWslSyllable';
+const fs = require('fs');
+const path = require('path');
+
+describe('Check if all combinations of keys are valid syllables', () => {
+  it('opens file and test', () => {
+    const wslPath = path.join(__dirname, './cin/wsl.json');
+    const wslData = JSON.parse(fs.readFileSync(wslPath, 'utf-8'));
+    const chardefs = wslData.chardefs;
+    const keys = Object.keys(chardefs);
+    for (const key of keys) {
+      if (key.length === 1) {
+        continue;
+      }
+
+      const syllable = BopomofoWslSyllable.fromKeys(key);
+      expect(syllable.isValid).toBe(true);
+    }
+  });
+});
 
 describe('BopomofoWslSyllable', () => {
   it('test fromKeys', () => {

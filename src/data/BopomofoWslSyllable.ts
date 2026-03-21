@@ -11,7 +11,6 @@ export class BopomofoWslSyllable {
     ['!', 'ㆠ'],
     ['q', 'ㄆ'],
     ['a', 'ㄇ'],
-    ['A', 'ㆬ'],
     ['z', 'ㄈ'],
     ['2', 'ㄉ'],
     ['@', '.ㄉ'],
@@ -47,7 +46,7 @@ export class BopomofoWslSyllable {
     ['j', 'ㄨ'],
     ['J', 'ㆫ'],
     ['`', 'ㆨ'],
-    ['m', 'ㄩ'],
+    // ['m', 'ㄩ'],
   ]);
 
   /**
@@ -58,9 +57,10 @@ export class BopomofoWslSyllable {
     ['*', 'ㆩ'],
     ['i', 'ㄛ'],
     ['k', 'ㄜ'],
-    [',', 'ㄝ'],
+    [',', 'ㆤ'],
     ['<', 'ㆥ'],
     ['9', 'ㄞ'],
+    ['(', 'ㆮ'],
     ['o', 'ㄟ'],
     ['l', 'ㄠ'],
     ['L', 'ㆯ'],
@@ -75,6 +75,7 @@ export class BopomofoWslSyllable {
     ['|', 'ㆭ'],
     ['[', 'ㆰ'],
     [']', 'ㆱ'],
+    ['A', 'ㆬ'],
     ["'", 'ㆲ'],
     ['a', 'ㄇ'],
   ]);
@@ -160,7 +161,7 @@ export class BopomofoWslSyllable {
     }
     if (
       this.consonant !== undefined &&
-      ['5', 't', 'g', 'b', 'Y', 'y', 'h', 'n'].includes(this.consonant)
+      ['5', 't', 'g', 'b', 'Y', 'y', 'h', 'n', 'a', 'A', '|'].includes(this.consonant)
     ) {
       return true;
     }
