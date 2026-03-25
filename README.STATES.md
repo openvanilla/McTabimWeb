@@ -12,12 +12,13 @@ stateDiagram-v2
     EmptyState --> SymbolInputtingState: '`' key
     EmptyState --> CommittingState: Full-width symbol key
 
-    BasicInputtingState --> BasicInputtingState: Radical key / Backspace
-    BasicInputtingState --> CommittingState: Select candidate (Space, Enter, 1-9)
+    BasicInputtingState --> BasicInputtingState: Radical key / Backspace (Regular tables)
+    BasicInputtingState --> CommittingState: Select candidate (Space, Enter, 1-9; Regular tables)
     BasicInputtingState --> EmptyState: Esc / Backspace on last radical
     BasicInputtingState --> SelectingHomophoneReadingsState: '`' key (Regular tables only)
     BasicInputtingState --> BasicInputtingState: Space / Enter (Phonetic tables: trigger lookup)
     BasicInputtingState --> CommittingState: Enter (Phonetic tables: commit selected candidate)
+    BasicInputtingState --> CommittingState: Radical key (Phonetic tables: commit with next key)
 
     SymbolInputtingState --> SymbolInputtingState: Symbol key / Backspace
     SymbolInputtingState --> CommittingState: Select candidate
@@ -66,3 +67,4 @@ The `InputTableType` of the active table alters certain behaviors and transition
   - **Candidates Generation**: Candidates are **not** immediately populated upon typing. Radicals are buffered to compose a complete phonetic syllable (`BopomofoSyllable` or `BopomofoWslSyllable`). Pressing `Space` or `Enter` executes the lookup for the composed syllable and populates the candidate list.
   - **Homophone Lookup**: The backtick (`` ` ``) key homophone lookup is disabled in these tables, as phonetic input inherently involves homophone selection.
   - **Candidate Selection**: Once candidates are generated (after `Space`/`Enter`), a subsequent `Enter` will select the highlighted candidate and transition to `CommittingState`.
+  - **Committing with Next Key**: When the user presses a radical key while candidates are displayed, the selected candidate is committed and the pressed key is passed as `nextKey` to `CommittingState`. The `InputController` then automatically re-processes this key immediately after committing, allowing seamless continuous input. This only occurs when `allowAssociatedPhrases` is false (e.g., in phonetic tables), as associated phrases always transition through `AssociatedPhrasesState` without a nextKey.

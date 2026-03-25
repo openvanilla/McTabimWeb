@@ -1,4 +1,22 @@
 (function () {
+  const calculateFunctionPosition = ({
+    caretRect,
+    mirrorRect,
+    textAreaRect,
+    containerRect,
+    lineHeight,
+    scrollTop,
+    scrollLeft,
+  }) => {
+    const relativeTop = caretRect.top - mirrorRect.top;
+    const relativeLeft = caretRect.left - mirrorRect.left;
+
+    return {
+      top: textAreaRect.top - containerRect.top + relativeTop + lineHeight - scrollTop,
+      left: textAreaRect.left - containerRect.left + relativeLeft - scrollLeft,
+    };
+  };
+
   const FEATURES = {
     feature_input: '輸入功能',
     feature_user_data: '自訂符號表管理',
@@ -17,7 +35,7 @@
 
   function toggleFeature(id) {
     for (const featureId of Object.keys(FEATURES)) {
-      $(featureId).style.display = featureId === id ? 'block' : 'none';
+      $(featureId).style.display = featureId === id ? 'flex' : 'none';
     }
     document.title = TITLE_PREFIX + (FEATURES[id] ?? FEATURES.feature_input);
     if (id === 'feature_input') {
@@ -109,7 +127,8 @@
   function positionFunctionPanel() {
     const textArea = $('text_area');
     const functionDiv = $('function');
-    const rect = textArea.getBoundingClientRect();
+    const textAreaRect = textArea.getBoundingClientRect();
+    const containerRect = $('edit_area').getBoundingClientRect();
     const textAreaStyle = window.getComputedStyle(textArea);
     const lineHeight = parseInt(textAreaStyle.lineHeight, 10) || 20;
 
@@ -138,19 +157,30 @@
     const caretSpan = document.createElement('span');
     caretSpan.id = 'caret-span';
     caretSpan.textContent = '|';
-    mirror.textContent = textArea.value.substring(0, textArea.selectionStart);
+    const caretPos = textArea.selectionStart;
+    const textBeforeCaret = textArea.value.substring(0, caretPos);
+    mirror.textContent = textBeforeCaret;
     mirror.appendChild(caretSpan);
 
     document.body.appendChild(mirror);
     const caretRect = caretSpan.getBoundingClientRect();
     const mirrorRect = mirror.getBoundingClientRect();
+    const scrollTop = textArea.scrollTop;
+    const scrollLeft = textArea.scrollLeft;
+    const { top, left } = calculateFunctionPosition({
+      caretRect,
+      mirrorRect,
+      textAreaRect,
+      containerRect,
+      lineHeight,
+      scrollTop,
+      scrollLeft,
+    });
     document.body.removeChild(mirror);
 
-    const relativeTop = caretRect.top - mirrorRect.top;
-    const relativeLeft = caretRect.left - mirrorRect.left;
     functionDiv.style.position = 'absolute';
-    functionDiv.style.top = `${rect.top + relativeTop + lineHeight - textArea.scrollTop}px`;
-    functionDiv.style.left = `${rect.left + relativeLeft - textArea.scrollLeft}px`;
+    functionDiv.style.top = `${top}px`;
+    functionDiv.style.left = `${left}px`;
   }
 
   const ui = (() => {
@@ -191,10 +221,6 @@
       $('status').innerHTML = globalUi.alphabetMode
         ? '<a href="" onclick="example.globalUi.enterChineseMode(); return false;">【英文】</a>'
         : '<a href="" onclick="example.globalUi.enterAlphabetMode(); return false;">【中文】</a>';
-    };
-
-    api.updateByKeyboardVisible = () => {
-      $('keyboard').style.height = '30%';
     };
 
     api.update = (jsonString) => {
@@ -239,11 +265,6 @@
       ui.updateByAlphabetMode();
       inputMethod.controller.reset();
       focusTextArea();
-    };
-
-    api.toggleKeyboard = () => {
-      api.keyboardVisible = !api.keyboardVisible;
-      ui.updateByKeyboardVisible();
     };
 
     return api;
@@ -593,9 +614,32 @@
 
   function bindTextAreaEvents() {
     const textarea = $('text_area');
+    const warning = $('ime_warning');
+    // const imeCompositionGuard = window.imeCompositionGuard;
     let shiftKeyIsPressed = false;
+    let isComposing = false;
+
+    textarea.addEventListener('compositionstart', () => {
+      isComposing = true;
+      const warning = $('ime_warning');
+      if (warning) {
+        warning.style.display = 'block';
+      }
+    });
+
+    textarea.addEventListener('compositionend', () => {
+      isComposing = false;
+      const warning = $('ime_warning');
+      if (warning) {
+        warning.style.display = 'none';
+      }
+    });
 
     textarea.addEventListener('keyup', (event) => {
+      if (isComposing || event.isComposing) {
+        return;
+      }
+
       if (event.key === 'Shift' && shiftKeyIsPressed) {
         globalUi.alphabetMode = !globalUi.alphabetMode;
         ui.updateByAlphabetMode();
@@ -604,6 +648,10 @@
     });
 
     textarea.addEventListener('keydown', (event) => {
+      if (isComposing || event.isComposing || event.keyCode === 229) {
+        return;
+      }
+
       if (event.metaKey || event.altKey) {
         inputMethod.controller.reset();
         return;
@@ -690,7 +738,9 @@
       '<tbody>',
       entries
         .map((item) => {
-          return `<tr><td style="padding: 4px 8px;">${item.inputTableName}</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
+          return `<tr><td style="padding: 4px 8px;">${
+            item.inputTableName
+          }</td><td style="padding: 4px 8px;">${item.radicals.join(', ')}</td></tr>`;
         })
         .join(''),
       '</tbody></table>',

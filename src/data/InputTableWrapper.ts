@@ -1,22 +1,39 @@
+import { BopomofoSyllable } from './BopomofoSyllable';
+import { BopomofoWslSyllable } from './BopomofoWslSyllable';
 import { Candidate } from './Candidate';
 import { InputTable } from './InputTable';
 
-export enum InputTableType {
-  Regular = 'regular',
-  Bopomofo = 'bopomofo',
-  Wsl = 'WSL',
-}
-
 export interface InputTableSettings {
   maxRadicals: number;
-  type?: InputTableType | undefined;
+}
+
+export interface InputTableSyllable {
+  readonly isValid: boolean;
+  readonly keys: string;
+  readonly reading: string;
+  readonly tone?: string | undefined;
+}
+
+export interface InputTableWrapper {
+  readonly id: string;
+  readonly jsonSource: string;
+  readonly settings: InputTableSettings;
+  readonly additionalSource?: string[] | undefined;
+  readonly table: InputTable;
+  readonly isPhoneticTable: boolean;
+
+  reverseLookupForRadicals(character: string): string[];
+  reverseLookupForTranslatedAndOriginalRadicals(character: string): string[][];
+  lookupForCandidate(radicals: string): Candidate[] | [];
+  lookUpForDisplayedKeyName(key: string): string;
+  createSyllable(keys: string): InputTableSyllable | undefined;
 }
 
 /**
  * A wrapper class for InputTable that provides additional functionality such as
  * reverse lookup and candidate lookup.
  */
-export class InputTableWrapper {
+export class GeneralInputTableWrapper implements InputTableWrapper {
   private static readonly WILDCARD_CACHE_LIMIT = 128;
   private reverseLookUpTable_: { [key: string]: string[] } | undefined = undefined;
   private keysByLength_: Map<number, string[]> | undefined = undefined;
@@ -87,7 +104,7 @@ export class InputTableWrapper {
       cache.delete(key);
     }
     cache.set(key, candidates);
-    if (cache.size > InputTableWrapper.WILDCARD_CACHE_LIMIT) {
+    if (cache.size > GeneralInputTableWrapper.WILDCARD_CACHE_LIMIT) {
       const oldestKey = cache.keys().next().value;
       if (oldestKey !== undefined) {
         cache.delete(oldestKey);
@@ -187,5 +204,51 @@ export class InputTableWrapper {
 
   lookUpForDisplayedKeyName(key: string): string {
     return this.table.keynames[key] || key;
+  }
+
+  get isPhoneticTable(): boolean {
+    return false;
+  }
+
+  createSyllable(keys: string): InputTableSyllable | undefined {
+    return undefined;
+  }
+}
+
+export class BopomofoInputTableWrapper extends GeneralInputTableWrapper {
+  constructor(
+    id: string,
+    jsonSource: string,
+    settings: InputTableSettings,
+    additionalSource?: string[] | undefined,
+  ) {
+    super(id, jsonSource, settings, additionalSource);
+  }
+
+  override get isPhoneticTable(): boolean {
+    return true;
+  }
+
+  override createSyllable(keys: string): InputTableSyllable {
+    return BopomofoSyllable.fromKeys(keys);
+  }
+}
+
+export class WslInputTableWrapper extends GeneralInputTableWrapper {
+  constructor(
+    id: string,
+    jsonSource: string,
+    settings: InputTableSettings,
+    additionalSource?: string[] | undefined,
+  ) {
+    super(id, jsonSource, settings, additionalSource);
+  }
+
+  override get isPhoneticTable(): boolean {
+    return true;
+  }
+
+  override createSyllable(keys: string): InputTableSyllable {
+    return BopomofoWslSyllable.fromKeys(keys);
   }
 }

@@ -1,6 +1,12 @@
 import { Candidate } from './Candidate';
 import { InputTable } from './InputTable';
-import { InputTableSettings, InputTableWrapper } from './InputTableWrapper';
+import type { InputTableWrapper } from './InputTableWrapper';
+import {
+  BopomofoInputTableWrapper,
+  GeneralInputTableWrapper,
+  InputTableSettings,
+  WslInputTableWrapper,
+} from './InputTableWrapper';
 
 const mockTable = `{
   "chardefs": {
@@ -25,7 +31,7 @@ describe('InputTableWrapper', () => {
   let wrapper: InputTableWrapper;
 
   beforeEach(() => {
-    wrapper = new InputTableWrapper('test', mockTable, settings);
+    wrapper = new GeneralInputTableWrapper('test', mockTable, settings);
   });
 
   describe('lookupForCandidate', () => {
@@ -68,7 +74,7 @@ describe('InputTableWrapper', () => {
         keynames: { a: 'ㄅ' },
         selkey: '1234567890',
       };
-      const localWrapper = new InputTableWrapper('test', JSON.stringify(table), settings);
+      const localWrapper = new GeneralInputTableWrapper('test', JSON.stringify(table), settings);
 
       const oldest = localWrapper.lookupForCandidate('*000');
       for (let i = 1; i <= 128; i++) {
@@ -88,6 +94,46 @@ describe('InputTableWrapper', () => {
 
     it('returns original key if mapping does not exist', () => {
       expect(wrapper.lookUpForDisplayedKeyName('z')).toBe('z');
+    });
+  });
+
+  describe('phonetic syllable helpers', () => {
+    it('reports whether the table is phonetic', () => {
+      expect(wrapper.isPhoneticTable).toBe(false);
+
+      const phoneticWrapper = new BopomofoInputTableWrapper('bpmf', mockTable, {
+        maxRadicals: 4,
+      });
+
+      expect(phoneticWrapper.isPhoneticTable).toBe(true);
+    });
+
+    it('creates a bopomofo syllable for bopomofo tables', () => {
+      const phoneticWrapper = new BopomofoInputTableWrapper('bpmf', mockTable, {
+        maxRadicals: 4,
+      });
+
+      const syllable = phoneticWrapper.createSyllable('18');
+
+      expect(syllable?.keys).toBe('18');
+      expect(syllable?.reading).toBe('ㄅㄚ');
+      expect(syllable?.isValid).toBe(true);
+    });
+
+    it('creates a WSL syllable for WSL tables', () => {
+      const wslWrapper = new WslInputTableWrapper('wsl', mockTable, {
+        maxRadicals: 4,
+      });
+
+      const syllable = wslWrapper.createSyllable('!U*$');
+
+      expect(syllable?.keys).toBe('!U*$');
+      expect(syllable?.reading.length).toBeGreaterThan(0);
+      expect(syllable?.tone).toBe('$');
+    });
+
+    it('returns undefined when the table does not use phonetic syllables', () => {
+      expect(wrapper.createSyllable('ab')).toBeUndefined();
     });
   });
 

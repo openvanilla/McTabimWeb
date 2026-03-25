@@ -1,5 +1,6 @@
 import { Candidate, InputTableManager, MenuCandidate, SymbolCategory } from '../data';
 import HelperDataInput from './HelperDataInput';
+import { Key } from './Key';
 import { Settings } from './Settings';
 
 /**
@@ -45,11 +46,14 @@ export class EmptyState extends InputState {
  * @param {string} commitString - The string to be committed.
  */
 export class CommittingState extends InputState {
-  constructor(readonly commitString: string) {
+  constructor(readonly commitString: string, readonly nextKey?: Key | undefined) {
     super();
   }
   toString(): string {
-    return `CommittingState(commitString='${this.commitString}')`;
+    if (this.nextKey === undefined) {
+      return `CommittingState(commitString='${this.commitString}')`;
+    }
+    return `CommittingState(commitString='${this.commitString}', nextKey='${this.nextKey}')`;
   }
 }
 

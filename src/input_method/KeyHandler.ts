@@ -1,12 +1,5 @@
-import {
-  BopomofoSyllable,
-  BopomofoWslSyllable,
-  Candidate,
-  InputTableManager,
-  InputTableWrapper,
-  MenuCandidate,
-} from '../data';
-import { InputTableType } from '../data/InputTableWrapper';
+import type { InputTableWrapper } from '../data';
+import { Candidate, InputTableManager, MenuCandidate } from '../data';
 import NumberInputHelper from './HelperNumberInput';
 import {
   AssociatedPhrasesState,
@@ -60,7 +53,7 @@ export class KeyHandler {
     readonly onRequestTable: () => InputTableWrapper,
     readonly onRequestSettings: () => Settings,
     readonly onSettingChanged: (settings: Settings) => void,
-  ) { }
+  ) {}
 
   /**
    * Handles the selection of a candidate.
@@ -71,12 +64,23 @@ export class KeyHandler {
    *     new state.
    * @param {boolean} [allowAssociatedPhrases=true] - Whether to allow
    *     associated phrases to be displayed.
+   * @param {Key} [nextKey=undefined] - Optional key to be processed immediately
+   *     after committing. Only used when allowAssociatedPhrases is false.
+   *     Enables seamless continuous input by passing the key to
+   *     CommittingState.
+   *
+   * Note: The next key parameter is designed for the phonetic tables, where
+   * pressing a radical key while candidates are displayed should commit the
+   * current selection and immediately process the next key without showing
+   * associated phrases. In other states, or when allowAssociatedPhrases is
+   * true, the nextKey is ignored and the flow proceeds as usual.
    */
   handleCandidate(
     state: InputtingState,
     selectedCandidate: Candidate,
     stateCallback: (state: InputState) => void,
     allowAssociatedPhrases: boolean = true,
+    nextKey: Key | undefined = undefined,
   ): void {
     if (selectedCandidate instanceof MenuCandidate) {
       const newState = selectedCandidate.nextState();
@@ -84,9 +88,18 @@ export class KeyHandler {
       return;
     }
     const commitString = selectedCandidate.displayText;
-    const newState = new CommittingState(commitString);
+    const newState = new CommittingState(commitString, nextKey);
     stateCallback(newState);
 
+    // if next key appears, it means a user does not like to choose a candidate
+    // from the list but to input another combination. In this case we commit
+    // the current candidate and immediately process the next key without
+    // showing associated phrases.
+    //
+    // This is particularly useful for phonetic tables.
+    if (nextKey) {
+      return;
+    }
     const tooltip = (() => {
       if (this.onRequestSettings().reverseRadicalLookupEnabled) {
         const radicalsArray = this.onRequestTable().reverseLookupForRadicals(commitString);
@@ -102,6 +115,8 @@ export class KeyHandler {
     })();
 
     if (allowAssociatedPhrases && this.onRequestSettings().associatedPhrasesEnabled) {
+      // Commit immediately without nextKey so associated phrases can be displayed
+
       const phrases = InputTableManager.getInstance().lookUpForAssociatedPhrases(commitString);
       if (phrases && phrases.length > 0) {
         const selectionKeys = state.selectionKeys;
@@ -124,7 +139,7 @@ export class KeyHandler {
         });
         stateCallback(associatedPhrasesState);
       }
-    } else if (tooltip) {
+    } else if (tooltip && !nextKey) {
       const newState = new TooltipOnlyState(tooltip);
       stateCallback(newState);
     }
@@ -145,16 +160,32 @@ export class KeyHandler {
   private handleCtrlPressed(
     key: Key,
     state: InputState,
-    stateCallback: (state: InputState) => void
+    stateCallback: (state: InputState) => void,
   ): boolean | undefined {
     const ctrlKeySymbols = InputTableManager.getInstance().ctrlKeySymbols;
     let ascii = key.ascii.toLowerCase();
     if (key.shiftPressed) {
       const map: { [key: string]: string } = {
-        '1': '!', '2': '@', '3': '#', '4': '$', '5': '%',
-        '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
-        '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|',
-        ';': ':', "'": '"', ',': '<', '.': '>', '/': '?',
+        '1': '!',
+        '2': '@',
+        '3': '#',
+        '4': '$',
+        '5': '%',
+        '6': '^',
+        '7': '&',
+        '8': '*',
+        '9': '(',
+        '0': ')',
+        '-': '_',
+        '=': '+',
+        '[': '{',
+        ']': '}',
+        '\\': '|',
+        ';': ':',
+        "'": '"',
+        ',': '<',
+        '.': '>',
+        '/': '?',
       };
       if (map.hasOwnProperty(ascii)) {
         ascii = map[ascii];
@@ -187,7 +218,7 @@ export class KeyHandler {
     key: Key,
     state: AssociatedPhrasesState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const selectionKeys = state.exactSelectionKeys;
     if (selectionKeys !== undefined && key.ascii && selectionKeys.includes(key.ascii)) {
@@ -213,7 +244,7 @@ export class KeyHandler {
     key: Key,
     state: EmptyState | AssociatedPhrasesState | TooltipOnlyState | CommittingState,
     inputKeys: string[],
-    stateCallback: (state: InputState) => void
+    stateCallback: (state: InputState) => void,
   ): boolean | undefined {
     const settings = this.onRequestSettings();
     const table = this.onRequestTable();
@@ -234,18 +265,11 @@ export class KeyHandler {
       /// Enter radical inputting state
       const radical = key.ascii;
       const displayedRadicals = (() => {
-        switch (table.settings.type) {
-          case InputTableType.Bopomofo: {
-            const syllable = BopomofoSyllable.fromKeys(radical);
-            return syllable.reading.split('');
-          }
-          case InputTableType.Wsl: {
-            const syllable = BopomofoWslSyllable.fromKeys(radical);
-            return syllable.reading.split('');
-          }
-          default:
-            return [table.lookUpForDisplayedKeyName(radical) || radical];
+        const syllable = table.createSyllable(radical);
+        if (syllable) {
+          return syllable.reading.split('');
         }
+        return [table.lookUpForDisplayedKeyName(radical) || radical];
       })();
       let selectionKeys = table.table.selkey;
       if (selectionKeys === undefined || selectionKeys.length === 0) {
@@ -253,10 +277,7 @@ export class KeyHandler {
       }
 
       const candidates = (() => {
-        if (
-          table.settings.type === InputTableType.Bopomofo ||
-          table.settings.type === InputTableType.Wsl
-        ) {
+        if (table.isPhoneticTable) {
           return [];
         } else {
           return table.lookupForCandidate(radical) || [];
@@ -317,7 +338,7 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const table = this.onRequestTable();
 
@@ -328,20 +349,15 @@ export class KeyHandler {
           this.handleCandidate(state, selectedCandidate, stateCallback);
           return true;
         }
-      }
-      else if (key.name === KeyName.SPACE) {
-        const newState = new CommittingState(" ");
+      } else if (key.name === KeyName.SPACE) {
+        const newState = new CommittingState(' ');
         stateCallback(newState);
         return true;
       }
       return true;
     }
 
-    if (
-      state instanceof BasicInputtingState &&
-      (table.settings.type === InputTableType.Bopomofo ||
-        table.settings.type === InputTableType.Wsl)
-    ) {
+    if (state instanceof BasicInputtingState && table.isPhoneticTable) {
       if (state.candidates.length > 0) {
         if (key.name === KeyName.RETURN) {
           const selectedCandidate = state.candidates[state.selectedCandidateIndex ?? 0];
@@ -363,13 +379,7 @@ export class KeyHandler {
         }
       }
 
-      const syllable = (() => {
-        if (table.settings.type === InputTableType.Bopomofo) {
-          return BopomofoSyllable.fromKeys(state.radicals);
-        } else if (table.settings.type === InputTableType.Wsl) {
-          return BopomofoWslSyllable.fromKeys(state.radicals);
-        }
-      })();
+      const syllable = table.createSyllable(state.radicals);
       if (syllable === undefined) {
         return true;
       }
@@ -411,7 +421,7 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const table = this.onRequestTable();
 
@@ -438,11 +448,7 @@ export class KeyHandler {
         const selectedCandidate = candidates[index];
         this.handleCandidate(state, selectedCandidate, stateCallback);
         return true;
-      }
-      else if (
-        table.settings.type === InputTableType.Bopomofo ||
-        table.settings.type === InputTableType.Wsl
-      ) {
+      } else if (state instanceof BasicInputtingState && table.isPhoneticTable) {
         if (key.name === KeyName.ESC) {
           stateCallback(new EmptyState('reset from ESC key'));
           return true;
@@ -451,8 +457,25 @@ export class KeyHandler {
           stateCallback(new EmptyState('reset from BACKSPACE key'));
           return true;
         }
-        errorCallback();
-        return true;
+        if (key.ascii.length === 1) {
+          if (!Object.keys(table.table?.keynames || {}).includes(key.ascii)) {
+            errorCallback();
+            return true;
+          }
+          const candidates = state.candidatesInCurrentPage;
+          if (candidates === undefined || candidates.length === 0) {
+            errorCallback();
+            return true;
+          }
+          const index = state.selectedCandidateIndex ?? 0;
+          if (index > candidates.length - 1) {
+            errorCallback();
+            return true;
+          }
+          const selectedCandidate = candidates[index];
+          this.handleCandidate(state, selectedCandidate, stateCallback, true, key);
+          return true;
+        }
       }
     }
     return undefined;
@@ -463,7 +486,7 @@ export class KeyHandler {
     state: InputtingState,
     inputKeys: string[],
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     const table = this.onRequestTable();
 
@@ -574,10 +597,7 @@ export class KeyHandler {
           selectionKeys = KeyHandler.COMMON_SELECTION_KEYS;
         }
 
-        if (
-          (table.settings.type === undefined || table.settings.type === InputTableType.Regular) &&
-          state.radicals.length >= table.settings.maxRadicals
-        ) {
+        if (!table.isPhoneticTable && state.radicals.length >= table.settings.maxRadicals) {
           errorCallback();
           return true;
         }
@@ -585,18 +605,8 @@ export class KeyHandler {
         const chr = key.ascii;
         let joined = state.radicals + chr;
 
-        if (
-          state instanceof BasicInputtingState &&
-          (table.settings.type === InputTableType.Bopomofo ||
-            table.settings.type === InputTableType.Wsl)
-        ) {
-          const newSyllable = (() => {
-            if (table.settings.type === InputTableType.Bopomofo) {
-              return BopomofoSyllable.fromKeys(joined);
-            } else if (table.settings.type === InputTableType.Wsl) {
-              return BopomofoWslSyllable.fromKeys(joined);
-            }
-          })();
+        if (state instanceof BasicInputtingState && table.isPhoneticTable) {
+          const newSyllable = table.createSyllable(joined);
           if (newSyllable === undefined) {
             return true;
           }
@@ -630,10 +640,7 @@ export class KeyHandler {
         }
 
         let currentDisplayed = state.displayedRadicals;
-        if (
-          state instanceof AssociatedPhrasesState ||
-          state instanceof CtrlSymbolInputtingState
-        ) {
+        if (state instanceof AssociatedPhrasesState || state instanceof CtrlSymbolInputtingState) {
           joined = chr;
           currentDisplayed = [];
         }
@@ -655,7 +662,7 @@ export class KeyHandler {
     if (state instanceof BasicInputtingState) {
       let useHomophone =
         key.ascii === '`' &&
-        (table.settings.type === undefined || table.settings.type === InputTableType.Regular) &&
+        !table.isPhoneticTable &&
         this.onRequestSettings().homophoneLookupEnabled &&
         state.candidates.length > 0;
 
@@ -668,8 +675,7 @@ export class KeyHandler {
           let bpmfRadical = bpmfReadings[0][1];
           let displayedReading = bpmfReadings[0][0];
 
-          let words =
-            InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmfRadical);
+          let words = InputTableManager.getInstance().lookupCandidatesForBpmfRadicals(bpmfRadical);
 
           let newState = new SelectingHomophoneWordState({
             displayedBpmf: displayedReading,
@@ -722,14 +728,12 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean {
     const table = this.onRequestTable();
 
     if (state instanceof AssociatedPhrasesState) {
-      stateCallback(
-        new EmptyState('reset after pressing backspace in associated phrases state'),
-      );
+      stateCallback(new EmptyState('reset after pressing backspace in associated phrases state'));
       return true;
     } else if (state instanceof SymbolCategoryState) {
       stateCallback(state.previousState);
@@ -780,17 +784,8 @@ export class KeyHandler {
       return true;
     }
     if (state instanceof BasicInputtingState) {
-      if (
-        table.settings.type === InputTableType.Bopomofo ||
-        table.settings.type === InputTableType.Wsl
-      ) {
-        const newSyllable = (() => {
-          if (table.settings.type === InputTableType.Bopomofo) {
-            return BopomofoSyllable.fromKeys(newRadicals);
-          } else if (table.settings.type === InputTableType.Wsl) {
-            return BopomofoWslSyllable.fromKeys(newRadicals);
-          }
-        })();
+      if (table.isPhoneticTable) {
+        const newSyllable = table.createSyllable(newRadicals);
         if (newSyllable === undefined) {
           return true;
         }
@@ -823,7 +818,7 @@ export class KeyHandler {
     key: Key,
     state: InputtingState,
     stateCallback: (state: InputState) => void,
-    errorCallback: () => void
+    errorCallback: () => void,
   ): boolean | undefined {
     if (key.name === KeyName.UP) {
       if (state.candidates.length > 0) {
@@ -879,7 +874,7 @@ export class KeyHandler {
         const candidatesPerPage = state.selectionKeys.length;
         const newIndex = Math.max(
           Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage - 1) *
-          candidatesPerPage,
+            candidatesPerPage,
           0,
         );
         const newState = state.copyWithArgs({

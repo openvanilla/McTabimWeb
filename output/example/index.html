@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://unpkg.com/simple-keyboard@latest/build/css/index.css">
     <meta name="description" content="McTabIM - 小麥他命輸入法網頁版本">
-    <meta name="keywords" content="小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabIM,McTabIM,McTabim,Web Input Method">
+    <meta name="keywords" content="網頁輸入法,小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabIM,McTabIM,McTabim,Web Input Method">
     <meta name="author" content="McTabIM Authors">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f3ee">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171613">
     <link rel="icon" href="favicon.ico">
     <meta property="og:title" content="McTabIM - 小麥他命輸入法網頁版本">
     <meta property="og:description" content="McTabIM - 小麥他命輸入法網頁版本，直接在網頁中使用倉頡、速成、大易、行列、注音、吳守臺語注音等輸入法。無須額外安裝輸入法">
@@ -23,10 +24,9 @@
 
 <body>
     <div class="main">
-        <p id="loading"><img src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" alt="載入中"
-                height="20" width="20">正在載入小麥他命輸入法，請稍候</p>
+        <p id="loading">正在載入小麥他命輸入法，請稍候</p>
 
-        <p class="navi">McTabIM 小麥他命輸入法
+        <p class="navi"><b>McTabIM 小麥他命輸入法</b>
             <a href="#feature_input" title="輸入功能">輸入功能</a>
             <a href="#feature_user_data" title="自訂符號表管理">自訂符號表管理</a>
             <a href="#feature_lookup" title="字根反查">字根反查</a>
@@ -44,6 +44,10 @@
                     </div>
                     <textarea placeholder="請在此直接使用英數鍵盤打字" id="text_area" rows="10" cols="50" title="輸入區"
                         autocapitalize="off"></textarea>
+                    <div id="ime_warning"
+                        style="display: none; background-color: #ffeb3b; color: #d84315; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-weight: bold;">
+                        ⚠️ 偵測到系統輸入法介入，請暫時關閉您的系統輸入法，直接使用英數鍵盤打字。
+                    </div>
                     <div class="simple-keyboard" id="keyboard"> </div>
                     <div class="function" id="function">
                         <div class="composing_buffer" id="composing_buffer"></div>
@@ -64,40 +68,34 @@
                 </select>
                 <details open>
                     <summary> 設定 </summary>
-                    <table>
-                        <tr>
-                            <td class="option_title">簡繁轉換：</td>
-                            <td>
-                                <input type="radio" name="chinese_convert" value="trad" id="chinese_convert_trad"
-                                    checked="checked"><label for="chinese_convert_trad">繁體中文</label><br>
-                                <input type="radio" name="chinese_convert" value="simp" id="chinese_convert_simp"><label
-                                    for="chinese_convert_simp">簡體中文</label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>輸入選項：</td>
-                            <td>
-                                <input type="checkbox" id="associated_phrases_enabled" checked="checked"><label
-                                    for="associated_phrases_enabled">啟用聯想詞</label><br>
-                                <input type="checkbox" id="shift_punctuation_for_symbols_enabled"
-                                    checked="checked"><label for="shift_punctuation_for_symbols_enabled">Shift
-                                    + 標點輸入全形符號</label><br>
-                                <input type="checkbox" id="shift_letter_for_symbols_enabled" checked="checked"><label
-                                    for="shift_letter_for_symbols_enabled">Shift +
-                                    字母輸入全形符號</label><br>
-                                <input type="checkbox" id="clean_on_error"><label
-                                    for="clean_on_error">輸入錯誤時清除輸入緩衝區</label><br>
-                                <input type="checkbox" id="beep_on_error"><label
-                                    for="beep_on_error">輸入錯誤時發出提示音</label><br>
-                                <input type="checkbox" id="wildcard_matching_enabled"><label
-                                    for="wildcard_matching_enabled">啟用萬用字元 (字根 + *)</label><br>
-                                <input type="checkbox" id="reverse_radical_lookup_enabled"><label
-                                    for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
-                                <input type="checkbox" id="homophone_lookup_enabled"><label
-                                    for="homophone_lookup_enabled">啟用同音字反查 (字根 + `)</label><br>
-                            </td>
-                        </tr>
-                    </table>
+                    <p>簡繁轉換：</p>
+                    <div class="setting_group">
+                        <input type="radio" name="chinese_convert" value="trad" id="chinese_convert_trad"
+                            checked="checked"><label for="chinese_convert_trad">繁體中文</label><br>
+                        <input type="radio" name="chinese_convert" value="simp" id="chinese_convert_simp"><label
+                            for="chinese_convert_simp">簡體中文</label>
+                    </div>
+                    <p>輸入選項：</p>
+                    <div class="setting_group">
+                        <input type="checkbox" id="associated_phrases_enabled" checked="checked"><label
+                            for="associated_phrases_enabled">啟用聯想詞</label><br>
+                        <input type="checkbox" id="shift_punctuation_for_symbols_enabled" checked="checked"><label
+                            for="shift_punctuation_for_symbols_enabled">Shift
+                            + 標點輸入全形符號</label><br>
+                        <input type="checkbox" id="shift_letter_for_symbols_enabled" checked="checked"><label
+                            for="shift_letter_for_symbols_enabled">Shift +
+                            字母輸入全形符號</label><br>
+                        <input type="checkbox" id="clean_on_error"><label for="clean_on_error">輸入錯誤時清除輸入緩衝區</label><br>
+                        <input type="checkbox" id="beep_on_error"><label for="beep_on_error">輸入錯誤時發出提示音</label><br>
+                        <input type="checkbox" id="wildcard_matching_enabled"><label
+                            for="wildcard_matching_enabled">啟用萬用字元
+                            (字根 + *)</label><br>
+                        <input type="checkbox" id="reverse_radical_lookup_enabled"><label
+                            for="reverse_radical_lookup_enabled">啟用字根反查</label><br>
+                        <input type="checkbox" id="homophone_lookup_enabled"><label
+                            for="homophone_lookup_enabled">啟用同音字反查
+                            (字根 + `)</label>
+                    </div>
                 </details>
 
                 <details open>
@@ -142,7 +140,7 @@
                 <details>
                     <summary> 版本資訊 </summary>
                     <ul>
-                        <li>0.4.1 版</li>
+                        <li>0.4.3 版</li>
                         <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank" title="專案首頁">專案首頁</a>
                         </li>
                         <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank"
@@ -205,9 +203,9 @@
                                 target="_blank">臺語字音資料網址</a></li>
                     </ul>
                     <p> 本輸入法使用對應鍵盤位置修改自「華音延伸鍵盤」，</p>
-                    <img src="
+                    <p><img src="
                         https://web.archive.org/web/20160821043716im_/http://xiaoxue.iis.sinica.edu.tw/download/images/keyboard-2.jpg"
-                        width="400" title="華音延伸鍵盤">
+                            width="400" title="華音延伸鍵盤"> </p>
                     <p>在原本的鍵盤設計中，將聲調定義在 F1-F8 等按鍵上，在一般電腦上並不方便輸入。將聲調符號位置稍作修改：</p>
                     <ul>
                         <li>第一、二、三、五聲對應華音一、四、三、二聲輸入鍵</li>
@@ -219,7 +217,7 @@
             </div>
         </div>
         <p class="credit">Copyright (c) 2026 and onwards The McTabLM Authors. This code is released under the MIT
-            license.版本：0.4.1. <a href="privacy_policy.html">隱私權政策</a></p>
+            license.版本：0.4.3. <a href="privacy_policy.html">隱私權政策</a></p>
     </div>
 </body>
 
@@ -227,6 +225,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-keyboard/3.8.84/index.js"
     integrity="sha512-7yqZlyJktAkpzg+ARxg3IwkgZ4hPzP7MBE5XK1kA5UASQUiI8v9uVJTGyC82k3/SVcyi/uInOtsHGhQrG2fqQQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- <script src="imeCompositionGuard.js"></script> -->
 <script src="bundle.js"></script>
 <script src="index.js"></script>
 <script>

@@ -5,5 +5,10 @@ export { CustomSymbolTable as SymbolTable } from './CustomSymbolTable';
 export { EmojiTable } from './Emoji';
 export { ForeignLanguage } from './ForeignLanguage';
 export { InputTableManager } from './InputTableManager';
-export { InputTableWrapper } from './InputTableWrapper';
+export type { InputTableSyllable, InputTableWrapper } from './InputTableWrapper';
+export {
+  BopomofoInputTableWrapper,
+  GeneralInputTableWrapper,
+  WslInputTableWrapper,
+} from './InputTableWrapper';
 export { SymbolCategory } from './SymbolCategory';

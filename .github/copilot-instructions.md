@@ -10,15 +10,16 @@
 ## Architecture hints for Copilot
 
 - **Data layer (`src/data/`)**: `InputTableManager` lazily loads CIN tables plus emoji/symbol metadata. It is a singleton accessed through `InputTableManager.getInstance()`. Preserve that pattern and prefer readonly properties when exposing tables.
-- **BPMF homophone lookup**: Bopomofo readings come from `src/data/cin/bpmf.json` via `InputTableManager.lookupBpmfReadings` and `lookupCandidatesForBpmfRadicals`. Keep the table lazy-loaded through `InputTableWrapper`.
+- **Input table wrappers**: `InputTableWrapper` in `src/data/InputTableWrapper.ts` is now an interface. Use `GeneralInputTableWrapper` for regular tables, `BopomofoInputTableWrapper` for standard Bopomofo tables, and `WslInputTableWrapper` for 吳守禮 tables. Prefer polymorphism over adding table-type conditionals or enum flags.
+- **BPMF homophone lookup**: Bopomofo readings come from `src/data/cin/bpmf.json` via `InputTableManager.lookupBpmfReadings` and `lookupCandidatesForBpmfRadicals`. Keep the table lazy-loaded through `BopomofoInputTableWrapper`.
 - **Input pipeline (`src/input_method/`)**: `InputController` orchestrates state transitions (`EmptyState`, `InputtingState`, `CommittingState`) and keeps UI + KeyHandler in sync. Any change to state creation usually needs companion updates in `InputUIStateBuilder` and the associated Jest specs in the same folder.
 - **Key handling**: `Key`, `KeyHandler`, and `KeyMapping` work together; favor pure functions that accept the current `Settings` and `InputTableWrapper` so behavior stays testable. Never reference DOM APIs from these modules.
+- **Phonetic handling**: `KeyHandler` should depend on wrapper polymorphism (`isPhoneticTable`, `createSyllable`) instead of checking a table type field. If a new phonetic table is introduced, add a new wrapper implementation rather than branching in `KeyHandler`.
 - **Homophone selection states**: `SelectingHomophoneReadingsState` and `SelectingHomophoneWordState` are entered from `KeyHandler` when the backtick key triggers a BPMF homophone lookup. ESC/backspace should exit back to the prior state.
 - **Platform-specific shims**: ChromeOS and PIME entrypoints (`src/chromeos_ime.ts`, `src/pime.ts`, `src/pime_keys.ts`) should stay thin and call into the shared `InputController`.
   - The ChromeOS extension (`src/chromeos_ime.ts`) also implements a context menu feature. When text is selected or an editable area is focused, a 'lookup' option appears. Activating this option performs a reverse radical lookup using the `InputTableManager` and sends the result to the content script.
   - Help pages for Chrome OS and PIME are provided in `output/chromeos/help/index.html` and `output/pime/help.html` respectively.
   - The Web example uses SimpleKeyboard for a virtual on-screen keyboard (`output/example/index.js`).
-- **Input Table Types**: `InputTableType` (defined in `src/data/InputTableWrapper.ts`) distinguishes between `Regular`, `Bopomofo`, and `Wsl` (吳守禮/Wu Shou-li) tables. Bopomofo-based tables use `BopomofoSyllable` or `BopomofoWslSyllable` for radical processing and require specialized handling in `KeyHandler` for syllable composition and candidate lookup. BasicInputtingState uses different properties in `Wsl` and `Bopomofo` than non-Bopomofo tables (where candidates represent syllables rather than input sequences directly).
 
 ## Coding conventions
 
@@ -38,6 +39,8 @@
 
 ## Documentation expectations
 
+- The canonical Copilot guidance lives in `.github/copilot-instructions.md`.
+- `GEMINI.md` and `AGENT.md` are link-only entrypoints. Update the canonical file instead of treating those files as independent documentation.
 - Update this file when introducing new subsystems so Copilot understands how to wire things together.
 - Prefer concise prose and actionable bullet points that tell Copilot _what to favor or avoid_ rather than lengthy narratives.
 
