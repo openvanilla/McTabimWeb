@@ -417,7 +417,7 @@ class PimeMcTabim {
    * @param id The command ID.
    */
   public handleCommand(id: PimeMcTabimCommand): void {
-    if (id > PimeMcTabimCommand.InputTable) {
+    if (id >= PimeMcTabimCommand.InputTable) {
       const inputMethodIndex = id - PimeMcTabimCommand.InputTable;
       const tables = InputTableManager.getInstance().tables;
       const tableId = tables[inputMethodIndex][0]; // 0 - id, 1 - name
