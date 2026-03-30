@@ -45,7 +45,7 @@ export interface SymbolTable {
  * Represents an entry for looking up radicals in a specific input table.
  */
 export class RadicalLookupEntry {
-  constructor(public inputTableName: string, public radicals: string[]) {}
+  constructor(public inputTableName: string, public radicals: string[]) { }
 }
 
 /**
@@ -59,7 +59,7 @@ export class InputTableManager {
   private internalIndex_: number = 0;
   private tablesMetadata_: [string, string][] | undefined = undefined;
 
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Gets the singleton instance of the `InputTableManager`.
@@ -106,6 +106,10 @@ export class InputTableManager {
    */
   setInputTableById(id: string): void {
     const index = this.tables_.findIndex((table) => table.id === id);
+    if (index === this.internalIndex_) {
+      return;
+    }
+
     if (index !== -1) {
       this.internalIndex_ = index;
     } else {

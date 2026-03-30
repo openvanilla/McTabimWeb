@@ -14,7 +14,6 @@ import { Key, KeyName } from './input_method/Key';
  * Represents the settings for the mctabim IME on ChromeOS.
  */
 type ChromeMcTabimSettings = {
-  selectedInputMethodId: string;
   shiftKeyToToggleAlphabetMode: boolean;
   useNotification: boolean;
   inputSettings: {
@@ -50,7 +49,7 @@ class ChromeMcTabim {
 
   // The default settings.
   readonly defaultSettings: ChromeMcTabimSettings = {
-    selectedInputMethodId: 'checj',
+
     shiftKeyToToggleAlphabetMode: true,
     useNotification: true,
     inputSettings: {
@@ -66,7 +65,7 @@ class ChromeMcTabim {
     },
   };
   settings: ChromeMcTabimSettings = {
-    selectedInputMethodId: 'checj',
+
     shiftKeyToToggleAlphabetMode: true,
     useNotification: true,
     inputSettings: {
@@ -144,10 +143,6 @@ class ChromeMcTabim {
         this.settings = this.defaultSettings;
       }
 
-      const selectedInputMethodId = this.settings.selectedInputMethodId;
-      if (selectedInputMethodId !== undefined) {
-        InputTableManager.getInstance().setInputTableById(selectedInputMethodId);
-      }
       const inputSettings = this.settings.inputSettings;
       if (inputSettings !== undefined) {
         this.inputController.settings = inputSettings;
@@ -205,40 +200,7 @@ class ChromeMcTabim {
         label: chrome.i18n.getMessage('menuHelp'),
         style: 'check' as const,
       },
-      // {
-      //   id: 'mctabim-separator-1',
-      //   style: 'separator' as const,
-      //   enabled: false,
-      // },
     ];
-
-    // const selectedId = this.settings.selectedInputMethodId || 0;
-    // const inputTables = InputTableManager.getInstance().tables;
-    // let selectedTableSet = false;
-    // let inputTableMenus: chrome.input.ime.MenuItem[] = [];
-
-    // for (let i = 0; i < inputTables.length; i++) {
-    //   const table = inputTables[i];
-    //   const checked = table[0] === selectedId;
-    //   if (checked) {
-    //     selectedTableSet = true;
-    //   }
-    //   const item = {
-    //     id: `mctabim-select-table-${table[0]}`,
-    //     label: table[1],
-    //     style: 'radio' as const,
-    //     checked: checked,
-    //   };
-    //   inputTableMenus.push(item);
-    // }
-
-    // if (!selectedTableSet) {
-    //   const item = inputTableMenus[0];
-    //   const id = item.id.split('-').pop();
-    //   InputTableManager.getInstance().setInputTableById(id || 'checj');
-    //   this.settings.selectedInputMethodId = id || 'checj';
-    // }
-    // menus = menus.concat(inputTableMenus);
     chrome.input?.ime.setMenuItems({ engineID: this.engineID, items: menus });
   }
 
@@ -470,12 +432,8 @@ chrome.input?.ime.onActivate.addListener((engineID) => {
   chromeMcTabim.updateMenu();
 
   const id = engineID.split('.').pop();
-  if (id !== chromeMcTabim.settings.selectedInputMethodId) {
-    InputTableManager.getInstance().setInputTableById(id || '');
-    chromeMcTabim.settings.selectedInputMethodId = id || '';
-    chromeMcTabim.engineID = engineID;
-    chromeMcTabim.saveSettings();
-  }
+  InputTableManager.getInstance().setInputTableById(id || '');
+  chromeMcTabim.engineID = engineID;
 });
 
 // Called when the current text input are loses the focus.
