@@ -8,17 +8,42 @@
   "manifestDesc": {
     "message": "Table based Traditional Chinese Input Method"
   },
-  "imeUS": {
-    "message": "McTabIM (US Keyboard)"
+  "imeChecj": {
+    "message": "McTabIM (Che Canjie)"
   },
-  "imeDvorak": {
-    "message": "McTabIM (Dvorak Keyboard)"
+  "imeSimplex": {
+    "message": "McTabIM (Simplex)"
   },
-  "imeColmak": {
-    "message": "McTabIM (Colmak Keyboard)"
+  "imeCj5": {
+    "message": "McTabIM (Canjie 5)"
   },
-  "menuAlphabetMode": { "message": "English Mode" },
-  "menuChineseConversion": { "message": "Input Simplified Chinese" },
+  "imeSimplex5": {
+    "message": "McTabIM (Simplex 5)"
+  },
+  "imeDayi3": {
+    "message": "McTabIM (Dayi 3)"
+  },
+  "imeDayi4": {
+    "message": "McTabIM (Dayi 4)"
+  },
+  "imeArray30": {
+    "message": "McTabIM (Array 30)"
+  },
+  "imeArray40": {
+    "message": "McTabIM (Array 40)"
+  },
+  "imeBpmf": {
+    "message": "McTabIM (Zhuyin)"
+  },
+  "imeWsl": {
+    "message": "McTabIM (WSL Taiwanese Zhuyin)"
+  },
+  "menuAlphabetMode": {
+    "message": "English Mode"
+  },
+  "menuChineseConversion": {
+    "message": "Input Simplified Chinese"
+  },
   "menuOptions": {
     "message": "Options"
   },
