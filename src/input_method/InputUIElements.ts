@@ -48,15 +48,7 @@ class InputUIState {
     readonly candidatePageIndex: number,
     readonly tooltip?: string,
     readonly candidateAnnotation?: string,
-  ) {
-    this.composingBuffer = composingBuffer;
-    this.cursorIndex = cursorIndex;
-    this.candidates = candidates;
-    this.candidatePageCount = candidatePageCount;
-    this.candidatePageIndex = candidatePageIndex;
-    this.tooltip = tooltip;
-    this.candidateAnnotation = candidateAnnotation;
-  }
+  ) {}
 }
 
 export class TooltipOnlyStateBuilder {
