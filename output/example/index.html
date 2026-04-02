@@ -4,36 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>McTabIM - 小麥他命輸入法網頁版本</title>
+    <title>McTabim 小麥他命：線上查表式中文輸入法 (倉頡、速成、大易、行列)</title>
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://unpkg.com/simple-keyboard@latest/build/css/index.css">
-    <meta name="description" content="McTabIM - 小麥他命輸入法網頁版本">
-    <meta name="keywords" content="網頁輸入法,小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabIM,McTabIM,McTabim,Web Input Method">
-    <meta name="author" content="McTabIM Authors">
+    <meta name="description" content="McTabim - 小麥他命輸入法網頁版本">
+    <meta name="keywords" content="網頁輸入法,小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabim,Web Input Method">
+    <meta name="author" content="McTabim Authors">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f3ee">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171613">
     <link rel="icon" href="favicon.ico">
-    <meta property="og:title" content="McTabIM - 小麥他命輸入法網頁版本">
+    <meta property="og:title" content="McTabim 小麥他命：線上查表式中文輸入法 (倉頡、速成、大易、行列)">
     <meta property="og:description" content="McTabIM - 小麥他命輸入法網頁版本，直接在網頁中使用倉頡、速成、大易、行列、注音、吳守臺語注音等輸入法。無須額外安裝輸入法">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="McTabIM - 小麥他命輸入法網頁版本">
     <meta name="twitter:description" content="McTabIM - 小麥他命輸入法網頁版本，直接在網頁中使用倉頡、速成、大易、行列、注音、吳守臺語注音等輸入法。無須額外安裝輸入法">
     <link rel="manifest" href="manifest.json">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "McTabim 小麥他命網頁版",
+  "operatingSystem": "Web",
+  "applicationCategory": "UtilitiesApplication",
+  "browserRequirements": "requires HTML5 support",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+  },
+  "description": "線上查表式中文輸入法，支援倉頡、速成、大易、行列、注音等，無須安裝即可在瀏覽器使用。"
+}
+</script>
 </head>
 
 <body>
-    <div class="main">
+    <main class="main">
         <p id="loading">正在載入小麥他命輸入法，請稍候</p>
 
-        <p class="navi"><b>McTabIM 小麥他命輸入法</b>
+        <div class="navi">
+            <h1>McTabIM 小麥他命輸入法</h1>
             <a href="#feature_input" title="輸入功能">輸入功能</a>
             <a href="#feature_user_data" title="自訂符號表管理">自訂符號表管理</a>
             <a href="#feature_lookup" title="字根反查">字根反查</a>
             <a href="#feature_table_help" title="輸入表格說明">輸入表格說明</a>
-        </p>
+        </div>
 
-        <div id="feature_input" class="feature">
+        <section id="feature_input" class="feature">
             <div class="left">
                 <div id="edit_area">
                     <div class="status_area">
@@ -99,11 +117,18 @@
                 </details>
 
                 <details open>
-                    <summary> 使用方式 </summary>
-                    <p>小麥他命是一套查表式輸入法，可以使用倉頡、速成、大易、行列等輸入法。直接輸入字根後，就會顯示可用的候選字，再按下選字鍵即可完成輸入。除了網頁版本外，也提供 <a
-                            href="https://chromewebstore.google.com/detail/mctabim/fkmgjlpcofgddlpbjggglpnfgfeaibhg?authuser=0&hl=en&pli=1"
+                    <summary> 軟體說明 </summary>
+                    <p>小麥他命是一套以網頁技術打造的查表式輸入法，可以使用倉頡、速成、大易、行列等。網頁版本方便在無法自行安裝輸入法的環境下，依然可以有順手的輸入法，像是某些限制較大的平板與電子紙裝置。</p>
+                    <p>除了網頁版本外，也提供
+                        <a href="https://chromewebstore.google.com/detail/mctabim/fkmgjlpcofgddlpbjggglpnfgfeaibhg?authuser=0&hl=en&pli=1"
                             target="_blank">ChromeOS 版本</a>，也可以透過 PIME 在
-                        Windows 上使用。</p>
+                        Windows 上使用。
+                    </p>
+                </details>
+
+                <details open>
+                    <summary> 使用方式 </summary>
+                    <p>直接輸入字根後，就會顯示可用的候選字，再按下選字鍵即可完成輸入。</p>
                     <p>特殊按鍵如下：</p>
                     <ul>
                         <li>
@@ -120,9 +145,13 @@
                         </li>
                     </ul>
                     <p>打出某些字詞之後，可以選擇聯想詞。輸入方式是按下 Shift + 數字按鍵。</p>
-                    <h2>資料來源</h2>
+                </details>
+
+                <details>
+                    <summary> 資料來源 </summary>
                     <p>輸入法表格資料來自 PIME 以及 OpenVanilla 專案。</p>
                 </details>
+
                 <details>
                     <summary> 小麥網頁輸入法家族 </summary>
                     <ul>
@@ -150,8 +179,8 @@
                     </ul>
                 </details>
             </div>
-        </div>
-        <div id="feature_user_data" class="feature">
+        </section>
+        <section id="feature_user_data" class="feature">
             <div class="content">
                 <div class="left">
                     <h2>自訂符號表管理</h2>
@@ -172,8 +201,8 @@
                     <p>請在編輯之後，按下儲存按鈕。</p>
                 </div>
             </div>
-        </div>
-        <div id="feature_lookup" class="feature">
+        </section>
+        <section id="feature_lookup" class="feature">
             <div class="content">
                 <div class="left">
                     <h2>字根反查</h2>
@@ -185,8 +214,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="feature_table_help" class="feature">
+        </section>
+        <section id="feature_table_help" class="feature">
             <div class="content">
                 <div class="left">
                     <h2>輸入法表格說明</h2>
@@ -207,7 +236,7 @@
                     <p> 本輸入法使用對應鍵盤位置修改自「華音延伸鍵盤」，</p>
                     <p><img src="
                         https://web.archive.org/web/20160821043716im_/http://xiaoxue.iis.sinica.edu.tw/download/images/keyboard-2.jpg"
-                            width="400" title="華音延伸鍵盤"> </p>
+                            width="400" title="華音延伸鍵盤" alt="華音延伸鍵盤配置圖 - 吳守禮臺語注音輸入法"> </p>
                     <p>在原本的鍵盤設計中，將聲調定義在 F1-F8 等按鍵上，在一般電腦上並不方便輸入。將聲調符號位置稍作修改：</p>
                     <ul>
                         <li>第一、二、三、五聲對應華音一、四、三、二聲輸入鍵</li>
@@ -217,10 +246,11 @@
                     </ul>
                 </div>
             </div>
-        </div>
-        <p class="credit">Copyright (c) 2026 and onwards The McTabLM Authors. This code is released under the MIT
-            license.版本：0.5.0. <a href="privacy_policy.html">隱私權政策</a></p>
-    </div>
+        </section>
+        <footer class="credit">Copyright (c) 2026 and onwards The McTabLM Authors. This code is released under the
+            MIT
+            license.版本：0.5.0. <a href="privacy_policy.html">隱私權政策</a></footer>
+    </main>
 </body>
 
 </html>
