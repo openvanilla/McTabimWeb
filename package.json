@@ -25,8 +25,8 @@
     "build:dev": "webpack --mode development",
     "build:watch": "webpack --mode development --watch",
     "prepublishOnly": "npm run ts-build && npm run test && npm run eslint",
-    "test": "./node_modules/jest/bin/jest.js",
-    "test:coverage": "./node_modules/jest/bin/jest.js --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "eslint": "eslint src --ext .ts --fix"
   },
   "repository": {

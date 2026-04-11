@@ -183,9 +183,6 @@ export class InputController {
       const nextKey = newState.nextKey;
       if (nextKey) {
         this.handle(nextKey);
-      } else {
-        this.ui_.reset();
-        this.state_ = new EmptyState('reset after committing');
       }
     } else if (newState instanceof InputtingState) {
       this.handleInputtingState(oldState, newState);
@@ -207,6 +204,8 @@ export class InputController {
       commitString = ChineseConvert.cn2tw(commitString);
     }
     this.ui_.commitString(commitString);
+    this.ui_.reset();
+    this.state_ = new EmptyState('reset after committing');
   }
 
   private handleInputtingState(oldState: InputState, newState: InputtingState): void {
