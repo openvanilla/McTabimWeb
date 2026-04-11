@@ -1,6 +1,7 @@
 import { BopomofoSyllable } from './BopomofoSyllable';
 import { BopomofoWslSyllable } from './BopomofoWslSyllable';
 import { Candidate } from './Candidate';
+import { HakkaSyllable } from './HakkaSyllable';
 import { InputTable } from './InputTable';
 
 export interface InputTableSettings {
@@ -250,5 +251,24 @@ export class WslInputTableWrapper extends GeneralInputTableWrapper {
 
   override createSyllable(keys: string): InputTableSyllable {
     return BopomofoWslSyllable.fromKeys(keys);
+  }
+}
+
+export class HakkaInputTableWrapper extends GeneralInputTableWrapper {
+  constructor(
+    id: string,
+    jsonSource: string,
+    settings: InputTableSettings,
+    additionalSource?: string[] | undefined,
+  ) {
+    super(id, jsonSource, settings, additionalSource);
+  }
+
+  override get isPhoneticTable(): boolean {
+    return true;
+  }
+
+  override createSyllable(keys: string): InputTableSyllable {
+    return HakkaSyllable.fromKeys(keys);
   }
 }
