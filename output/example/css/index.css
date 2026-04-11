@@ -143,6 +143,11 @@ td {
   user-select: none;
 }
 
+.navi h1 {
+  font-size: 11pt;
+  display: inline;
+}
+
 .navi a {
   color: var(--text-secondary);
   text-decoration: none;
