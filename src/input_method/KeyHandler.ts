@@ -368,7 +368,8 @@ export class KeyHandler {
           // page down
           const candidatesPerPage = state.selectionKeys.length;
           const newIndex = Math.min(
-            ((state.selectedCandidateIndex ?? 0) / candidatesPerPage + 1) * candidatesPerPage,
+            (Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage) + 1) *
+              candidatesPerPage,
             state.candidates.length - 1,
           );
           const newState = state.copyWithArgs({
@@ -855,7 +856,8 @@ export class KeyHandler {
       if (state.candidates.length > 0) {
         const candidatesPerPage = state.selectionKeys.length;
         const newIndex = Math.min(
-          ((state.selectedCandidateIndex ?? 0) / candidatesPerPage + 1) * candidatesPerPage,
+          (Math.floor((state.selectedCandidateIndex ?? 0) / candidatesPerPage) + 1) *
+            candidatesPerPage,
           state.candidates.length - 1,
         );
         const newState = state.copyWithArgs({

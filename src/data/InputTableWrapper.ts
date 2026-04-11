@@ -169,7 +169,7 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
       }
       remapped.push([displayedRadicals.join(''), found]);
     }
-    remapped.sort((a, b) => a.length - b.length);
+    remapped.sort((a, b) => a[0].length - b[0].length);
     return remapped;
   }
 
