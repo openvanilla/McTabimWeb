@@ -170,7 +170,6 @@ class PimeMcTabim {
   isLastFilterKeyDownHandled: boolean = false;
   isCapsLockHold: boolean = false;
   isShiftHold: boolean = false;
-  isScheduledToUpdateUi = false;
   /** Whether the button has been added to the UI. */
   alreadyAddButton: boolean = false;
   /** Whether the OS is Windows 8 or above. */
@@ -349,12 +348,6 @@ class PimeMcTabim {
     const windowsModeIconPath = path.join(__dirname, 'icons', windowsModeIcon);
     const settingsIconPath = path.join(__dirname, 'icons', 'config.ico');
     const object: any = {};
-    const changeButton: any[] = [];
-    if (this.isWindows8Above) {
-      changeButton.push({ icon: windowsModeIconPath, id: 'windows-mode-icon' });
-    }
-    changeButton.push({ icon: windowsModeIconPath, id: 'switch-lang' });
-    object.changeButton = changeButton;
 
     if (!this.alreadyAddButton) {
       const addButton: any[] = [];
@@ -380,7 +373,13 @@ class PimeMcTabim {
         tooltip: '設定',
       });
       object.addButton = addButton;
-      this.alreadyAddButton = true;
+    } else {
+      const changeButton: any[] = [];
+      if (this.isWindows8Above) {
+        changeButton.push({ icon: windowsModeIconPath, id: 'windows-mode-icon' });
+      }
+      changeButton.push({ icon: windowsModeIconPath, id: 'switch-lang' });
+      object.changeButton = changeButton;
     }
     return object;
   }
@@ -515,23 +514,20 @@ module.exports = {
       const { isWindows8Above } = request;
       pimeMcTabim.isWindows8Above = isWindows8Above;
       const customUi = pimeMcTabim.customUiResponse();
-      const response = Object.assign({}, responseTemplate, customUi, {
-        removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
-      });
+      const response = Object.assign({}, responseTemplate, customUi);
       return response;
     }
     if (request.method === 'close') {
-      const response = Object.assign({}, responseTemplate, {
-        removeButton: ['windows-mode-icon', 'switch-lang', 'settings'],
-      });
-      pimeMcTabim.alreadyAddButton = false;
+      const response = Object.assign({}, responseTemplate);
       return response;
     }
 
     if (request.method === 'onActivate') {
+      pimeMcTabim.alreadyAddButton = false;
       pimeMcTabim.resetController('onActivate');
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
+      pimeMcTabim.alreadyAddButton = true;
       const response = Object.assign({}, responseTemplate, customUi, buttonUi);
       return response;
     }
@@ -552,6 +548,9 @@ module.exports = {
     }
 
     if (request.method === 'filterKeyUp') {
+      const state = pimeMcTabim.inputController.state;
+      let handled = state instanceof EmptyState === false;
+
       if (
         lastRequest &&
         lastRequest.method === 'filterKeyUp' &&
@@ -565,32 +564,43 @@ module.exports = {
         return response;
       }
 
-      const isEmpty = pimeMcTabim.inputController.state instanceof EmptyState;
-      let rtn = false;
       // Single Shift to toggle alphabet mode.
-      if (isEmpty && pimeMcTabim.isShiftHold) {
-        pimeMcTabim.isScheduledToUpdateUi = true;
+      let uiState = {
+        commitString: '',
+        compositionString: '',
+        compositionCursor: 0,
+        showCandidates: false,
+        candidateList: [],
+        candidateCursor: 0,
+        showMessage: {},
+        hideMessage: true,
+      };
+
+      if (pimeMcTabim.isShiftHold) {
         pimeMcTabim.toggleAlphabetMode();
-        rtn = true;
+        // Note: Since we are toggling alphabet mode on key up event, we should
+        // update the icons here.
+        const customUi = pimeMcTabim.customUiResponse();
+        const buttonUi = pimeMcTabim.buttonUiResponse();
+        let response = Object.assign({}, responseTemplate, customUi, buttonUi, uiState, {
+          return: false,
+        });
+        // Note: We return false here so we can let the shift key event to be
+        // passeds to IntelliJ and then IntelliJ can trigger the action menu by
+        // the double shift key event.
+        return response;
       }
-      const response = Object.assign({}, responseTemplate, { return: rtn });
+      let response = Object.assign({}, responseTemplate, {
+        return: handled,
+      });
       return response;
     }
 
-    // In most cases, we just return false in key up event. However, we still
-    // need it to detect the single shift press to toggle alphabet mode.
     if (request.method === 'onKeyUp') {
-      if (pimeMcTabim.isScheduledToUpdateUi) {
-        pimeMcTabim.isScheduledToUpdateUi = false;
-        const uiState = pimeMcTabim.uiState;
-        const customUi = pimeMcTabim.customUiResponse();
-        const buttonUi = pimeMcTabim.buttonUiResponse();
-        const response = Object.assign(responseTemplate, uiState, customUi, buttonUi, {
-          return: true,
+      if (pimeMcTabim.isShiftHold) {
+        let response = Object.assign({}, responseTemplate, {
+          return: false,
         });
-        return response;
-      } else {
-        const response = Object.assign({}, responseTemplate, { return: false });
         return response;
       }
     }
@@ -626,9 +636,11 @@ module.exports = {
       }
 
       const key = KeyFromKeyboardEvent(keyCode, keyStates, String.fromCharCode(charCode), charCode);
-      // console.log('filterKeyDown key: ' + ey.ascii);
 
-      const shouldHandleShift = pimeMcTabim.settings.shiftKeyToToggleAlphabetMode === true;
+      let shouldHandleShift = pimeMcTabim.settings.shiftKeyToToggleAlphabetMode === true;
+      if (pimeMcTabim.inputController.state instanceof EmptyState === false) {
+        shouldHandleShift = false;
+      }
 
       const isPressingShiftOnly = key.ascii === 'Shift';
 
@@ -640,15 +652,12 @@ module.exports = {
       // key only. Then, if there is any other key coming, we will reset
       // isShiftHold. Finally, if isShiftHold is still true in the key up event,
       // we will toggle Alphabet/Chinese.
-      const state = pimeMcTabim.inputController.state;
-      if (shouldHandleShift && isPressingShiftOnly && state instanceof EmptyState) {
+      if (shouldHandleShift && isPressingShiftOnly) {
         pimeMcTabim.isShiftHold = true;
         pimeMcTabim.isLastFilterKeyDownHandled = true;
         const response = Object.assign({}, responseTemplate, {
-          return: true,
+          return: false,
         });
-        console.log('filterKeyDown response with shift: ' + response);
-        console.log(response);
         return response;
       } else {
         pimeMcTabim.isShiftHold = false;
@@ -672,9 +681,7 @@ module.exports = {
       if (key.ctrlPressed) {
         pimeMcTabim.resetController('control key pressed');
         pimeMcTabim.isLastFilterKeyDownHandled = false;
-        const response = Object.assign({}, responseTemplate, {
-          return: false,
-        });
+        const response = Object.assign({}, responseTemplate, { return: false });
         return response;
       }
 
@@ -718,12 +725,6 @@ module.exports = {
       let response = Object.assign({}, responseTemplate, uiState, {
         return: pimeMcTabim.isLastFilterKeyDownHandled,
       });
-      if (pimeMcTabim.isScheduledToUpdateUi) {
-        pimeMcTabim.isScheduledToUpdateUi = false;
-        const customUi = pimeMcTabim.customUiResponse();
-        const buttonUi = pimeMcTabim.buttonUiResponse();
-        response = Object.assign({}, response, customUi, buttonUi);
-      }
       return response;
     }
 
