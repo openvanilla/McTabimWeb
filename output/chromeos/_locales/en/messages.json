@@ -38,6 +38,12 @@
   "imeWsl": {
     "message": "McTabIM (WSL Taiwanese Zhuyin)"
   },
+  "imeTpHakkaHl": {
+    "message": "McTabIM (Hakka Tongyong Pinyin - Hoiliuk)"
+  },
+  "imeTpHakkaSy": {
+    "message": "McTabIM (Hakka Tongyong Pinyin - Sixian)"
+  },
   "menuAlphabetMode": {
     "message": "English Mode"
   },

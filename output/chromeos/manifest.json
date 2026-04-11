@@ -110,6 +110,24 @@
       "layouts": ["us"],
       "options_page": "options.html",
       "indicator": "臺"
+    },
+    {
+      "name": "__MSG_imeTpHakkaHl__",
+      "type": "ime",
+      "id": "org.openvanilla.mctabim.tpHakkaHl",
+      "language": "zh-TW",
+      "layouts": ["us"],
+      "options_page": "options.html",
+      "indicator": "客"
+    },
+    {
+      "name": "__MSG_imeTpHakkaSy__",
+      "type": "ime",
+      "id": "org.openvanilla.mctabim.tpHakkaSy",
+      "language": "zh-TW",
+      "layouts": ["us"],
+      "options_page": "options.html",
+      "indicator": "客"
     }
   ],
   "options_page": "options.html",

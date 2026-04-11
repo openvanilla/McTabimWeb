@@ -12,9 +12,9 @@ export class HakkaSyllable {
   private constructor(public letters?: string | undefined, public tone?: string | undefined) {}
 
   /**
-   * Creates a BopomofoSyllable from a string of keys.
+   * Creates a HakkaSyllable from a string of keys.
    * @param keys A string containing the keyboard keys for the syllable.
-   * @returns A new BopomofoSyllable instance.
+   * @returns A new HakkaSyllable instance.
    */
   static fromKeys(keys: string) {
     let letters: string | undefined = undefined;
@@ -51,7 +51,7 @@ export class HakkaSyllable {
   }
 
   /**
-   * Returns the Bopomofo reading of this syllable (e.g., "ㄅㄚˇ").
+   * Returns the Hakka reading of this syllable.
    */
   get reading(): string {
     return (this.letters ?? '') + (this.tone ?? '');

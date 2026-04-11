@@ -38,6 +38,12 @@
   "imeWsl": {
     "message": "小麥他命 (吳守禮臺語注音)"
   },
+  "imeTpHakkaHl": {
+    "message": "小麥他命 (通用拼音客家話 - 海陸腔)"
+  },
+  "imeTpHakkaSy": {
+    "message": "小麥他命 (通用拼音客家話 - 四縣腔)"
+  },
   "menuAlphabetMode": {
     "message": "輸入英文字母"
   },

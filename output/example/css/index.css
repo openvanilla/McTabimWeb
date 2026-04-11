@@ -702,3 +702,8 @@ textarea#text_area:focus ~ * #edit_area,
 .setting_group input {
   margin-right: 10px;
 }
+
+.table_help {
+  max-width: 700px;
+  margin-left: 30px;
+}
