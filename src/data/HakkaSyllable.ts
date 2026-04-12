@@ -1,4 +1,14 @@
+/**
+ * Represents a Hakka syllable parsed from keyboard input.
+ *
+ * The model separates the alphabetic body from the optional tone marker and
+ * exposes helpers for validation and for reconstructing the original key
+ * sequence.
+ */
 export class HakkaSyllable {
+  /**
+   * Tone-marker keys recognized by the parser.
+   */
   static tones = new Map<string, string>([
     ['4', '4'],
     ['6', '6'],
@@ -12,9 +22,12 @@ export class HakkaSyllable {
   private constructor(public letters?: string | undefined, public tone?: string | undefined) {}
 
   /**
-   * Creates a HakkaSyllable from a string of keys.
-   * @param keys A string containing the keyboard keys for the syllable.
-   * @returns A new HakkaSyllable instance.
+   * Parses a Hakka syllable from a sequence of keyboard keys.
+   *
+   * Non-letter characters are ignored unless they match a supported tone key.
+   *
+   * @param keys - The keyboard input to interpret as a Hakka syllable.
+   * @returns A parsed syllable instance.
    */
   static fromKeys(keys: string) {
     let letters: string | undefined = undefined;
@@ -36,6 +49,9 @@ export class HakkaSyllable {
     return new HakkaSyllable(letters, tone);
   }
 
+  /**
+   * Returns whether the parsed syllable contains a letter sequence.
+   */
   get isValid(): boolean {
     if (this.letters === undefined) {
       return false;
@@ -44,14 +60,14 @@ export class HakkaSyllable {
   }
 
   /**
-   * Returns the string of keys representing this syllable.
+   * Returns the normalized key sequence for this syllable.
    */
   get keys(): string {
     return (this.letters ?? '') + (this.tone ?? '');
   }
 
   /**
-   * Returns the Hakka reading of this syllable.
+   * Returns the rendered Hakka reading for this syllable.
    */
   get reading(): string {
     return (this.letters ?? '') + (this.tone ?? '');

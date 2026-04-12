@@ -16,23 +16,13 @@ import { Settings } from './Settings';
 const ChineseConvert = require('chinese_convert');
 
 /**
- * The main controller for the input method.
+ * Coordinates key handling, input-state transitions, and UI updates.
  *
- * This class is responsible for managing the state of the input method,
- * handling user input, and interacting with the UI. It acts as the central
- * hub of the input method, coordinating the activities of the other
- * components.
- *
- * The `InputController` maintains the current state of the input method, which
- * can be one of several states, such as "empty", "inputting", or
- * "committing". It receives user input in the form of keyboard events, and
- * then passes them to the `KeyHandler` to be processed. The `KeyHandler`
- * then determines the next state of the input method, and the
- * `InputController` transitions to that state.
- *
- * The `InputController` also interacts with the UI to display the current
- * state of the input method, such as the current input, the list of
- * candidates, and any error messages.
+ * `InputController` is the runtime entry point used by host integrations such
+ * as the web demo, ChromeOS IME bridge, and PIME adapter. It owns the current
+ * {@link InputState}, forwards normalized keys to {@link KeyHandler}, applies
+ * committed text conversion settings, and keeps the configured {@link InputUI}
+ * synchronized with the latest composition state.
  */
 export class InputController {
   private state_: InputState = new EmptyState();
@@ -50,25 +40,29 @@ export class InputController {
   };
 
   /**
-   * Optional callback function that is triggered when settings change.
+   * Invoked after the controller accepts a new settings object.
+   *
+   * A platform-specific host should implement this callback to persist the
+   * updated settings.
    */
   onSettingChanged?: ((settings: Settings) => void) | undefined;
+
   /**
-   * Optional callback function that is triggered on an error event,
-   * typically used to beep or alert the user.
+   * Invoked when input handling reports an error and beeps are enabled.
    */
   onError?: (() => void) | undefined;
 
   /**
-   * Gets the current settings for the input controller.
+   * Returns the active controller settings.
    */
   get settings(): Settings {
     return this.settings_;
   }
 
   /**
-   * Sets new settings for the input controller.
-   * If the settings have changed, it updates the internal state.
+   * Replaces the active controller settings.
+   *
+   * @param value - The settings object to use for subsequent input handling.
    */
   set settings(value: Settings) {
     if (this.settings_ !== value) {
@@ -77,18 +71,17 @@ export class InputController {
   }
 
   /**
-   * Gets the current input state of the controller.
+   * Returns the current input-method state.
    */
   get state(): InputState {
     return this.state_;
   }
 
   /**
-   * Creates a new `InputController`.
+   * Creates an input controller.
    *
-   * @param ui_ - The user interface implementation to interact with.
-   * @param keyHandler - An optional `KeyHandler` for handling key events.
-   *                     If not provided, a default `KeyHandler` is instantiated.
+   * @param ui_ - The UI bridge that receives reset, update, and commit events.
+   * @param keyHandler - Optional key-handler override used primarily by tests.
    */
   constructor(private ui_: InputUI, keyHandler?: KeyHandler) {
     this.keyHandler_ =
@@ -104,35 +97,44 @@ export class InputController {
   }
 
   /**
-   * Resets the input controller to its initial state.
+   * Clears any active composition and returns to an empty state.
    *
-   * @param {string} reason - The reason for resetting the controller.
+   * @param reason - A short reason recorded in the resulting {@link EmptyState}.
    */
   reset(reason: string): void {
     this.enterState(this.state_, new EmptyState(reason));
   }
 
   /**
-   * Handles a keyboard event.
+   * Maps a DOM keyboard event into an internal key and processes it.
    *
-   * @param {KeyboardEvent} event - The keyboard event to handle.
-   * @returns {boolean} - True if the event was handled, false otherwise.
+   * @param event - The keyboard event raised by the host environment.
+   * @returns `true` when the input method consumes the event.
    */
   handleKeyboardEvent(event: KeyboardEvent): boolean {
     const key = KeyMapping.keyFromKeyboardEvent(event);
     return this.handle(key);
   }
 
+  /**
+   * Maps a button press from the SimpleKeyboard on-screen keyboard library into
+   * an internal key and processes it.
+   *
+   * @param button - The button label emitted by the SimpleKeyboard web library.
+   * @param isShift - Whether the virtual keyboard is currently in shift mode.
+   * @param isCtrl - Whether the event should be treated as ctrl-modified input.
+   * @returns `true` when the input method consumes the generated key.
+   */
   handleSimpleKeyboardEvent(button: string, isShift: boolean, isCtrl: boolean): boolean {
     const key = KeyMapping.keyFromSimpleKeyboardEvent(button, isShift, isCtrl);
     return this.handle(key);
   }
 
   /**
-   * Handles a key.
+   * Processes a normalized internal key.
    *
-   * @param {Key} key - The key to handle.
-   * @returns {boolean} - True if the key was handled, false otherwise.
+   * @param key - The internal key abstraction produced by a platform mapper.
+   * @returns `true` when the key was handled by the input method.
    */
   handle(key: Key): boolean {
     const handled = this.keyHandler_.handle(
@@ -152,9 +154,9 @@ export class InputController {
   }
 
   /**
-   * Selects a candidate at the given index.
+   * Chooses a candidate from the currently displayed page.
    *
-   * @param {number} index - The index of the candidate to select.
+   * @param index - Zero-based index within the current candidate page.
    */
   selectCandidateAtIndex(index: number): void {
     const oldState = this.state_;

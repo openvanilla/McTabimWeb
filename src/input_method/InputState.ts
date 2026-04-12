@@ -4,27 +4,21 @@ import { Key } from './Key';
 import { Settings } from './Settings';
 
 /**
- * The abstract base class for all input states.
+ * Base type for all input-method runtime states.
  *
- * This class provides a common interface for the various states that the input
- * method can be in, such as "empty", "inputting", or "committing". Each state
- * represents a different stage in the user's interaction with the input method.
- *
- * The input controller (`InputController`) manages the transitions between these
- * states in response to user input. Each state class is responsible for
- * handling a specific set of user actions and for determining the next state.
+ * The controller moves between these states as keys are handled, candidates are
+ * selected, and text is committed. Concrete subclasses describe the UI data and
+ * transition context needed for a specific stage of the input flow.
  */
 export abstract class InputState {}
 
 /**
- * Represents the state where there is no active input.
+ * Represents the absence of an active composition.
  *
- * This is the default state of the input method, and it is returned to after an
- * input has been committed or cancelled. In this state, the input method is
- * ready to accept a new input from the user.
+ * This is the default idle state entered after initialization, reset, commit,
+ * or cancellation.
  *
- * @param {string} reason - An optional description of why the empty state was
- *     entered. This can be useful for debugging.
+ * @param reason - Optional context describing why the controller became empty.
  */
 export class EmptyState extends InputState {
   constructor(public reason: string = 'Initial State') {
@@ -37,13 +31,13 @@ export class EmptyState extends InputState {
 }
 
 /**
- * Represents the state where a string is being committed.
+ * Represents a pending text commit.
  *
- * This state is entered after the user has selected a candidate from the list
- * of suggestions. The input method will then commit the selected string to the
- * text field and return to the `EmptyState`.
+ * The controller consumes this state by sending {@link commitString} to the UI,
+ * applying Chinese conversion settings, and then returning to {@link EmptyState}.
  *
- * @param {string} commitString - The string to be committed.
+ * @param commitString - The text that should be committed.
+ * @param nextKey - Optional key to re-process immediately after the commit.
  */
 export class CommittingState extends InputState {
   constructor(readonly commitString: string, readonly nextKey?: Key | undefined) {
@@ -58,13 +52,9 @@ export class CommittingState extends InputState {
 }
 
 /**
- * A state that only displays a tooltip.
+ * Displays a tooltip without an active composition.
  *
- * This state is used to show a temporary message to the user, such as an error
- * message or a hint. The input method will remain in this state until the user
- * takes some action, at which point it will transition to another state.
- *
- * @param {string} tooltip - The message to be displayed in the tooltip.
+ * @param tooltip - The tooltip message to present in the UI.
  */
 export class TooltipOnlyState extends InputState {
   constructor(readonly tooltip: string) {
@@ -92,26 +82,13 @@ type InputtingStateCopyArgs = {
 };
 
 /**
- * Represents the state where the user is actively inputting characters.
+ * Base state for active composition with visible candidates.
  *
- * This is the main state of the input method, and it is where most of the user's
- * interaction takes place. In this state, the user can type characters, select
- * candidates from a list of suggestions, and perform other actions.
+ * The state stores radicals, candidate metadata, and pagination details needed
+ * to render the current composition UI.
  *
- * @param {string} radicals - The current input radicals.
- * @param {string[]} displayedRadicals - The radicals as they are displayed to the
- *     user. This may be different from the actual radicals, for example if the
- *     user is using a phonetic input method.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
- * @param {string} [exactSelectionKeys] - The exact keys that are used to
- *     select candidates. This is used for input methods that have a fixed set
- *     of selection keys.
- * @param {string} [tooltip] - A tooltip to be displayed to the user.
- * @param {string} [candidateAnnotation] - An annotation to be displayed next to
- *     the candidates.
+ * @param args - The inputting-state payload used to derive displayed radicals,
+ * candidate paging, and the initial selection.
  */
 export class InputtingState extends InputState {
   readonly radicals: string;
@@ -178,12 +155,7 @@ export class InputtingState extends InputState {
 }
 
 /**
- * A basic inputting state that handles character input and candidate selection.
- *
- * This is the default inputting state, and it is used for most input methods.
- * It provides basic functionality for handling user input, such as adding and
- * removing characters, selecting candidates, and navigating through the
- * candidate list.
+ * Default composition state for regular table input.
  */
 export class BasicInputtingState extends InputtingState {
   copyWithArgs(args: InputtingStateCopyArgs): BasicInputtingState {
@@ -195,20 +167,9 @@ export class BasicInputtingState extends InputtingState {
 }
 
 /**
- * A state for selecting associated phrases.
+ * Presents associated phrases after a candidate has been chosen.
  *
- * This state is entered after the user has selected a candidate, and it allows
- * them to select an associated phrase from a list of suggestions.
- *
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {string} exactSelectionKeys - The exact keys that are used to select
- *     candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
- * @param {string} [tooltip] - A tooltip to be displayed to the user.
- * @param {string} [candidateAnnotation] - An annotation to be displayed next to
- *     the candidates.
+ * @param args - Candidate-list configuration for the associated-phrase menu.
  */
 export class AssociatedPhrasesState extends InputtingState {
   constructor(args: {
@@ -243,21 +204,9 @@ export class AssociatedPhrasesState extends InputtingState {
 }
 
 /**
- * A state for inputting numbers.
+ * Represents the numeric-input helper flow.
  *
- * This state is used to handle numeric input, and it provides a list of
- * suggestions for different number formats, such as full-width and half-width
- * numbers, as well as Chinese numerals.
- *
- * @param {string} radicals - The current input radicals.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {string} exactSelectionKeys - The exact keys that are used to select
- *     candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
- * @param {string} [candidateAnnotation] - An annotation to be displayed next to
- *     the candidates.
+ * @param args - Numeric radicals and candidate-list configuration.
  */
 export class NumberInputtingState extends InputtingState {
   constructor(args: {
@@ -291,17 +240,7 @@ export class NumberInputtingState extends InputtingState {
 }
 
 /**
- * A base state for inputting symbols.
- *
- * This state is used to handle symbol input, and it provides a list of
- * suggestions for different symbols, such as punctuation marks, emojis, and
- * other special characters.
- *
- * @param {string} radicals - The current input radicals.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
+ * Shared base state for symbol candidate flows.
  */
 export abstract class BaseSymbolInputtingState extends InputtingState {
   protected get copyArgs() {
@@ -314,7 +253,7 @@ export abstract class BaseSymbolInputtingState extends InputtingState {
 }
 
 /**
- * A state for inputting symbols via a Ctrl shortcut.
+ * Symbol-selection state entered from a Ctrl-based shortcut.
  */
 export class CtrlSymbolInputtingState extends BaseSymbolInputtingState {
   constructor(args: {
@@ -349,7 +288,7 @@ export class CtrlSymbolInputtingState extends BaseSymbolInputtingState {
 }
 
 /**
- * A regular state for inputting symbols.
+ * Symbol-selection state entered from regular symbol input.
  */
 export class SymbolInputtingState extends BaseSymbolInputtingState {
   constructor(args: {
@@ -384,21 +323,12 @@ export class SymbolInputtingState extends BaseSymbolInputtingState {
 }
 
 /**
- * A state for selecting a symbol from a category.
+ * Displays the contents of a symbol category or submenu.
  *
- * This state is used to display a list of symbols from a specific category,
- * such as "emojis" or "punctuation". The user can then select a symbol from
- * the list to be inserted into the text field.
+ * `nodes` may contain terminal symbols or nested {@link SymbolCategory}
+ * entries, which are exposed as menu candidates.
  *
- * @param {string} title - The title of the symbol category.
- * @param {string[]} displayedRadicals - The radicals as they are displayed to the
- *     user.
- * @param {InputState} previousState - The previous state of the input method.
- * @param {(SymbolCategory | string)[]} nodes - The list of symbols in the
- *     category.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
+ * @param args - Category metadata, navigation context, and candidate settings.
  */
 export class SymbolCategoryState extends InputtingState {
   nodes: (SymbolCategory | string)[];
@@ -458,19 +388,10 @@ export class SymbolCategoryState extends InputtingState {
 }
 
 /**
- * A state for managing the input method's settings.
+ * Menu state for toggling runtime settings.
  *
- * This state is used to display a list of settings that the user can modify,
- * such as the input method's language, the layout of the keyboard, and other
- * preferences.
- *
- * @param {InputState} previousState - The previous state of the input method.
- * @param {Settings} settings - The current settings of the input method.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {function} [onSettingsChanged] - A callback function that is called
- *     when the settings are changed.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
+ * @param args - The previous state, mutable settings object, and selection-key
+ * configuration used to build the settings menu.
  */
 export class SettingsState extends InputtingState {
   previousState: InputState;
@@ -588,18 +509,9 @@ export class SettingsState extends InputtingState {
 }
 
 /**
- * A state that displays a menu of options.
+ * Top-level menu state for auxiliary commands and helper flows.
  *
- * This state is used to show a list of commands or options to the user, such as
- * "Settings", "Help", or "About". The user can then select an option from the
- * list to be executed.
- *
- * @param {Settings} settings - The current settings of the input method.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {function} onSettingsChanged - A callback function that is called when
- *     the settings are changed.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
+ * @param args - Menu settings, selection keys, and callback context.
  */
 export class MenuState extends InputtingState {
   settings: Settings;
@@ -742,23 +654,9 @@ export class MenuState extends InputtingState {
 }
 
 /**
- * A state for selecting the reading of a homophone.
+ * Lets the user choose a reading before showing matching homophone words.
  *
- * This state is entered when the user has entered a word that has multiple
- * possible readings. It allows the user to select the correct reading from a
- * list of suggestions.
- *
- * @param {string} radicals - The current input radicals.
- * @param {string[]} displayedRadicals - The radicals as they are displayed to the
- *     user.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
- * @param {string} [exactSelectionKeys] - The exact keys that are used to
- *     select candidates.
- * @param {string} [tooltip] - A tooltip to be displayed to the user.
- * @param {InputState} previousState - The previous state of the input method.
+ * @param args - Candidate and navigation context for the reading-selection UI.
  */
 export class SelectingHomophoneReadingsState extends InputtingState {
   readonly previousState: InputState;
@@ -790,22 +688,10 @@ export class SelectingHomophoneReadingsState extends InputtingState {
 }
 
 /**
- * A state for selecting a homophone word.
+ * Lets the user choose a homophone word for a selected reading.
  *
- * This state is entered after the user has selected a reading for a homophone.
- * It allows the user to select the correct word from a list of suggestions.
- *
- * @param {string} radicals - The current input radicals.
- * @param {string[]} displayedRadicals - The radicals as they are displayed to the
- *     user.
- * @param {string} selectionKeys - The keys that are used to select candidates.
- * @param {Candidate[]} candidates - The list of suggested candidates.
- * @param {number} [selectedCandidateIndex] - The index of the currently
- *     selected candidate.
- * @param {string} [exactSelectionKeys] - The exact keys that are used to
- *     select candidates.
- * @param {string} [tooltip] - A tooltip to be displayed to the user.
- * @param {InputState} previousState - The previous state of the input method.
+ * @param args - Candidate data plus the selected reading and previous-state
+ * context used by the homophone word picker.
  */
 export class SelectingHomophoneWordState extends InputtingState {
   readonly previousState: InputState;
