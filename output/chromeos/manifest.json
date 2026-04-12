@@ -6,8 +6,13 @@
   "default_locale": "en",
   "content_scripts": [
     {
-      "matches": ["*://*/*", "file://*/*"],
-      "js": ["content-script.js"]
+      "matches": [
+        "*://*/*",
+        "file://*/*"
+      ],
+      "js": [
+        "content-script.js"
+      ]
     }
   ],
   "background": {
@@ -26,7 +31,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.checj",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "倉"
     },
@@ -35,7 +42,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.simplex",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "速"
     },
@@ -44,7 +53,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.cj5",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "倉"
     },
@@ -53,7 +64,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.simplex5",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "速"
     },
@@ -62,7 +75,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.dayi3",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "易"
     },
@@ -71,7 +86,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.dayi4",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "易"
     },
@@ -80,7 +97,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.array30",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "行"
     },
@@ -89,7 +108,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.array40",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "行"
     },
@@ -98,7 +119,9 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.bpmf",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "ㄅ"
     },
@@ -107,30 +130,45 @@
       "type": "ime",
       "id": "org.openvanilla.mctabim.wsl",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "臺"
     },
     {
       "name": "__MSG_imeTpHakkaHl__",
       "type": "ime",
-      "id": "org.openvanilla.mctabim.tpHakkaHl",
+      "id": "org.openvanilla.mctabim.tp_hakka_hl",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "客"
     },
     {
       "name": "__MSG_imeTpHakkaSy__",
       "type": "ime",
-      "id": "org.openvanilla.mctabim.tpHakkaSy",
+      "id": "org.openvanilla.mctabim.tp_hakka_sy",
       "language": "zh-TW",
-      "layouts": ["us"],
+      "layouts": [
+        "us"
+      ],
       "options_page": "options.html",
       "indicator": "客"
     }
   ],
   "options_page": "options.html",
-  "permissions": ["input", "background", "notifications", "storage", "tabs", "contextMenus"],
-  "host_permissions": ["<all_urls>"]
+  "permissions": [
+    "input",
+    "background",
+    "notifications",
+    "storage",
+    "tabs",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
 }
