@@ -1,6 +1,6 @@
 {
   "name": "@openvanilla/mctabimweb",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Taiwan Indigenous Language Input Method TypeScript Version",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
