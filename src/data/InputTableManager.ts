@@ -12,6 +12,8 @@ import dayi3 from './cin/dayi3.json?raw';
 import dayi4 from './cin/dayi4.json?raw';
 import simplex from './cin/simplex.json?raw';
 import simplex5 from './cin/simplex5.json?raw';
+import tpHakkaHl from './cin/tp_hakka_hl.json?raw';
+import tpHakkaSy from './cin/tp_hakka_sy.json?raw';
 import wsl from './cin/wsl.json?raw';
 import { CustomSymbolTable } from './CustomSymbolTable';
 import { EmojiTable } from './Emoji';
@@ -20,6 +22,7 @@ import type { InputTableWrapper } from './InputTableWrapper';
 import {
   BopomofoInputTableWrapper,
   GeneralInputTableWrapper,
+  HakkaInputTableWrapper,
   WslInputTableWrapper,
 } from './InputTableWrapper';
 import ctrlSymbols from './symbols/dsymbols.json';
@@ -106,6 +109,10 @@ export class InputTableManager {
    */
   setInputTableById(id: string): void {
     const index = this.tables_.findIndex((table) => table.id === id);
+    if (index === this.internalIndex_) {
+      return;
+    }
+
     if (index !== -1) {
       this.internalIndex_ = index;
     } else {
@@ -206,6 +213,8 @@ export class InputTableManager {
     new GeneralInputTableWrapper('array40', array40, { maxRadicals: 4 }),
     this.bmpfTable,
     new WslInputTableWrapper('wsl', wsl, { maxRadicals: 4 }),
+    new HakkaInputTableWrapper('tp_hakka_hl', tpHakkaHl, { maxRadicals: 8 }),
+    new HakkaInputTableWrapper('tp_hakka_sy', tpHakkaSy, { maxRadicals: 8 }),
   ];
 
   /**

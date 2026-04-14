@@ -1,19 +1,47 @@
 import { BopomofoSyllable } from './BopomofoSyllable';
 import { BopomofoWslSyllable } from './BopomofoWslSyllable';
 import { Candidate } from './Candidate';
+import { HakkaSyllable } from './HakkaSyllable';
 import { InputTable } from './InputTable';
 
+/**
+ * Static configuration for an input table.
+ */
 export interface InputTableSettings {
   maxRadicals: number;
 }
 
+/**
+ * Common shape returned by phonetic syllable parsers.
+ */
 export interface InputTableSyllable {
+  /**
+   * Indicates whether the parsed key sequence forms a valid syllable.
+   */
   readonly isValid: boolean;
+
+  /**
+   * Returns the normalized key sequence that produced the syllable.
+   */
   readonly keys: string;
+
+  /**
+   * Returns the rendered reading shown to the user for this syllable.
+   */
   readonly reading: string;
+
+  /**
+   * Optional tone marker extracted from the key sequence.
+   */
   readonly tone?: string | undefined;
 }
 
+/**
+ * Polymorphic wrapper around a parsed input table.
+ *
+ * Implementations expose a shared API for candidate lookup, reverse lookup,
+ * displayed key names, and optional phonetic syllable creation.
+ */
 export interface InputTableWrapper {
   readonly id: string;
   readonly jsonSource: string;
@@ -30,8 +58,10 @@ export interface InputTableWrapper {
 }
 
 /**
- * A wrapper class for InputTable that provides additional functionality such as
- * reverse lookup and candidate lookup.
+ * Default wrapper for non-phonetic input tables.
+ *
+ * It lazily parses table JSON, merges optional supplemental tables, and
+ * provides candidate lookup plus reverse-lookup helpers.
  */
 export class GeneralInputTableWrapper implements InputTableWrapper {
   private static readonly WILDCARD_CACHE_LIMIT = 128;
@@ -40,11 +70,12 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
   private wildcardCandidateCache_: Map<string, Candidate[]> | undefined = undefined;
 
   /**
-   * Creates a new InputTableWrapper instance.
-   * @param id The ID of the input table.
-   * @param jsonSource The JSON source of the input table.
-   * @param settings The settings for the input table.
-   * @param additionalSource Optional additional JSON sources for the input table.
+   * Creates a general input-table wrapper.
+   *
+   * @param id - Stable identifier for the table.
+   * @param jsonSource - Primary JSON payload for the table.
+   * @param settings - Static table settings.
+   * @param additionalSource - Optional supplemental table JSON payloads.
    */
   constructor(
     public id: string,
@@ -54,6 +85,9 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
   ) {}
 
   table_: InputTable | undefined;
+  /**
+   * Returns the lazily parsed table, including any merged supplemental sources.
+   */
   get table(): InputTable {
     if (!this.table_) {
       this.table_ = JSON.parse(this.jsonSource) as InputTable;
@@ -126,6 +160,14 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
     }
   }
 
+  /**
+   * Looks up all radical strings that can produce the given character.
+   *
+   * Returned radicals are remapped through `keynames` for display.
+   *
+   * @param character - The committed character to reverse-lookup.
+   * @returns Display-form radical strings sorted by length.
+   */
   reverseLookupForRadicals(character: string): string[] {
     if (!this.reverseLookUpTable_) {
       this.buildReverseLookUpTable__();
@@ -149,6 +191,14 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
     return remapped;
   }
 
+  /**
+   * Looks up both displayed and original radicals for a committed character.
+   *
+   * Each entry contains `[displayedRadicals, originalRadicals]`.
+   *
+   * @param character - The committed character to reverse-lookup.
+   * @returns Display and source radical pairs sorted by displayed length.
+   */
   reverseLookupForTranslatedAndOriginalRadicals(character: string): string[][] {
     if (!this.reverseLookUpTable_) {
       this.buildReverseLookUpTable__();
@@ -168,10 +218,18 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
       }
       remapped.push([displayedRadicals.join(''), found]);
     }
-    remapped.sort((a, b) => a.length - b.length);
+    remapped.sort((a, b) => a[0].length - b[0].length);
     return remapped;
   }
 
+  /**
+   * Returns candidates that match the provided radicals.
+   *
+   * Asterisks are treated as single-position wildcards and are cached.
+   *
+   * @param radicals - Exact radicals or a wildcard pattern.
+   * @returns Matching candidates in table order.
+   */
   lookupForCandidate(radicals: string): Candidate[] | [] {
     if (radicals.includes('*')) {
       const cached = this.wildcardCandidateCache.get(radicals);
@@ -202,19 +260,39 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
     return candidates;
   }
 
+  /**
+   * Returns the display label for a table key.
+   *
+   * @param key - Raw table key.
+   * @returns The localized display name when available, otherwise the key.
+   */
   lookUpForDisplayedKeyName(key: string): string {
     return this.table.keynames[key] || key;
   }
 
+  /**
+   * Indicates whether the table supports phonetic syllable parsing.
+   */
   get isPhoneticTable(): boolean {
     return false;
   }
 
+  /**
+   * Creates a phonetic syllable model for the given keys when supported.
+   *
+   * General tables do not expose syllable parsing and therefore return
+   * `undefined`.
+   *
+   * @param keys - Input keys to interpret as a syllable.
+   */
   createSyllable(keys: string): InputTableSyllable | undefined {
     return undefined;
   }
 }
 
+/**
+ * Wrapper for standard Bopomofo tables.
+ */
 export class BopomofoInputTableWrapper extends GeneralInputTableWrapper {
   constructor(
     id: string,
@@ -229,11 +307,19 @@ export class BopomofoInputTableWrapper extends GeneralInputTableWrapper {
     return true;
   }
 
+  /**
+   * Parses Bopomofo keys into a syllable model.
+   *
+   * @param keys - Keyboard keys representing a Bopomofo syllable.
+   */
   override createSyllable(keys: string): InputTableSyllable {
     return BopomofoSyllable.fromKeys(keys);
   }
 }
 
+/**
+ * Wrapper for Wu Shou-Li Bopomofo tables.
+ */
 export class WslInputTableWrapper extends GeneralInputTableWrapper {
   constructor(
     id: string,
@@ -248,7 +334,39 @@ export class WslInputTableWrapper extends GeneralInputTableWrapper {
     return true;
   }
 
+  /**
+   * Parses Wu Shou-Li Bopomofo keys into a syllable model.
+   *
+   * @param keys - Keyboard keys representing a Wu Shou-Li syllable.
+   */
   override createSyllable(keys: string): InputTableSyllable {
     return BopomofoWslSyllable.fromKeys(keys);
+  }
+}
+
+/**
+ * Wrapper for Hakka phonetic tables.
+ */
+export class HakkaInputTableWrapper extends GeneralInputTableWrapper {
+  constructor(
+    id: string,
+    jsonSource: string,
+    settings: InputTableSettings,
+    additionalSource?: string[] | undefined,
+  ) {
+    super(id, jsonSource, settings, additionalSource);
+  }
+
+  override get isPhoneticTable(): boolean {
+    return true;
+  }
+
+  /**
+   * Parses Hakka keys into a syllable model.
+   *
+   * @param keys - Keyboard keys representing a Hakka syllable.
+   */
+  override createSyllable(keys: string): InputTableSyllable {
+    return HakkaSyllable.fromKeys(keys);
   }
 }

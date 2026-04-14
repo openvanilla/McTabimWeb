@@ -8,17 +8,48 @@
   "manifestDesc": {
     "message": "支援多種輸入法表格的中文輸入法"
   },
-  "imeUS": {
-    "message": "小麥他命 (美式鍵盤)"
+  "imeChecj": {
+    "message": "小麥他命 (酷倉)"
   },
-  "imeDvorak": {
-    "message": "小麥他命 (Dvorak 鍵盤)"
+  "imeSimplex": {
+    "message": "小麥他命 (速成)"
   },
-  "imeColmak": {
-    "message": "小麥他命 (Colmak 鍵盤)"
+  "imeCj5": {
+    "message": "小麥他命 (倉頡五代)"
   },
-  "menuAlphabetMode": { "message": "輸入英文字母" },
-  "menuChineseConversion": { "message": "輸入簡體中文" },
+  "imeSimplex5": {
+    "message": "小麥他命 (速成五代)"
+  },
+  "imeDayi3": {
+    "message": "小麥他命 (大易三碼)"
+  },
+  "imeDayi4": {
+    "message": "小麥他命 (大易四碼)"
+  },
+  "imeArray30": {
+    "message": "小麥他命 (行列 30)"
+  },
+  "imeArray40": {
+    "message": "小麥他命 (行列 40)"
+  },
+  "imeBpmf": {
+    "message": "小麥他命 (注音)"
+  },
+  "imeWsl": {
+    "message": "小麥他命 (吳守禮臺語注音)"
+  },
+  "imeTpHakkaHl": {
+    "message": "小麥他命 (通用拼音客家話 - 海陸腔)"
+  },
+  "imeTpHakkaSy": {
+    "message": "小麥他命 (通用拼音客家話 - 四縣腔)"
+  },
+  "menuAlphabetMode": {
+    "message": "輸入英文字母"
+  },
+  "menuChineseConversion": {
+    "message": "輸入簡體中文"
+  },
   "menuOptions": {
     "message": "選項"
   },

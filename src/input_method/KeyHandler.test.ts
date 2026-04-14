@@ -262,7 +262,7 @@ describe('Test KeyHandler', () => {
     expect(called).toBe(true);
   });
 
-  it('should jump to the matching slot on the next page when PAGE_DOWN is pressed', () => {
+  it('should jump to the first slot on the next page when PAGE_DOWN is pressed', () => {
     InputTableManager.getInstance().setInputTableById('cj5');
     const state = new BasicInputtingState({
       radicals: 'a',
@@ -289,7 +289,7 @@ describe('Test KeyHandler', () => {
     expect(handled).toBe(true);
     expect(states[0]).toBeInstanceOf(InputtingState);
     if (states[0] instanceof InputtingState) {
-      expect(states[0].selectedCandidateIndex).toBe(4);
+      expect(states[0].selectedCandidateIndex).toBe(3);
     }
   });
 
@@ -1102,6 +1102,45 @@ describe('KeyHandler edge cases', () => {
     expect(handled).toBe(true);
     expect(states[0]).toBeInstanceOf(BasicInputtingState);
     expect((states[0] as BasicInputtingState).selectedCandidateIndex).toBe(2);
+  });
+
+  it('moves bopomofo SPACE paging to the first slot of the next page', () => {
+    const table = createMockBopomofoTable({
+      table: {
+        keynames: { '1': 'ㄅ', '8': 'ㄚ' },
+        selkey: '123',
+      },
+    });
+    const keyHandler = new KeyHandler(
+      () => table,
+      () => buildSettings(),
+      jest.fn(),
+    );
+    const state = new BasicInputtingState({
+      radicals: '18',
+      displayedRadicals: ['ㄅ', 'ㄚ'],
+      selectionKeys: '123',
+      candidates: [
+        new Candidate('甲', ''),
+        new Candidate('乙', ''),
+        new Candidate('丙', ''),
+        new Candidate('丁', ''),
+        new Candidate('戊', ''),
+      ],
+      selectedCandidateIndex: 1,
+    });
+    const states: InputState[] = [];
+
+    const handled = keyHandler.handle(
+      new Key('', KeyName.SPACE),
+      state,
+      (newState) => states.push(newState),
+      jest.fn(),
+    );
+
+    expect(handled).toBe(true);
+    expect(states[0]).toBeInstanceOf(BasicInputtingState);
+    expect((states[0] as BasicInputtingState).selectedCandidateIndex).toBe(3);
   });
 
   it('resolves bopomofo candidates on RETURN when the syllable has not been looked up yet', () => {

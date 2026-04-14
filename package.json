@@ -1,6 +1,6 @@
 {
   "name": "@openvanilla/mctabimweb",
-  "version": "0.4.3",
+  "version": "0.5.2",
   "description": "Taiwan Indigenous Language Input Method TypeScript Version",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,8 +25,8 @@
     "build:dev": "webpack --mode development",
     "build:watch": "webpack --mode development --watch",
     "prepublishOnly": "npm run ts-build && npm run test && npm run eslint",
-    "test": "./node_modules/jest/bin/jest.js",
-    "test:coverage": "./node_modules/jest/bin/jest.js --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "eslint": "eslint src --ext .ts --fix"
   },
   "repository": {
@@ -44,24 +44,24 @@
   },
   "dependencies": {
     "chinese_convert": "^1.0.8",
-    "dayjs": "^1.11.19"
+    "dayjs": "^1.11.20"
   },
   "devDependencies": {
-    "@types/chrome": "^0.1.37",
+    "@types/chrome": "^0.1.40",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.4.0",
-    "@typescript-eslint/eslint-plugin": "^8.57.1",
-    "@typescript-eslint/parser": "^8.57.1",
-    "eslint": "^10.0.3",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "jest": "^30.2.0",
+    "@types/node": "^25.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
+    "eslint": "^10.2.0",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "jest-junit": "^16.0.0",
-    "jsdom": "^29.0.0",
-    "ts-jest": "^29.4.6",
-    "ts-loader": "^9.5.4",
-    "typescript": "^5.9.3",
-    "webpack": "^5.105.4",
-    "webpack-cli": "^6.0.1"
+    "jsdom": "^29.0.2",
+    "ts-jest": "^29.4.9",
+    "ts-loader": "^9.5.7",
+    "typescript": "^6.0.2",
+    "webpack": "^5.106.1",
+    "webpack-cli": "^7.0.2"
   }
 }

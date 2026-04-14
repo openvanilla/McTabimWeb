@@ -1,6 +1,6 @@
 import { Candidate, MenuCandidate } from '../data';
 import { InputController } from './InputController';
-import { BasicInputtingState, EmptyState, TooltipOnlyState } from './InputState';
+import { BasicInputtingState, CommittingState, EmptyState, TooltipOnlyState } from './InputState';
 import { InputUI } from './InputUI';
 import { Key } from './Key';
 import { KeyHandler } from './KeyHandler';
@@ -17,6 +17,13 @@ describe('InputController', () => {
     mockKeyHandler = {
       isPime: false,
       handle: jest.fn(),
+      handleCandidate: jest.fn((state, candidate, stateCallback) => {
+        if (candidate instanceof MenuCandidate) {
+          stateCallback(candidate.nextState());
+          return;
+        }
+        stateCallback(new CommittingState(candidate.displayText));
+      }),
     } as unknown as jest.Mocked<KeyHandler>;
 
     ui = {
@@ -202,7 +209,7 @@ describe('InputController', () => {
   });
 
   describe('candidate selection', () => {
-    it('should select candidate and commit string if in InputtingState with valid index', () => {
+    it('should select candidate through the committing pipeline if in InputtingState with valid index', () => {
       const mockCandidate = new Candidate('候選詞', '');
       const inputtingState = new BasicInputtingState({
         radicals: 'a',
@@ -211,12 +218,19 @@ describe('InputController', () => {
         candidates: [mockCandidate],
       });
       (controller as any).state_ = inputtingState;
+      const ChineseConvert = require('chinese_convert');
+      jest.spyOn(ChineseConvert, 'cn2tw').mockReturnValue('候選詞-轉換後');
+      jest.spyOn(ChineseConvert, 'tw2cn');
 
       controller.selectCandidateAtIndex(0);
 
-      expect(ui.commitString).toHaveBeenCalledWith(mockCandidate.displayText);
+      expect(ChineseConvert.cn2tw).toHaveBeenCalledWith(mockCandidate.displayText);
+      expect(ChineseConvert.tw2cn).not.toHaveBeenCalled();
+      expect(ui.commitString).toHaveBeenCalledWith('候選詞-轉換後');
       expect(ui.reset).toHaveBeenCalledTimes(1);
       expect(controller.state).toBeInstanceOf(EmptyState);
+
+      jest.restoreAllMocks();
     });
 
     it('should do nothing if in InputtingState with invalid index', () => {

@@ -4,36 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>McTabIM - 小麥他命輸入法網頁版本</title>
+    <title>McTabim 小麥他命：線上查表式中文輸入法 (倉頡、速成、大易、行列)</title>
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://unpkg.com/simple-keyboard@latest/build/css/index.css">
-    <meta name="description" content="McTabIM - 小麥他命輸入法網頁版本">
-    <meta name="keywords" content="網頁輸入法,小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabIM,McTabIM,McTabim,Web Input Method">
-    <meta name="author" content="McTabIM Authors">
+    <meta name="description" content="McTabim - 小麥他命輸入法網頁版本">
+    <meta name="keywords" content="網頁輸入法,小麥,輸入法,倉頡,速成,大易,行列,注音,吳守臺語注音,McTabim,Web Input Method">
+    <meta name="author" content="McTabim Authors">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f3ee">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171613">
     <link rel="icon" href="favicon.ico">
-    <meta property="og:title" content="McTabIM - 小麥他命輸入法網頁版本">
+    <meta property="og:title" content="McTabim 小麥他命：線上查表式中文輸入法 (倉頡、速成、大易、行列)">
     <meta property="og:description" content="McTabIM - 小麥他命輸入法網頁版本，直接在網頁中使用倉頡、速成、大易、行列、注音、吳守臺語注音等輸入法。無須額外安裝輸入法">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="McTabIM - 小麥他命輸入法網頁版本">
     <meta name="twitter:description" content="McTabIM - 小麥他命輸入法網頁版本，直接在網頁中使用倉頡、速成、大易、行列、注音、吳守臺語注音等輸入法。無須額外安裝輸入法">
     <link rel="manifest" href="manifest.json">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "McTabim 小麥他命網頁版",
+        "operatingSystem": "Web",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "線上查表式中文輸入法，支援倉頡、速成、大易、行列、注音等，無須安裝即可在瀏覽器使用。",
+        "browserRequirements": "requires HTML5 support",
+        "author": {
+            "@type": "Organization",
+            "name": "OpenVanilla"
+        }
+    }
+    </script>
 </head>
 
 <body>
-    <div class="main">
+    <main class="main">
         <p id="loading">正在載入小麥他命輸入法，請稍候</p>
 
-        <p class="navi"><b>McTabIM 小麥他命輸入法</b>
+        <div class="navi">
+            <h1>McTabIM 小麥他命輸入法</h1>
             <a href="#feature_input" title="輸入功能">輸入功能</a>
             <a href="#feature_user_data" title="自訂符號表管理">自訂符號表管理</a>
             <a href="#feature_lookup" title="字根反查">字根反查</a>
             <a href="#feature_table_help" title="輸入表格說明">輸入表格說明</a>
-        </p>
+        </div>
 
-        <div id="feature_input" class="feature">
+        <section id="feature_input" class="feature">
             <div class="left">
                 <div id="edit_area">
                     <div class="status_area">
@@ -99,18 +116,26 @@
                 </details>
 
                 <details open>
-                    <summary> 使用方式 </summary>
-                    <p>小麥他命是一套查表式輸入法，可以使用倉頡、速成、大易、行列等輸入法。直接輸入字根後，就會顯示可用的候選字，再按下選字鍵即可完成輸入。除了網頁版本外，也提供 <a
-                            href="https://chromewebstore.google.com/detail/mctabim/fkmgjlpcofgddlpbjggglpnfgfeaibhg?authuser=0&hl=en&pli=1"
+                    <summary> 軟體說明 </summary>
+                    <p>小麥他命是一套以網頁技術打造的查表式輸入法，可以使用倉頡、速成、大易、行列等。網頁版本方便在無法自行安裝輸入法的環境下，依然可以有順手的輸入法，像是某些限制較大的平板與電子紙裝置。</p>
+                    <p>除了網頁版本外，也提供
+                        <a href="https://chromewebstore.google.com/detail/mctabim/fkmgjlpcofgddlpbjggglpnfgfeaibhg?authuser=0&hl=en&pli=1"
                             target="_blank">ChromeOS 版本</a>，也可以透過 PIME 在
-                        Windows 上使用。</p>
+                        Windows 上使用。
+                    </p>
+                </details>
+
+                <details open>
+                    <summary> 使用方式 </summary>
+                    <p>直接輸入字根後，就會顯示可用的候選字，再按下選字鍵即可完成輸入。</p>
                     <p>特殊按鍵如下：</p>
                     <ul>
+                        <li>如果按下 Ctrl 加上符號按鍵，可以快速輸出常用全形標點符號，例如問號、句號等。</li>
                         <li>
                             按下 ` 之後，進入符號輸入模式，然後按下鍵盤上的其他按鍵，就會顯示全形符號。
                         </li>
                         <li>
-                            按下 `M 或 ``` 之後，可以叫出功能選單。
+                            按下 `M 或 ```（連按三下`）之後，可以叫出功能選單。
                         </li>
                         <li>
                             啟用萬用字元選項後，可以先輸入字根，再輸入 * 來查詢不確定的部首。
@@ -120,27 +145,33 @@
                         </li>
                     </ul>
                     <p>打出某些字詞之後，可以選擇聯想詞。輸入方式是按下 Shift + 數字按鍵。</p>
-                    <h2>資料來源</h2>
+                </details>
+
+                <details>
+                    <summary> 資料來源 </summary>
                     <p>輸入法表格資料來自 PIME 以及 OpenVanilla 專案。</p>
                 </details>
+
                 <details>
                     <summary> 小麥網頁輸入法家族 </summary>
                     <ul>
                         <li>
                             <a href="https://openvanilla.github.io/McBopomofoWeb" target="_blank"
-                                title="小麥注音輸入法 Web">小麥注音輸入法 Web</a>
+                                title="小麥注音輸入法 Web">小麥注音線上版本</a>
                         </li>
                         <li>
                             <a href="https://openvanilla.github.io/McFoximWeb" target="_blank"
-                                title="小麥族語輸入法 Web">小麥族語輸入法 Web</a>
+                                title="小麥族語輸入法 Web">小麥族語線上版本</a>
+                        </li>
+                        <li><a href="https://openvanilla.github.io/McTibetimWeb" target="_blank"
+                                title="小麥藏文輸入法 Web">小麥藏文線上版本</a>
                         </li>
                     </ul>
                 </details>
 
                 <details>
-                    <summary> 版本資訊 </summary>
+                    <summary> 專案資訊 </summary>
                     <ul>
-                        <li>0.4.3 版</li>
                         <li><a href=" https://github.com/openvanilla/McTabimWeb" target="_blank" title="專案首頁">專案首頁</a>
                         </li>
                         <li><a href="https://github.com/openvanilla/McTabimWeb/issues" target="_blank"
@@ -148,8 +179,8 @@
                     </ul>
                 </details>
             </div>
-        </div>
-        <div id="feature_user_data" class="feature">
+        </section>
+        <section id="feature_user_data" class="feature">
             <div class="content">
                 <div class="left">
                     <h2>自訂符號表管理</h2>
@@ -170,8 +201,8 @@
                     <p>請在編輯之後，按下儲存按鈕。</p>
                 </div>
             </div>
-        </div>
-        <div id="feature_lookup" class="feature">
+        </section>
+        <section id="feature_lookup" class="feature">
             <div class="content">
                 <div class="left">
                     <h2>字根反查</h2>
@@ -183,57 +214,71 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="feature_table_help" class="feature">
+        </section>
+        <section id="feature_table_help" class="feature">
             <div class="content">
                 <div class="left">
-                    <h2>輸入法表格說明</h2>
-                    <h3>基本輸入表格</h3>
-                    <p>酷倉、倉五、速成、簡五、大易、行列、注音等基本輸入表格，來自 PIME 專案。</p>
-                    <h3>行列 30</h3>
-                    <p>行列 30 輸入法的表格中，也加上了行列的特別碼、簡碼與詞彙輸入。</p>
-                    <h3>吳守禮臺語注音</h3>
-                    <p>小麥他命輸入法使用的吳守禮臺語注音表格，來自 OpenVanilla 專案。
-                        是由吳彥勳 <a href="mailto: yenhsunwu@gmail.com">yenhsunwu@gmail.com</a>
-                        參考吳守禮教授編著的《新編台灣閩南語用字彙編》繕打而成。使用時建議搭配臺語字體一起使用：</p>
-                    <ul>
-                        <li><a href="https://web.archive.org/web/20160806232206/http://xiaoxue.iis.sinica.edu.tw/download/WSL_TPS_Font.htm"
-                                target="_blank">臺語字體下載網址</a></li>
-                        <li><a href="https://web.archive.org/web/20160901100423/http://olddoc.tmu.edu.tw/chiaushin/index.html"
-                                target="_blank">臺語字音資料網址</a></li>
-                    </ul>
-                    <p> 本輸入法使用對應鍵盤位置修改自「華音延伸鍵盤」，</p>
-                    <p><img src="
+                    <div class="table_help">
+                        <h2>輸入法表格說明</h2>
+                        <h3>基本輸入表格</h3>
+                        <p>酷倉、倉五、速成、簡五、大易、行列、注音等基本輸入表格，來自 PIME 專案。</p>
+                        <h3>行列 30</h3>
+                        <p>行列 30 輸入法的表格中，也加上了行列的特別碼、簡碼與詞彙輸入。</p>
+                        <h3>吳守禮臺語注音</h3>
+                        <p>小麥他命輸入法使用的吳守禮臺語注音表格，來自 OpenVanilla 專案。
+                            是由吳彥勳 <a href="mailto: yenhsunwu@gmail.com">yenhsunwu@gmail.com</a>
+                            參考吳守禮教授編著的《新編台灣閩南語用字彙編》繕打而成。使用時建議搭配臺語字體一起使用：</p>
+                        <ul>
+                            <li><a href="https://web.archive.org/web/20160806232206/http://xiaoxue.iis.sinica.edu.tw/download/WSL_TPS_Font.htm"
+                                    target="_blank">臺語字體下載網址</a></li>
+                            <li><a href="https://web.archive.org/web/20160901100423/http://olddoc.tmu.edu.tw/chiaushin/index.html"
+                                    target="_blank">臺語字音資料網址</a></li>
+                        </ul>
+                        <p> 本輸入法使用對應鍵盤位置修改自「華音延伸鍵盤」，</p>
+                        <p><img src="
                         https://web.archive.org/web/20160821043716im_/http://xiaoxue.iis.sinica.edu.tw/download/images/keyboard-2.jpg"
-                            width="400" title="華音延伸鍵盤"> </p>
-                    <p>在原本的鍵盤設計中，將聲調定義在 F1-F8 等按鍵上，在一般電腦上並不方便輸入。將聲調符號位置稍作修改：</p>
-                    <ul>
-                        <li>第一、二、三、五聲對應華音一、四、三、二聲輸入鍵</li>
-                        <li>第四聲為 $，第八聲為 ^</li>
-                        <li>第六聲與第二聲相同</li>
-                        <li>第七聲為 7，輕聲為 &</li>
-                    </ul>
+                                width="400" title="華音延伸鍵盤" alt="華音延伸鍵盤配置圖 - 吳守禮臺語注音輸入法"> </p>
+                        <p>在原本的鍵盤設計中，將聲調定義在 F1-F8 等按鍵上，在一般電
+                            腦上並不方便輸入。將聲調符號位置稍作修改：</p>
+                        <ul>
+                            <li>第一、二、三、五聲對應華音一、四、三、二聲輸入鍵</li>
+                            <li>第四聲為 $，第八聲為 ^</li>
+                            <li>第六聲與第二聲相同</li>
+                            <li>第七聲為 7，輕聲為 &</li>
+                        </ul>
+                        <h3>通用拼音客家話</h3>
+                        <p>本專案提供通用拼音客家話海陸腔與四縣腔輸入表格。原始版權資訊如下：</p>
+
+                        <p>本檔是由陳念波 (nienpo@yahoo.com) 依據《台灣客家話辭典》
+                            編者徐兆泉老師提供的同音字檢索資料使用 python script 製作並
+                            加入「四海話」發音本檔案依據Creative Commons 依「姓名標
+                            示」、「相同方式分享」、「禁止商業使用」授權，歡迎各界散佈及
+                            使用。授權詳情請參閱
+                            http://creativecommons.org/licenses/by-nc-sa/2.5/tw/deed.zh_TW
+                        </p>
+                        <p>客家話裏的「我」是用「亻厓」這個字，但此字的 unicode 編碼
+                            是 U+2028E，是十六進位的五位數，屬於 CJK Unified Ideographs
+                            Extension B,含有此字的字型檔不是每個人都有。此 cin 檔含此
+                            字。但是，為了方便一般使用狀況，把「亻厓」這個字的發音nga̠i
+                            (四縣腔) ngai (海陸腔) 對應到「我」這個字。此檔含有 11 個
+                            Privat Usage Area 編碼段 (U+E000 to U+F8FF) 的字，目前沒有收
+                            錄於unicode 中，是徐老師造的字。本檔另外以示意方式表示這些
+                            字，如 (亻恩)，並加入 LaTeX 組合# 這些字的指令 (使用 LaTeX
+                            時可用)，應不會造成一般使用者的困擾。</p>
+                    </div>
                 </div>
+                <!-- <div class="right"></div> -->
             </div>
-        </div>
-        <p class="credit">Copyright (c) 2026 and onwards The McTabLM Authors. This code is released under the MIT
-            license.版本：0.4.3. <a href="privacy_policy.html">隱私權政策</a></p>
-    </div>
+        </section>
+        <footer class="credit">Copyright (c) 2026 and onwards The McTabIM Authors. This code is released under the
+            MIT
+            license.版本：0.5.2. <a href="privacy_policy.html">隱私權政策</a></footer>
+    </main>
 </body>
 
 </html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-keyboard/3.8.84/index.js"
     integrity="sha512-7yqZlyJktAkpzg+ARxg3IwkgZ4hPzP7MBE5XK1kA5UASQUiI8v9uVJTGyC82k3/SVcyi/uInOtsHGhQrG2fqQQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- <script src="imeCompositionGuard.js"></script> -->
 <script src="bundle.js"></script>
 <script src="index.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker 註冊成功', reg))
-                .catch(err => console.log('Service Worker 註冊失敗', err));
-        });
-    }
-</script>

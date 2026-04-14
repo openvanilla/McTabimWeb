@@ -14,7 +14,6 @@ import { Key, KeyName } from './input_method/Key';
  * Represents the settings for the mctabim IME on ChromeOS.
  */
 type ChromeMcTabimSettings = {
-  selectedInputMethodId: string;
   shiftKeyToToggleAlphabetMode: boolean;
   useNotification: boolean;
   inputSettings: {
@@ -50,7 +49,7 @@ class ChromeMcTabim {
 
   // The default settings.
   readonly defaultSettings: ChromeMcTabimSettings = {
-    selectedInputMethodId: 'checj',
+
     shiftKeyToToggleAlphabetMode: true,
     useNotification: true,
     inputSettings: {
@@ -66,7 +65,7 @@ class ChromeMcTabim {
     },
   };
   settings: ChromeMcTabimSettings = {
-    selectedInputMethodId: 'checj',
+
     shiftKeyToToggleAlphabetMode: true,
     useNotification: true,
     inputSettings: {
@@ -144,10 +143,6 @@ class ChromeMcTabim {
         this.settings = this.defaultSettings;
       }
 
-      const selectedInputMethodId = this.settings.selectedInputMethodId;
-      if (selectedInputMethodId !== undefined) {
-        InputTableManager.getInstance().setInputTableById(selectedInputMethodId);
-      }
       const inputSettings = this.settings.inputSettings;
       if (inputSettings !== undefined) {
         this.inputController.settings = inputSettings;
@@ -205,41 +200,7 @@ class ChromeMcTabim {
         label: chrome.i18n.getMessage('menuHelp'),
         style: 'check' as const,
       },
-      {
-        id: 'mctabim-separator-1',
-        style: 'separator' as const,
-        enabled: false,
-      },
     ];
-
-    const selectedId = this.settings.selectedInputMethodId || 0;
-    const inputTables = InputTableManager.getInstance().tables;
-    let selectedTableSet = false;
-    let inputTableMenus: chrome.input.ime.MenuItem[] = [];
-
-    for (let i = 0; i < inputTables.length; i++) {
-      const table = inputTables[i];
-      const checked = table[0] === selectedId;
-      if (checked) {
-        selectedTableSet = true;
-      }
-      const item = {
-        id: `mctabim-select-table-${table[0]}`,
-        label: table[1],
-        style: 'radio' as const,
-        checked: checked,
-      };
-      inputTableMenus.push(item);
-    }
-
-    if (!selectedTableSet) {
-      const item = inputTableMenus[0];
-      const id = item.id.split('-').pop();
-      InputTableManager.getInstance().setInputTableById(id || 'checj');
-      this.settings.selectedInputMethodId = id || 'checj';
-    }
-
-    menus = menus.concat(inputTableMenus);
     chrome.input?.ime.setMenuItems({ engineID: this.engineID, items: menus });
   }
 
@@ -465,11 +426,14 @@ class ChromeMcTabim {
 const chromeMcTabim = new ChromeMcTabim();
 
 chrome.input?.ime.onActivate.addListener((engineID) => {
-  chromeMcTabim.engineID = engineID;
   chromeMcTabim.loadSettings();
   chromeMcTabim.loadForeignLanguagesSymbolsTable();
   chromeMcTabim.loadSymbolsTable();
   chromeMcTabim.updateMenu();
+
+  const id = engineID.split('.').pop();
+  InputTableManager.getInstance().setInputTableById(id || '');
+  chromeMcTabim.engineID = engineID;
 });
 
 // Called when the current text input are loses the focus.
@@ -554,15 +518,6 @@ chrome.input?.ime.onCandidateClicked.addListener((engineID, candidateID, button)
 });
 
 chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
-  if (name.search('mctabim-select-table-') === 0) {
-    console.log('mctabim-select-table-', name);
-    const id = name.split('-').pop();
-    InputTableManager.getInstance().setInputTableById(id || '');
-    chromeMcTabim.settings.selectedInputMethodId = id || '';
-    chromeMcTabim.saveSettings();
-    chromeMcTabim.updateMenu();
-    return;
-  }
 
   switch (name) {
     case 'mctabim-toggle-alphabet-mode':
@@ -586,8 +541,6 @@ chrome.input?.ime.onMenuItemActivated.addListener((engineID, name) => {
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log(request);
-
   if (request.command === 'get_table_names_and_settings') {
     const tables = InputTableManager.getInstance().tables;
     sendResponse({ status: 'ok', tables });
@@ -678,7 +631,6 @@ chrome.contextMenus.onClicked.addListener((event, tab) => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('Creating context menus');
   chrome.contextMenus.create({
     id: 'lookup',
     title: chrome.i18n.getMessage('lookup'),

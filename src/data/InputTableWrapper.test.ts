@@ -186,5 +186,35 @@ describe('InputTableWrapper', () => {
     it('returns empty array for character not in table', () => {
       expect(wrapper.reverseLookupForTranslatedAndOriginalRadicals('無')).toEqual([]);
     });
+
+    it('sorts results by displayed radical length', () => {
+      const localWrapper = new GeneralInputTableWrapper(
+        'test',
+        JSON.stringify({
+          chardefs: {
+            abc: ['你'],
+            a: ['你'],
+            ab: ['你'],
+          },
+          cname: 'test',
+          ename: 'test',
+          cincount: undefined,
+          privateuse: {},
+          keynames: {
+            a: 'ㄅ',
+            b: 'ㄆ',
+            c: 'ㄇ',
+          },
+          selkey: '1234567890',
+        } satisfies InputTable),
+        settings,
+      );
+
+      expect(localWrapper.reverseLookupForTranslatedAndOriginalRadicals('你')).toEqual([
+        ['ㄅ', 'a'],
+        ['ㄅㄆ', 'ab'],
+        ['ㄅㄆㄇ', 'abc'],
+      ]);
+    });
   });
 });

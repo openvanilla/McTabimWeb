@@ -9,17 +9,18 @@
 
 <!-- TOC -->
 
-- [McTabimWeb 小麥他命輸入法 Web/Chrome OS/PIME 版本](#mctabimweb-%E5%B0%8F%E9%BA%A5%E4%BB%96%E5%91%BD%E8%BC%B8%E5%85%A5%E6%B3%95-webchrome-ospime-%E7%89%88%E6%9C%AC)
-  - [支援平台](#%E6%94%AF%E6%8F%B4%E5%B9%B3%E5%8F%B0)
-  - [輸入功能](#%E8%BC%B8%E5%85%A5%E5%8A%9F%E8%83%BD)
-  - [編譯方式](#%E7%B7%A8%E8%AD%AF%E6%96%B9%E5%BC%8F)
-    - [Web 版](#web-%E7%89%88)
-    - [Chrome OS 版](#chrome-os-%E7%89%88)
-    - [Windows PIME](#windows-pime)
-  - [社群公約](#%E7%A4%BE%E7%BE%A4%E5%85%AC%E7%B4%84)
-  - [常見問題](#%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C)
-    - [Q: 我可以新增輸入法表格嗎？](#q-%E6%88%91%E5%8F%AF%E4%BB%A5%E6%96%B0%E5%A2%9E%E8%BC%B8%E5%85%A5%E6%B3%95%E8%A1%A8%E6%A0%BC%E5%97%8E)
-    - [Q: McTabimWeb 跟「小麥他命」這個名字是怎麼來的？](#q-mctabimweb-%E8%B7%9F%E5%B0%8F%E9%BA%A5%E4%BB%96%E5%91%BD%E9%80%99%E5%80%8B%E5%90%8D%E5%AD%97%E6%98%AF%E6%80%8E%E9%BA%BC%E4%BE%86%E7%9A%84)
+- [McTabimWeb 小麥他命輸入法 Web/Chrome OS/PIME 版本](#mctabimweb-小麥他命輸入法-webchrome-ospime-版本)
+  - [支援平台](#支援平台)
+  - [輸入功能](#輸入功能)
+  - [編譯方式](#編譯方式)
+    - [Web 版](#web-版)
+    - [Chrome OS 版](#chrome-os-版)
+    - [Windows (PIME)](#windows-pime)
+  - [開發](#開發)
+  - [社群公約](#社群公約)
+  - [常見問題](#常見問題)
+    - [Q: 我可以新增輸入法表格嗎？](#q-我可以新增輸入法表格嗎)
+    - [Q: McTabimWeb 跟「小麥他命」這個名字是怎麼來的？](#q-mctabimweb-跟小麥他命這個名字是怎麼來的)
 
 <!-- /TOC -->
 
@@ -39,6 +40,9 @@
 - 大易四碼
 - 行列 30 （包括行列詞彙表、簡碼與特別碼）
 - 行列 40
+- 吳守禮臺語注音
+- 通用拼音客家話 - 海陸腔
+- 通用拼音客家話 - 四縣腔
 
 小麥他命在開發的過程中，大量參考了 PIME 平台的 cin based 當中的功能，一定程度上，可以說是使用網頁技術移植 PIME 的功能。包括以下功能：
 
@@ -94,7 +98,7 @@ npm run build:chromeos
 
 ### Windows (PIME)
 
-首先您要在您的 Windows 系統上安裝 PIME，請前往 PIME 的專案頁面下載。請注意，在安裝的過程中，**務必要勾選 Node.js 支援**，否則無法使用這個輸入法— PIME 預設是不安裝 Node.js 支援的。
+首先您要在您的 Windows 系統上安裝 PIME，請前往 PIME 的專案頁面下載。請注意，在安裝的過程中，**務必要勾選 Node.js 支援**，否則無法使用這個輸入法— PIME 預設是不安裝 Node.js 支援。另外，如果您用的不是中文版的 Windows，也需要先在 Windows 的語言設定中，加入繁體中文語系，小麥他命輸入法必須在安裝了繁體中文語系才會出現。
 
 請在 Windows 的命令提示字元（Command Prompt）或 PowerShell 中執行：
 
@@ -103,9 +107,15 @@ npm install
 npm run build:pime
 ```
 
-然後將 `output/pime` 目錄下的所有檔案複製到 PIME 安裝目錄下的 `node\input_methods\mcfoxim` 目錄中（通常是 `C:\Program Files (x86)\PIME\node\input_methods\mcfoxim`），您會需要用到系統管理員權限。第一次使用時，請在這個目錄中，執行一次 `run_register_ime.bat`，將小麥他命輸入法註冊到 Windows 系統中。接著重新啟動 PIME 啟動器（PIME Launcher），就可以在輸入法清單中選擇小麥他命輸入法了。
+然後將 `output/pime` 目錄下的所有檔案複製到 PIME 安裝目錄下的 `node\input_methods\mctabim` 目錄中（通常是 `C:\Program Files (x86)\PIME\node\input_methods\mctabim`），您會需要用到系統管理員權限。第一次使用時，請在這個目錄中，執行一次 `run_register_ime.bat`，將小麥他命輸入法註冊到 Windows 系統中。接著重新啟動 PIME 啟動器（PIME Launcher），就可以在輸入法清單中選擇小麥他命輸入法了。
+
+如果 `run_register_ime.bat` 這一步不成功，通常是因為並沒有使用系統管理員權限。另外，就是可能用了沒有 code sign 的 DLL，請確定是否安裝了官方有簽名的 PIME 版本。
 
 如果在系統清單中，沒有看到小麥他命輸入法，請進入 Windows 的系統設定中，確認「語言」設定中已經加入了小麥他命輸入法。
+
+## 開發
+
+由於專案使用 TypeScript 等網頁技術開發，因此除了必須安裝 Node.js 之外，其餘可以使用各種順手的網頁開發工具，像是 Visual Studio Code 等等。
 
 ## 社群公約
 
