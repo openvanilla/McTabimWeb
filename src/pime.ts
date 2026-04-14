@@ -523,7 +523,6 @@ module.exports = {
     }
 
     if (request.method === 'onActivate') {
-      pimeMcTabim.alreadyAddButton = false;
       pimeMcTabim.resetController('onActivate');
       const customUi = pimeMcTabim.customUiResponse();
       const buttonUi = pimeMcTabim.buttonUiResponse();
