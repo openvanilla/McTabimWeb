@@ -1,5 +1,8 @@
 {
     "chardefs": {
+        ",": [
+            ","
+        ],
         ",,,": [
             "米糕"
         ],
@@ -164060,6 +164063,9 @@
         ],
         "zzzx": [
             "大丈夫能屈能伸"
+        ],
+        "|": [
+            ""
         ]
     },
     "cincount": {
@@ -164077,10 +164083,10 @@
         "cjkExtD": 0,
         "cjkExtE": 0,
         "cjkExtF": 0,
-        "cjkOther": 3,
+        "cjkOther": 5,
         "phrases": 60364,
         "privateuse": 0,
-        "totalchardefs": 60367
+        "totalchardefs": 60369
     },
     "cname": "行列30詞彙表",
     "dupchardefs": {},
