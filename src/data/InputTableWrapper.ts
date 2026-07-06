@@ -94,7 +94,12 @@ export class GeneralInputTableWrapper implements InputTableWrapper {
       if (this.additionalSource) {
         for (const source of this.additionalSource) {
           const additionalTable = JSON.parse(source) as InputTable;
-          this.table_.chardefs = { ...this.table_.chardefs, ...additionalTable.chardefs };
+          for (const key in additionalTable.chardefs) {
+            if (!this.table_.chardefs[key]) {
+              this.table_.chardefs[key] = [];
+            }
+            this.table_.chardefs[key].push(...additionalTable.chardefs[key]);
+          }
         }
       }
     }
